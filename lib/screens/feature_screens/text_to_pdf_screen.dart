@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:pdf_utility_pro/utils/constants.dart';
+import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:pdf_utility_pro/providers/file_provider.dart';
+import 'package:pdf_utility_pro/models/file_item.dart';
 
 class TextToPdfScreen extends StatefulWidget {
   const TextToPdfScreen({Key? key}) : super(key: key);
@@ -13,29 +22,73 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
   final TextEditingController _textController = TextEditingController();
   bool _isProcessing = false;
   
-  void _createPdf() async {
+  Future<void> _createPdf() async {
     if (_textController.text.trim().isEmpty) return;
-    
     setState(() {
       _isProcessing = true;
     });
-    
-    // Simulate processing
-    await Future.delayed(const Duration(seconds: 2));
-    
-    setState(() {
-      _isProcessing = false;
-    });
-    
-    if (!mounted) return;
-    
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context).translate('pdf_created_success')),
-        backgroundColor: Colors.green,
-      ),
-    );
+    try {
+      final pdf = pw.Document();
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Padding(
+              padding: const pw.EdgeInsets.all(32),
+              child: pw.Text(_textController.text),
+            );
+          },
+        ),
+      );
+      final dir = await getApplicationDocumentsDirectory();
+      final fileName = 'Text_to_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final filePath = '${dir.path}/$fileName';
+      final file = File(filePath);
+      await file.writeAsBytes(await pdf.save());
+      // Add to recent files
+      final fileProvider = Provider.of<FileProvider>(context, listen: false);
+      final fileItem = FileItem(
+        name: fileName,
+        path: filePath,
+        size: file.lengthSync(),
+        dateModified: file.lastModifiedSync(),
+        type: FileType.pdf,
+      );
+      fileProvider.addRecentFile(fileItem);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).translate('pdf_created_success')),
+          backgroundColor: AppConstants.successColor,
+          action: SnackBarAction(
+            label: AppLocalizations.of(context).translate('open'),
+            textColor: Colors.white,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ReadPdfScreen(filePath: filePath),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      setState(() {
+        _textController.clear();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: \\${e.toString()}'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isProcessing = false;
+      });
+    }
   }
   
   @override
