@@ -76,59 +76,68 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
             ),
             const SizedBox(height: 24),
             if (_selectedFile == null)
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: _selectFile,
-                  icon: const Icon(Icons.upload_file),
-                  label: Text(loc.translate('select_pdf_file')),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              Expanded(
+                child: Center(
+                  child: ElevatedButton.icon(
+                    onPressed: _selectFile,
+                    icon: const Icon(Icons.upload_file),
+                    label: Text(loc.translate('select_pdf_file')),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
                   ),
                 ),
               )
             else
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.picture_as_pdf),
-                      title: Text(_selectedFile!),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          setState(() {
-                            _selectedFile = null;
-                            _pagesController.clear();
-                          });
-                        },
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.picture_as_pdf),
+                          title: Text(
+                            _selectedFile!,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              setState(() {
+                                _selectedFile = null;
+                                _pagesController.clear();
+                              });
+                            },
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    loc.translate('split_options'),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _pagesController,
-                    decoration: InputDecoration(
-                      labelText: loc.translate('pages_to_split'),
-                      hintText: loc.translate('pages_hint'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+                      const SizedBox(height: 24),
+                      Text(
+                        loc.translate('split_options'),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                    ),
-                    keyboardType: TextInputType.text,
-                    onChanged: (_) => setState(() {}),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _pagesController,
+                        decoration: InputDecoration(
+                          labelText: loc.translate('pages_to_split'),
+                          hintText: loc.translate('pages_hint'),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        keyboardType: TextInputType.text,
+                        onChanged: (_) => setState(() {}),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        loc.translate('pages_format_help'),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    loc.translate('pages_format_help'),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+                ),
               ),
           ],
         ),

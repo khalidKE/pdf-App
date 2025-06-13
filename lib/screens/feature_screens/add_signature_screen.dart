@@ -78,80 +78,90 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
             ),
             const SizedBox(height: 24),
             if (_selectedFile == null)
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: _selectFile,
-                  icon: const Icon(Icons.upload_file),
-                  label: Text(loc.translate('select_pdf_file')),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              Expanded(
+                child: Center(
+                  child: ElevatedButton.icon(
+                    onPressed: _selectFile,
+                    icon: const Icon(Icons.upload_file),
+                    label: Text(loc.translate('select_pdf_file')),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
                   ),
                 ),
               )
             else
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.picture_as_pdf),
-                      title: Text(_selectedFile!),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          setState(() {
-                            _selectedFile = null;
-                            _clearSignature();
-                          });
-                        },
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.picture_as_pdf),
+                          title: Text(
+                            _selectedFile!,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              setState(() {
+                                _selectedFile = null;
+                                _points.clear();
+                                _hasSignature = false;
+                              });
+                            },
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    loc.translate('draw_signature'),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: GestureDetector(
-                      onPanStart: (details) {
-                        setState(() {
-                          _points.add(details.localPosition);
-                          _hasSignature = true;
-                        });
-                      },
-                      onPanUpdate: (details) {
-                        setState(() {
-                          _points.add(details.localPosition);
-                        });
-                      },
-                      onPanEnd: (details) {
-                        setState(() {
-                          _points.add(null);
-                        });
-                      },
-                      child: CustomPaint(
-                        painter: SignaturePainter(points: _points),
-                        size: Size.infinite,
+                      const SizedBox(height: 24),
+                      Text(
+                        loc.translate('draw_signature'),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                    ),
+                      const SizedBox(height: 16),
+                      Container(
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: GestureDetector(
+                          onPanStart: (details) {
+                            setState(() {
+                              _points.add(details.localPosition);
+                              _hasSignature = true;
+                            });
+                          },
+                          onPanUpdate: (details) {
+                            setState(() {
+                              _points.add(details.localPosition);
+                            });
+                          },
+                          onPanEnd: (details) {
+                            setState(() {
+                              _points.add(null);
+                            });
+                          },
+                          child: CustomPaint(
+                            painter: SignaturePainter(points: _points),
+                            size: Size.infinite,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: ElevatedButton.icon(
+                          onPressed: _clearSignature,
+                          icon: const Icon(Icons.clear),
+                          label: Text(loc.translate('clear_signature')),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: ElevatedButton.icon(
-                      onPressed: _clearSignature,
-                      icon: const Icon(Icons.clear),
-                      label: Text(loc.translate('clear_signature')),
-                    ),
-                  ),
-                ],
+                ),
               ),
           ],
         ),

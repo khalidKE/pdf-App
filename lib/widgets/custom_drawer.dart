@@ -107,29 +107,6 @@ class CustomDrawer extends StatelessWidget {
                     ],
                   ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.language),
-                  title: Text(loc.translate('language')),
-                  trailing: DropdownButton<Locale>(
-                    value: languageProvider.locale,
-                    underline: Container(),
-                    onChanged: (Locale? newLocale) {
-                      if (newLocale != null) {
-                        languageProvider.setLocale(newLocale);
-                      }
-                    },
-                    items: const [
-                      DropdownMenuItem(
-                        value: Locale('en', ''),
-                        child: Text('English'),
-                      ),
-                      DropdownMenuItem(
-                        value: Locale('ar', ''),
-                        child: Text('العربية'),
-                      ),
-                    ],
-                  ),
-                ),
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.privacy_tip),

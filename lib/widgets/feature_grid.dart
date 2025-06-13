@@ -173,7 +173,7 @@ class FeatureGrid extends StatelessWidget {
                     padding: const EdgeInsets.all(AppConstants.defaultPadding),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
-                      childAspectRatio: 1.1,
+                      childAspectRatio: 0.85,
                       crossAxisSpacing: AppConstants.defaultGridSpacing,
                       mainAxisSpacing: AppConstants.defaultGridSpacing,
                     ),
@@ -227,7 +227,7 @@ class FeatureCard extends StatelessWidget {
         child: Tooltip(
           message: feature.description,
           child: Padding(
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            padding: const EdgeInsets.symmetric(horizontal: AppConstants.defaultPadding, vertical: 8),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -243,25 +243,46 @@ class FeatureCard extends StatelessWidget {
                     size: AppConstants.defaultIconSize * 1.5,
                   ),
                 ),
-                const SizedBox(height: AppConstants.defaultSpacing * 1.5),
-                Text(
-                  feature.title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                const SizedBox(height: AppConstants.defaultSpacing * 1.2),
+                Flexible(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        feature.title,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: AppConstants.defaultSpacing / 2),
+                      Text(
+                        feature.description,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).textTheme.bodySmall?.color,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      if (feature.subtitle != null && feature.subtitle!.isNotEmpty)
+                        Text(
+                          feature.subtitle!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: AppConstants.defaultSpacing / 2),
-                Text(
-                  feature.description,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

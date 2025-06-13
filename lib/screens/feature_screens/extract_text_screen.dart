@@ -88,46 +88,51 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
                 ),
               )
             else
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.insert_drive_file),
-                      title: Text(_selectedFile!),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          setState(() {
-                            _selectedFile = null;
-                            _extractedText = null;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  if (_extractedText != null) ...[
-                    Text(
-                      loc.translate('extracted_text'),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.insert_drive_file),
+                        title: Text(
+                          _selectedFile!,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        child: SingleChildScrollView(
-                          child: Text(_extractedText!),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            setState(() {
+                              _selectedFile = null;
+                              _extractedText = null;
+                            });
+                          },
                         ),
                       ),
                     ),
+                    const SizedBox(height: 24),
+                    if (_extractedText != null) ...[
+                      Text(
+                        loc.translate('extracted_text'),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: SingleChildScrollView(
+                            child: Text(_extractedText!),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
           ],
         ),

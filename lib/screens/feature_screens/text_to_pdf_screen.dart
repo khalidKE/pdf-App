@@ -65,19 +65,23 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: TextField(
-                controller: _textController,
-                maxLines: null,
-                expands: true,
-                textAlignVertical: TextAlignVertical.top,
-                decoration: InputDecoration(
-                  hintText: loc.translate('enter_text_here'),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  contentPadding: const EdgeInsets.all(16),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                onChanged: (_) => setState(() {}),
+                child: TextField(
+                  controller: _textController,
+                  maxLines: null,
+                  expands: true,
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: InputDecoration(
+                    hintText: loc.translate('enter_text_here'),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(16),
+                  ),
+                  onChanged: (_) => setState(() {}),
+                ),
               ),
             ),
           ],

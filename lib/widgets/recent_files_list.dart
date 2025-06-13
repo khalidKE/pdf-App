@@ -68,6 +68,7 @@ class RecentFilesList extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       file.name,
@@ -85,24 +86,31 @@ class RecentFilesList extends StatelessWidget {
                         color: Theme.of(context).textTheme.bodySmall?.color,
                         fontSize: 12,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
-              IconButton(
-                icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : null,
-                ),
-                onPressed: () {
-                  fileProvider.toggleFavorite(file);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () {
-                  _showFileOptions(context, file, fileProvider);
-                },
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : null,
+                    ),
+                    onPressed: () {
+                      fileProvider.toggleFavorite(file);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.more_vert),
+                    onPressed: () {
+                      _showFileOptions(context, file, fileProvider);
+                    },
+                  ),
+                ],
               ),
             ],
           ),

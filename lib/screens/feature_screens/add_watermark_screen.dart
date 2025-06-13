@@ -77,105 +77,68 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
             ),
             const SizedBox(height: 24),
             if (_selectedFile == null)
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: _selectFile,
-                  icon: const Icon(Icons.upload_file),
-                  label: Text(loc.translate('select_pdf_file')),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              Expanded(
+                child: Center(
+                  child: ElevatedButton.icon(
+                    onPressed: _selectFile,
+                    icon: const Icon(Icons.upload_file),
+                    label: Text(loc.translate('select_pdf_file')),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
                   ),
                 ),
               )
             else
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.picture_as_pdf),
-                      title: Text(_selectedFile!),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          setState(() {
-                            _selectedFile = null;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    loc.translate('watermark_text'),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _watermarkTextController,
-                    decoration: InputDecoration(
-                      hintText: loc.translate('watermark_text_hint'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onChanged: (_) => setState(() {}),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    loc.translate('watermark_opacity'),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('0%'),
-                      Expanded(
-                        child: Slider(
-                          value: _opacity,
-                          min: 0.1,
-                          max: 1.0,
-                          divisions: 9,
-                          label: '${(_opacity * 100).round()}%',
-                          onChanged: (value) {
-                            setState(() {
-                              _opacity = value;
-                            });
-                          },
-                        ),
-                      ),
-                      const Text('100%'),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  if (_watermarkTextController.text.isNotEmpty)
-                    Center(
-                      child: Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(
-                          child: Opacity(
-                            opacity: _opacity,
-                            child: Transform.rotate(
-                              angle: -0.5,
-                              child: Text(
-                                _watermarkTextController.text,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey.shade700,
-                                ),
-                              ),
-                            ),
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.picture_as_pdf),
+                          title: Text(
+                            _selectedFile!,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              setState(() {
+                                _selectedFile = null;
+                                _watermarkTextController.clear();
+                              });
+                            },
                           ),
                         ),
                       ),
-                    ),
-                ],
+                      const SizedBox(height: 24),
+                      Text(
+                        loc.translate('watermark_text'),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _watermarkTextController,
+                        decoration: InputDecoration(
+                          labelText: loc.translate('enter_watermark_text'),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        loc.translate('watermark_options'),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 16),
+                      // Add watermark options here
+                    ],
+                  ),
+                ),
               ),
           ],
         ),

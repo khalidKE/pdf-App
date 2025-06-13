@@ -57,235 +57,201 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final languageProvider = Provider.of<LanguageProvider>(context);
-    
     return ErrorBoundary(
       onError: () {
-        // Log error to analytics or other services
         debugPrint('Error occurred in app');
       },
-      child: MaterialApp(
-        title: AppConstants.appName,
-        debugShowCheckedModeBanner: false,
-        themeMode: themeProvider.themeMode,
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: AppConstants.primaryColor,
-            brightness: Brightness.light,
-          ).copyWith(
-            secondary: AppConstants.secondaryColor,
-            tertiary: AppConstants.accentColor,
-          ),
-          fontFamily: 'Poppins',
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return MaterialApp(
+            title: AppConstants.appName,
+            debugShowCheckedModeBanner: false,
+            themeMode: themeProvider.themeMode,
+            theme: ThemeData.light(useMaterial3: true).copyWith(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: AppConstants.primaryColor,
+                brightness: Brightness.light,
+              ).copyWith(
+                secondary: AppConstants.secondaryColor,
+                tertiary: AppConstants.accentColor,
               ),
-              elevation: 2,
-              foregroundColor: Colors.white,
-              backgroundColor: AppConstants.primaryColor,
-              disabledForegroundColor: Colors.white.withOpacity(0.38),
-              disabledBackgroundColor: Colors.grey.withOpacity(0.12),
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
+              
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                  foregroundColor: Colors.white,
+                  backgroundColor: AppConstants.primaryColor,
+                  disabledForegroundColor: Colors.white.withOpacity(0.38),
+                  disabledBackgroundColor: Colors.grey.withOpacity(0.12),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ),
-            ),
-          ),
-          cardTheme: CardThemeData(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            clipBehavior: Clip.antiAlias,
-            margin: const EdgeInsets.all(8),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Colors.grey.withOpacity(0.5),
-                width: 1,
+              cardTheme: CardThemeData(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                clipBehavior: Clip.antiAlias,
+                margin: const EdgeInsets.all(8),
               ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Colors.grey.withOpacity(0.5),
-                width: 1,
+              inputDecorationTheme: InputDecorationTheme(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Colors.grey.withOpacity(0.5),
+                    width: 1,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Colors.grey.withOpacity(0.5),
+                    width: 1,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppConstants.primaryColor,
+                    width: 2,
+                  ),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppConstants.errorColor,
+                    width: 1,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.all(16),
+                filled: true,
+                fillColor: Colors.grey.withOpacity(0.05),
               ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: AppConstants.primaryColor,
-                width: 2,
+              snackBarTheme: SnackBarThemeData(
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                backgroundColor: Colors.grey[900],
+                contentTextStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: AppConstants.errorColor,
-                width: 1,
+              tooltipTheme: TooltipThemeData(
+                decoration: BoxDecoration(
+                  color: Colors.grey[900],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                textStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
-            ),
-            contentPadding: const EdgeInsets.all(16),
-            filled: true,
-            fillColor: Colors.grey.withOpacity(0.05),
-          ),
-          snackBarTheme: SnackBarThemeData(
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            backgroundColor: Colors.grey[900],
-            contentTextStyle: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-            ),
-          ),
-          tooltipTheme: TooltipThemeData(
-            decoration: BoxDecoration(
-              color: Colors.grey[900],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            textStyle: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          ),
-          pageTransitionsTheme: const PageTransitionsTheme(
-            builders: {
-              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-              TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-              TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-              TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
-            },
-          ),
-        ),
-        darkTheme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: AppConstants.primaryColor,
-            brightness: Brightness.dark,
-          ).copyWith(
-            secondary: AppConstants.secondaryColor,
-            tertiary: AppConstants.accentColor,
-            surface: Colors.grey[900],
-            background: Colors.grey[850],
-          ),
-          fontFamily: 'Poppins',
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 2,
-              foregroundColor: Colors.white,
-              backgroundColor: AppConstants.primaryColor,
-              disabledForegroundColor: Colors.white.withOpacity(0.38),
-              disabledBackgroundColor: Colors.grey.withOpacity(0.12),
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
+              pageTransitionsTheme: const PageTransitionsTheme(
+                builders: {
+                  TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+                  TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                  TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+                  TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+                  TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+                },
               ),
             ),
-          ),
-          cardTheme: CardThemeData(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            clipBehavior: Clip.antiAlias,
-            margin: const EdgeInsets.all(8),
-            color: Colors.grey[850],
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Colors.grey.withOpacity(0.5),
-                width: 1,
+            darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: AppConstants.primaryColor,
+                brightness: Brightness.dark,
+              ).copyWith(
+                secondary: AppConstants.secondaryColor,
+                tertiary: AppConstants.accentColor,
+                surface: Colors.grey[900],
+                background: Colors.grey[850],
+              ),
+             
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                  foregroundColor: Colors.white,
+                  backgroundColor: AppConstants.primaryColor,
+                  disabledForegroundColor: Colors.white.withOpacity(0.38),
+                  disabledBackgroundColor: Colors.grey.withOpacity(0.12),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              cardTheme: CardThemeData(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                clipBehavior: Clip.antiAlias,
+                margin: const EdgeInsets.all(8),
+                color: Colors.grey[850],
+              ),
+              inputDecorationTheme: InputDecorationTheme(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Colors.grey.withOpacity(0.5),
+                    width: 1,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Colors.grey.withOpacity(0.5),
+                    width: 1,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: AppConstants.primaryColor,
+                    width: 2,
+                  ),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: AppConstants.errorColor,
+                    width: 1,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.all(16),
+                filled: true,
+                fillColor: Colors.grey.withOpacity(0.1),
               ),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Colors.grey.withOpacity(0.5),
-                width: 1,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppConstants.primaryColor,
-                width: 2,
-              ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppConstants.errorColor,
-                width: 1,
-              ),
-            ),
-            contentPadding: const EdgeInsets.all(16),
-            filled: true,
-            fillColor: Colors.grey.withOpacity(0.1),
-          ),
-          snackBarTheme: SnackBarThemeData(
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            backgroundColor: Colors.grey[900],
-            contentTextStyle: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-            ),
-          ),
-          tooltipTheme: TooltipThemeData(
-            decoration: BoxDecoration(
-              color: Colors.grey[900],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            textStyle: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          ),
-          pageTransitionsTheme: const PageTransitionsTheme(
-            builders: {
-              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-              TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-              TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-              TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
-            },
-          ),
-        ),
-        locale: languageProvider.locale,
-        supportedLocales: const [
-          Locale('en', ''),
-          Locale('ar', ''),
-        ],
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        home: const HomeScreen(),
+            locale: const Locale('en', ''),
+            supportedLocales: const [
+              Locale('en', ''),
+            ],
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            home: const HomeScreen(),
+          );
+        },
       ),
     );
   }

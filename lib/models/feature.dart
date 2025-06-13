@@ -11,6 +11,7 @@ class Feature {
   final bool isNew;
   final bool isBeta;
   final List<String> tags;
+  final String? subtitle;
   
   const Feature({
     required this.title,
@@ -23,6 +24,7 @@ class Feature {
     this.isNew = false,
     this.isBeta = false,
     this.tags = const [],
+    this.subtitle,
   });
   
   bool get hasTags => tags.isNotEmpty;

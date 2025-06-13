@@ -62,29 +62,6 @@ class SettingsScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                ListTile(
-                  title: Text(loc.translate('language')),
-                  subtitle: Text(loc.translate('language_desc')),
-                  trailing: DropdownButton<Locale>(
-                    value: languageProvider.locale,
-                    underline: Container(),
-                    onChanged: (Locale? newLocale) {
-                      if (newLocale != null) {
-                        languageProvider.setLocale(newLocale);
-                      }
-                    },
-                    items: const [
-                      DropdownMenuItem(
-                        value: Locale('en', ''),
-                        child: Text('English'),
-                      ),
-                      DropdownMenuItem(
-                        value: Locale('ar', ''),
-                        child: Text('العربية'),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),

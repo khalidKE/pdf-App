@@ -82,9 +82,13 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen> with SingleTickerProv
             },
           ),
           const SizedBox(height: 16),
-          Row(
+          Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            alignment: WrapAlignment.center,
             children: [
-              Expanded(
+              SizedBox(
+                width: 200,
                 child: ElevatedButton.icon(
                   onPressed: _qrData.isNotEmpty
                       ? () {
@@ -95,8 +99,8 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen> with SingleTickerProv
                   label: Text(loc.translate('generate_qr')),
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
+              SizedBox(
+                width: 200,
                 child: ElevatedButton.icon(
                   onPressed: _qrData.isNotEmpty
                       ? () {
