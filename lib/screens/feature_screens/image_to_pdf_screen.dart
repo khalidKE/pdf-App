@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,44 +26,70 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
   final List<XFile> _selectedImages = [];
   bool _isProcessing = false;
   final ImagePicker _picker = ImagePicker();
-  
+
   Future<void> _selectImages() async {
     final List<XFile>? images = await _picker.pickMultiImage();
-    
+
     if (images != null && images.isNotEmpty) {
       setState(() {
         _selectedImages.addAll(images);
       });
     }
   }
-  
+
   Future<void> _takePhoto() async {
-    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-    
-    if (photo != null) {
-      setState(() {
-        _selectedImages.add(photo);
-      });
+    try {
+      final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+      if (photo != null) {
+        setState(() {
+          _selectedImages.add(photo);
+        });
+      }
+    } on PlatformException catch (e) {
+      if (e.code == 'camera_access_denied') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)
+                    .translate('camera_access_denied') ??
+                'Camera access denied.'),
+            backgroundColor: AppConstants.errorColor,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.message}'),
+            backgroundColor: AppConstants.errorColor,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
     }
   }
-  
+
   Future<void> _createPdf() async {
     if (_selectedImages.isEmpty) return;
-    
+
     setState(() {
       _isProcessing = true;
     });
-    
+
     try {
       // Create PDF document
       final pdf = pw.Document();
-      
+
       // Add each image as a page
       for (var imageFile in _selectedImages) {
         final image = pw.MemoryImage(
           File(imageFile.path).readAsBytesSync(),
         );
-        
+
         pdf.addPage(
           pw.Page(
             pageFormat: PdfPageFormat.a4,
@@ -74,18 +101,19 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
           ),
         );
       }
-      
+
       // Get the app directory
       final appDir = await AppPermissionHandler.getAppDirectory();
-      
+
       // Generate a unique filename
-      final fileName = 'Image_to_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final fileName =
+          'Image_to_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final filePath = '$appDir/$fileName';
-      
+
       // Save the PDF
       final file = File(filePath);
       await file.writeAsBytes(await pdf.save());
-      
+
       // Add to recent files
       final fileProvider = Provider.of<FileProvider>(context, listen: false);
       final fileItem = FileItem(
@@ -96,13 +124,14 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
         type: FileType.pdf,
       );
       fileProvider.addRecentFile(fileItem);
-      
+
       if (!mounted) return;
-      
+
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context).translate('pdf_created_success')),
+          content: Text(
+              AppLocalizations.of(context).translate('pdf_created_success')),
           backgroundColor: AppConstants.successColor,
           action: SnackBarAction(
             label: AppLocalizations.of(context).translate('open'),
@@ -118,7 +147,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
           ),
         ),
       );
-      
+
       // Clear selected images
       setState(() {
         _selectedImages.clear();
@@ -137,17 +166,17 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
       });
     }
   }
-  
+
   void _removeImage(int index) {
     setState(() {
       _selectedImages.removeAt(index);
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    
+
     return FeatureScreenTemplate(
       title: loc.translate('image_to_pdf'),
       icon: Icons.image,
@@ -208,7 +237,8 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
                   )
                 : GridView.builder(
                     padding: const EdgeInsets.all(16),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
@@ -224,7 +254,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
       ),
     );
   }
-  
+
   Widget _buildImageCard(int index) {
     return Card(
       clipBehavior: Clip.antiAlias,
