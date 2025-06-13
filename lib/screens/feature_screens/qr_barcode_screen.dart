@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:barcode_widget/barcode_widget.dart' as bw;
+import 'package:screenshot/screenshot.dart';
+import 'dart:typed_data';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart';
 
 class QrBarcodeScreen extends StatefulWidget {
   const QrBarcodeScreen({Key? key}) : super(key: key);
@@ -8,28 +16,57 @@ class QrBarcodeScreen extends StatefulWidget {
   State<QrBarcodeScreen> createState() => _QrBarcodeScreenState();
 }
 
-class _QrBarcodeScreenState extends State<QrBarcodeScreen> with SingleTickerProviderStateMixin {
+class _QrBarcodeScreenState extends State<QrBarcodeScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _textController = TextEditingController();
   String _qrData = '';
-  
+  bool _showQr = true;
+  final ScreenshotController _screenshotController = ScreenshotController();
+  String? _scanResult;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
   }
-  
+
   @override
   void dispose() {
     _tabController.dispose();
     _textController.dispose();
     super.dispose();
   }
-  
+
+  Future<void> _saveImage() async {
+    final image = await _screenshotController.capture();
+    if (image == null) return;
+
+    try {
+      const platform = MethodChannel('com.pdfutilitypro/media_store');
+      final result = await platform.invokeMethod('saveImageToGallery', image);
+      if (result == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text(AppLocalizations.of(context).translate('qr_saved'))),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save image')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.translate('qr_barcode')),
@@ -50,153 +87,159 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   Widget _buildGenerateTab(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          TextField(
-            controller: _textController,
-            decoration: InputDecoration(
-              labelText: loc.translate('enter_data'),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.clear),
-                onPressed: () {
-                  _textController.clear();
-                  setState(() {
-                    _qrData = '';
-                  });
-                },
-              ),
-            ),
-            onChanged: (value) {
-              setState(() {
-                _qrData = value;
-              });
-            },
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            alignment: WrapAlignment.center,
-            children: [
-              SizedBox(
-                width: 200,
-                child: ElevatedButton.icon(
-                  onPressed: _qrData.isNotEmpty
-                      ? () {
-                          // Generate QR code
-                        }
-                      : null,
-                  icon: const Icon(Icons.qr_code),
-                  label: Text(loc.translate('generate_qr')),
-                ),
-              ),
-              SizedBox(
-                width: 200,
-                child: ElevatedButton.icon(
-                  onPressed: _qrData.isNotEmpty
-                      ? () {
-                          // Generate barcode
-                        }
-                      : null,
-                  icon: const Icon(Icons.view_week),
-                  label: Text(loc.translate('generate_barcode')),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Expanded(
-            child: _qrData.isEmpty
-                ? Center(
-                    child: Text(
-                      loc.translate('enter_data_to_generate'),
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.bodySmall?.color,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: IntrinsicHeight(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _textController,
+                    decoration: InputDecoration(
+                      labelText: loc.translate('enter_data'),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _textController.clear();
+                          setState(() {
+                            _qrData = '';
+                          });
+                        },
                       ),
                     ),
-                  )
-                : Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 200,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.qr_code,
-                              size: 100,
-                              color: Colors.black,
+                    onChanged: (value) {
+                      setState(() {
+                        _qrData = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 200,
+                        child: ElevatedButton.icon(
+                          onPressed: _qrData.isNotEmpty
+                              ? () {
+                                  setState(() {
+                                    _showQr = true;
+                                  });
+                                }
+                              : null,
+                          icon: const Icon(Icons.qr_code),
+                          label: Text(loc.translate('generate_qr')),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 200,
+                        child: ElevatedButton.icon(
+                          onPressed: _qrData.isNotEmpty
+                              ? () {
+                                  setState(() {
+                                    _showQr = false;
+                                  });
+                                }
+                              : null,
+                          icon: const Icon(Icons.view_week),
+                          label: Text(loc.translate('generate_barcode')),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  if (_qrData.isEmpty)
+                    Center(
+                      child: Text(
+                        loc.translate('enter_data_to_generate'),
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodySmall?.color,
+                        ),
+                      ),
+                    )
+                  else
+                    Flexible(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Screenshot(
+                            controller: _screenshotController,
+                            child: Container(
+                              width: 200,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: _showQr
+                                  ? QrImageView(
+                                      data: _qrData,
+                                    )
+                                  : bw.BarcodeWidget(
+                                      barcode: bw.Barcode.code128(),
+                                      data: _qrData,
+                                      width: 180,
+                                      height: 80,
+                                      drawText: false,
+                                      backgroundColor: Colors.white,
+                                    ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            // Save QR code
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(loc.translate('qr_saved')),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.save),
-                          label: Text(loc.translate('save')),
-                        ),
-                      ],
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: _saveImage,
+                            icon: const Icon(Icons.save),
+                            label: Text(loc.translate('save')),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildScanTab(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.qr_code_scanner,
-            size: 100,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            loc.translate('scan_instructions'),
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              // Implement QR/barcode scanning
-            },
-            icon: const Icon(Icons.camera_alt),
-            label: Text(loc.translate('start_scanning')),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ],
+              ),
             ),
           ),
-        ],
-      ),
+        );
+      },
+    );
+  }
+
+  Widget _buildScanTab(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
+    return Column(
+      children: [
+        Expanded(
+          child: MobileScanner(
+            onDetect: (capture) {
+              final List<Barcode> barcodes = capture.barcodes;
+              if (barcodes.isNotEmpty) {
+                setState(() {
+                  _scanResult = barcodes.first.rawValue;
+                });
+              }
+            },
+          ),
+        ),
+        if (_scanResult != null)
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              '${loc.translate('scan_result')}: $_scanResult',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+      ],
     );
   }
 }

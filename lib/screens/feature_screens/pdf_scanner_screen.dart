@@ -12,43 +12,44 @@ class PdfScannerScreen extends StatefulWidget {
 class _PdfScannerScreenState extends State<PdfScannerScreen> {
   final List<String> _scannedPages = [];
   bool _isProcessing = false;
-  
+
   void _scanPage() {
     // Mock scanning a page
     setState(() {
       _scannedPages.add('Scanned page ${_scannedPages.length + 1}');
     });
   }
-  
+
   void _createPdf() async {
     if (_scannedPages.isEmpty) return;
-    
+
     setState(() {
       _isProcessing = true;
     });
-    
+
     // Simulate processing
     await Future.delayed(const Duration(seconds: 2));
-    
+
     setState(() {
       _isProcessing = false;
     });
-    
+
     if (!mounted) return;
-    
+
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(AppLocalizations.of(context).translate('pdf_created_success')),
+        content:
+            Text(AppLocalizations.of(context).translate('pdf_created_success')),
         backgroundColor: Colors.green,
       ),
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    
+
     return FeatureScreenTemplate(
       title: loc.translate('pdf_scanner'),
       icon: Icons.document_scanner,
@@ -101,7 +102,8 @@ class _PdfScannerScreenState extends State<PdfScannerScreen> {
                         child: ListTile(
                           leading: const Icon(Icons.image),
                           title: Text(_scannedPages[index]),
-                          subtitle: Text('${index + 1} of ${_scannedPages.length}'),
+                          subtitle:
+                              Text('${index + 1} of ${_scannedPages.length}'),
                           trailing: IconButton(
                             icon: const Icon(Icons.delete),
                             onPressed: () {

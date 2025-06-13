@@ -88,6 +88,8 @@ dependencies:
   image_cropper: ^9.1.0
   flutter_localizations:
     sdk: flutter
+  barcode_widget: ^2.0.4
+  screenshot: ^3.0.0
 
 dev_dependencies:
   flutter_test:
