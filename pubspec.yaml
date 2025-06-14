@@ -92,6 +92,7 @@ dependencies:
   screenshot: ^3.0.0
   pdf_merger: ^0.0.6
   pdfx: ^2.9.2
+  signature: ^6.3.0
 
 dev_dependencies:
   flutter_test:
@@ -120,6 +121,6 @@ flutter_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/images/app_icon.png"
-  adaptive_icon_background: "#FFFFFF"
+  # adaptive_icon_background: "#FFFFFF"
 
 

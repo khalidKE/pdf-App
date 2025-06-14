@@ -8,7 +8,6 @@ import 'package:pdf_utility_pro/screens/feature_screens/excel_to_pdf_screen.dart
 import 'package:pdf_utility_pro/screens/feature_screens/word_to_pdf_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/merge_pdf_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/split_pdf_screen.dart';
-import 'package:pdf_utility_pro/screens/feature_screens/edit_pdf_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/add_watermark_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/add_signature_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/pdf_scanner_screen.dart';
@@ -80,14 +79,6 @@ class FeatureGrid extends StatelessWidget {
         color: AppConstants.accentColor,
         screen: const SplitPdfScreen(),
         category: 'organize',
-      ),
-      Feature(
-        title: loc.translate('edit_pdf'),
-        description: loc.translate('edit_pdf_desc'),
-        icon: Icons.edit_document,
-        color: AppConstants.infoColor,
-        screen: const EditPdfScreen(),
-        category: 'edit',
       ),
       Feature(
         title: loc.translate('add_watermark'),
