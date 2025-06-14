@@ -6,6 +6,7 @@ import 'package:pdf_utility_pro/providers/theme_provider.dart';
 import 'package:pdf_utility_pro/providers/language_provider.dart';
 import 'package:pdf_utility_pro/screens/history_screen.dart';
 import 'package:pdf_utility_pro/screens/about_screen.dart';
+import 'package:pdf_utility_pro/screens/home_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({Key? key}) : super(key: key);
@@ -54,6 +55,11 @@ class CustomDrawer extends StatelessWidget {
                   title: Text(loc.translate('home')),
                   onTap: () {
                     Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const HomeScreen()),
+                    );
                   },
                 ),
                 ListTile(
