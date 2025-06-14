@@ -89,7 +89,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
           HistoryItem(
             title: p.basename(outputPath),
             filePath: outputPath,
-            operation: 'merge_pdf', // أو 'split_pdf'
+            operation: 'Merge PDF', // أو 'Split PDF'
             timestamp: DateTime.now(),
           ),
         );
@@ -141,7 +141,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
     final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
-      title: loc.translate('merge_pdf'),
+      title: loc.translate('Merge PDF'),
       icon: Icons.merge_type,
       actionButtonLabel: loc.translate('merge'),
       isActionButtonEnabled: _selectedFiles.length >= 2 && !_isProcessing,
@@ -152,21 +152,22 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              loc.translate('merge_pdf_instructions'),
+              loc.translate(
+                  'Select multiple PDF files to merge them into a single PDF document. You can reorder the files by dragging them.'),
               textAlign: TextAlign.center,
             ),
           ),
           ElevatedButton.icon(
             onPressed: _selectFiles,
             icon: const Icon(Icons.add_circle_outline),
-            label: Text(loc.translate('select_pdf_files')),
+            label: Text(loc.translate('Select pdf files')),
           ),
           const SizedBox(height: 16),
           Expanded(
             child: _selectedFiles.isEmpty
                 ? Center(
                     child: Text(
-                      loc.translate('no_pdf_files_selected'),
+                      loc.translate('No pdf files selected'),
                       style: TextStyle(
                         color: Theme.of(context).textTheme.bodySmall?.color,
                       ),

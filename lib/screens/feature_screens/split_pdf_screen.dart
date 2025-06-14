@@ -128,7 +128,7 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
         HistoryItem(
           title: p.basename(outputFilePath),
           filePath: outputFilePath,
-          operation: 'split_pdf',
+          operation: 'Split PDF',
           timestamp: DateTime.now(),
         ),
       );
@@ -182,7 +182,7 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return FeatureScreenTemplate(
-      title: loc.translate('split_pdf'),
+      title: loc.translate('Split PDF'),
       icon: Icons.call_split,
       actionButtonLabel: loc.translate('split'),
       isActionButtonEnabled: _selectedFile != null &&
@@ -196,7 +196,8 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              loc.translate('split_pdf_instructions'),
+              loc.translate(
+                  'Select a PDF file and specify the pages to split into separate PDF documents.'),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -206,7 +207,7 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _selectFile,
                     icon: const Icon(Icons.upload_file),
-                    label: Text(loc.translate('select_pdf_file')),
+                    label: Text(loc.translate('Select pdf file')),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12),

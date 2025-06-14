@@ -45,7 +45,7 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
       );
       final dir = await getApplicationDocumentsDirectory();
       final fileName =
-          'Text_to_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
+          'Text to PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final filePath = '${dir.path}/$fileName';
       final file = File(filePath);
       await file.writeAsBytes(await pdf.save());
@@ -63,7 +63,7 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
         HistoryItem(
           title: p.basename(filePath),
           filePath: filePath,
-          operation: 'text_to_pdf',
+          operation: 'Text to PDF',
           timestamp: DateTime.now(),
         ),
       );
@@ -115,9 +115,9 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
     final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
-      title: loc.translate('text_to_pdf'),
+      title: loc.translate('Text to PDF'),
       icon: Icons.text_fields,
-      actionButtonLabel: loc.translate('create_pdf'),
+      actionButtonLabel: loc.translate('Create Pdf'),
       isActionButtonEnabled:
           _textController.text.trim().isNotEmpty && !_isProcessing,
       isProcessing: _isProcessing,
@@ -127,7 +127,8 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
         child: Column(
           children: [
             Text(
-              loc.translate('text_to_pdf_instructions'),
+              loc.translate(
+                  'Enter or paste text to convert it into a PDF document.'),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -143,7 +144,7 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
                   expands: true,
                   textAlignVertical: TextAlignVertical.top,
                   decoration: InputDecoration(
-                    hintText: loc.translate('enter_text_here'),
+                    hintText: loc.translate('Enter text here'),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(16),
                   ),

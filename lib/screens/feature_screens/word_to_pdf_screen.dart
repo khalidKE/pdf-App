@@ -80,7 +80,7 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
       );
       final dir = await getApplicationDocumentsDirectory();
       final fileName =
-          'Word_to_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
+          'Word to PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final filePath = '${dir.path}/$fileName';
       final file = File(filePath);
       await file.writeAsBytes(await pdf.save());
@@ -98,7 +98,7 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
         HistoryItem(
           title: p.basename(filePath),
           filePath: filePath,
-          operation: 'word_to_pdf',
+          operation: 'Word to PDF',
           timestamp: DateTime.now(),
         ),
       );
@@ -144,7 +144,7 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return FeatureScreenTemplate(
-      title: loc.translate('word_to_pdf'),
+      title: loc.translate('Word to PDF'),
       icon: Icons.description,
       actionButtonLabel: loc.translate('convert'),
       isActionButtonEnabled: _selectedFile != null && !_isProcessing,
@@ -157,7 +157,8 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                loc.translate('word_to_pdf_instructions'),
+                loc.translate(
+                    'Select a Word document from your device to convert it into a PDF document.'),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -187,7 +188,7 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
                 ElevatedButton.icon(
                   onPressed: _selectFile,
                   icon: const Icon(Icons.upload_file),
-                  label: Text(loc.translate('select_word_file')),
+                  label: Text(loc.translate('Select word file')),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 12),

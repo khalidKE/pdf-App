@@ -429,7 +429,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(loc.translate('view_files')),
+        title: Text(loc.translate('View Files')),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),

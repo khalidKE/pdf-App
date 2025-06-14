@@ -87,7 +87,7 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> {
       }
       final dir = await getApplicationDocumentsDirectory();
       final fileName =
-          'Excel_to_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
+          'Excel to PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final filePath = '${dir.path}/$fileName';
       final file = File(filePath);
       await file.writeAsBytes(await pdf.save());
@@ -106,7 +106,7 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> {
         HistoryItem(
           title: p.basename(filePath),
           filePath: filePath,
-          operation: 'excel_to_pdf',
+          operation: 'Excel to PDF',
           timestamp: DateTime.now(),
         ),
       );
@@ -152,7 +152,7 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return FeatureScreenTemplate(
-      title: loc.translate('excel_to_pdf'),
+      title: loc.translate('Excel to PDF'),
       icon: Icons.table_chart,
       actionButtonLabel: loc.translate('convert'),
       isActionButtonEnabled: _selectedFile != null && !_isProcessing,
@@ -165,7 +165,8 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                loc.translate('excel_to_pdf_instructions'),
+                loc.translate(
+                    'Select an Excel file from your device to convert it into a PDF document.'),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -195,7 +196,7 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> {
                 ElevatedButton.icon(
                   onPressed: _selectFile,
                   icon: const Icon(Icons.upload_file),
-                  label: Text(loc.translate('select_excel_file')),
+                  label: Text(loc.translate('Select excel file')),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 12),

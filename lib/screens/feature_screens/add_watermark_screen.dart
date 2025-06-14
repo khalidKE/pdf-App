@@ -120,7 +120,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
         HistoryItem(
           title: p.basename(filePath),
           filePath: filePath,
-          operation: 'add_watermark',
+          operation: 'Add Watermark',
           timestamp: DateTime.now(),
         ),
       );
@@ -173,9 +173,9 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return FeatureScreenTemplate(
-      title: loc.translate('add_watermark'),
+      title: loc.translate('Add Watermark'),
       icon: Icons.water_drop,
-      actionButtonLabel: loc.translate('add_watermark'),
+      actionButtonLabel: loc.translate('Add Watermark'),
       isActionButtonEnabled: _selectedFile != null &&
           _watermarkTextController.text.trim().isNotEmpty &&
           !_isProcessing,
@@ -187,7 +187,8 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              loc.translate('watermark_instructions'),
+              loc.translate(
+                  'Select a PDF file and add a text watermark to it.'),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -197,7 +198,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _selectFile,
                     icon: const Icon(Icons.upload_file),
-                    label: Text(loc.translate('select_pdf_file')),
+                    label: Text(loc.translate('Select pdf file')),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12),

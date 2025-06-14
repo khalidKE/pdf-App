@@ -143,8 +143,8 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              AppLocalizations.of(context).translate('pdf_created_success')),
+          content: Text(AppLocalizations.of(context)
+              .translate('pdf created successfully')),
           backgroundColor: AppConstants.successColor,
           action: SnackBarAction(
             label: AppLocalizations.of(context).translate('open'),
@@ -193,7 +193,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
     return FeatureScreenTemplate(
       title: loc.translate('Image to PDF'),
       icon: Icons.image,
-      actionButtonLabel: loc.translate('create_pdf'),
+      actionButtonLabel: loc.translate('Create Pdf'),
       isActionButtonEnabled: _selectedImages.isNotEmpty && !_isProcessing,
       isProcessing: _isProcessing,
       onActionButtonPressed: _createPdf,
@@ -206,7 +206,8 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              loc.translate('Image to PDF_instructions'),
+              loc.translate(
+                  'Select images from your device or take photos with your camera to convert them into a PDF document.'),
               textAlign: TextAlign.center,
             ),
           ),
@@ -216,13 +217,13 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
               ElevatedButton.icon(
                 onPressed: _selectImages,
                 icon: const Icon(Icons.photo_library),
-                label: Text(loc.translate('select_images')),
+                label: Text(loc.translate('Select Images')),
               ),
               const SizedBox(width: 16),
               ElevatedButton.icon(
                 onPressed: _takePhoto,
                 icon: const Icon(Icons.camera_alt),
-                label: Text(loc.translate('take_photo')),
+                label: Text(loc.translate('Take Photo')),
               ),
             ],
           ),
@@ -240,7 +241,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          loc.translate('no_images_selected'),
+                          loc.translate('No images selected'),
                           style: TextStyle(
                             color: Theme.of(context).textTheme.bodySmall?.color,
                           ),

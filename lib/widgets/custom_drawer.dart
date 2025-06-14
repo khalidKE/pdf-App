@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:pdf_utility_pro/screens/privacy_policy_screen.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/theme_provider.dart';
 import 'package:pdf_utility_pro/providers/language_provider.dart';
-import 'package:pdf_utility_pro/screens/settings_screen.dart';
 import 'package:pdf_utility_pro/screens/history_screen.dart';
-import 'package:pdf_utility_pro/screens/privacy_policy_screen.dart';
 import 'package:pdf_utility_pro/screens/about_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -95,15 +94,15 @@ class CustomDrawer extends StatelessWidget {
                     items: [
                       DropdownMenuItem(
                         value: ThemeMode.system,
-                        child: Text(loc.translate('system_theme')),
+                        child: Text(loc.translate('system theme')),
                       ),
                       DropdownMenuItem(
                         value: ThemeMode.light,
-                        child: Text(loc.translate('light_theme')),
+                        child: Text(loc.translate('light theme')),
                       ),
                       DropdownMenuItem(
                         value: ThemeMode.dark,
-                        child: Text(loc.translate('dark_theme')),
+                        child: Text(loc.translate('dark theme')),
                       ),
                     ],
                   ),
@@ -111,7 +110,7 @@ class CustomDrawer extends StatelessWidget {
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.privacy_tip),
-                  title: Text(loc.translate('privacy_policy')),
+                  title: Text(loc.translate('Privacy Policy')),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -123,7 +122,7 @@ class CustomDrawer extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.info),
-                  title: Text(loc.translate('about_us')),
+                  title: Text(loc.translate('About Us')),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(

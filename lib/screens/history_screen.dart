@@ -33,7 +33,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(loc.translate('history')),
+        title: Text(loc.translate('History')),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
@@ -86,7 +86,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    loc.translate('no_history'),
+                    loc.translate('No history'),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],
@@ -163,7 +163,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
     // Replace the following with your actual PDF viewer screen
     // For example:
 
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ReadPdfScreen(filePath: filePath)));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ReadPdfScreen(filePath: filePath)));
   }
 
   void _shareFile(String filePath, String title) {

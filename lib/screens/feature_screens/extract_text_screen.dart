@@ -78,7 +78,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
         HistoryItem(
           title: p.basename(_selectedFile!),
           filePath: _selectedFile!,
-          operation: 'extract_text',
+          operation: 'Extract Text',
           timestamp: DateTime.now(),
         ),
       );
@@ -134,10 +134,10 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
     final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
-      title: loc.translate('extract_text'),
+      title: loc.translate('Extract Text'),
       icon: Icons.text_snippet,
       actionButtonLabel: _extractedText == null
-          ? loc.translate('extract_text')
+          ? loc.translate('Extract Text')
           : loc.translate('copy_text'),
       isActionButtonEnabled: _selectedFile != null && !_isProcessing,
       isProcessing: _isProcessing,
@@ -148,7 +148,8 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              loc.translate('extract_text_instructions'),
+              loc.translate(
+                  'Select a PDF file or image to extract text from it.'),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -158,7 +159,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _selectFile,
                   icon: const Icon(Icons.upload_file),
-                  label: Text(loc.translate('select_file')),
+                  label: Text(loc.translate('Select File')),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 12),

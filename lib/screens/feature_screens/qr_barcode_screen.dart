@@ -73,7 +73,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(loc.translate('qr_barcode')),
+        title: Text(loc.translate('QR & Barcodes')),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
@@ -105,7 +105,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
                   TextField(
                     controller: _textController,
                     decoration: InputDecoration(
-                      labelText: loc.translate('enter_data'),
+                      labelText: loc.translate('Enter data'),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -165,7 +165,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
                   if (_qrData.isEmpty)
                     Center(
                       child: Text(
-                        loc.translate('enter_data_to_generate'),
+                        loc.translate('Enter data to generate'),
                         style: TextStyle(
                           color: Theme.of(context).textTheme.bodySmall?.color,
                         ),
@@ -252,7 +252,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
       HistoryItem(
         title: p.basename(editedFilePath),
         filePath: editedFilePath,
-        operation: 'qr_barcode',
+        operation: 'QR & Barcodes',
         timestamp: DateTime.now(),
       ),
     );

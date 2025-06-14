@@ -241,9 +241,9 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
     final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
-      title: loc.translate('add_signature'),
+      title: loc.translate('Add Signature'),
       icon: Icons.draw,
-      actionButtonLabel: loc.translate('add_signature'),
+      actionButtonLabel: loc.translate('Add Signature'),
       isActionButtonEnabled:
           _selectedFile != null && _hasSignature && !_isProcessing,
       isProcessing: _isProcessing,
@@ -253,7 +253,8 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              loc.translate('signature_instructions'),
+              loc.translate(
+                  'Select a PDF file and draw your signature to add to it'),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -264,7 +265,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _selectFile,
                       icon: const Icon(Icons.upload_file),
-                      label: Text(loc.translate('select_pdf_file')),
+                      label: Text(loc.translate('Select pdf file')),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),

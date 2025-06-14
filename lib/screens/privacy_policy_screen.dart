@@ -7,10 +7,10 @@ class PrivacyPolicyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(loc.translate('privacy_policy')),
+        title: Text(loc.translate('Privacy Policy')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -18,10 +18,10 @@ class PrivacyPolicyScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              loc.translate('privacy_policy_title'),
+              loc.translate('Privacy Policy_title'),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 16),
             Text(
@@ -74,7 +74,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildSection(BuildContext context, String title, String content) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
@@ -84,8 +84,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
