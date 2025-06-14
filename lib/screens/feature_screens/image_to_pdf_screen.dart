@@ -110,7 +110,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
 
       // Generate a unique filename
       final fileName =
-          'Image_to_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
+          'Image to PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final filePath = '$appDir/$fileName';
 
       // Save the PDF
@@ -133,7 +133,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
         HistoryItem(
           title: p.basename(filePath),
           filePath: filePath,
-          operation: 'image_to_pdf',
+          operation: 'Image to PDF',
           timestamp: DateTime.now(),
         ),
       );
@@ -191,7 +191,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
     final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
-      title: loc.translate('image_to_pdf'),
+      title: loc.translate('Image to PDF'),
       icon: Icons.image,
       actionButtonLabel: loc.translate('create_pdf'),
       isActionButtonEnabled: _selectedImages.isNotEmpty && !_isProcessing,
@@ -206,7 +206,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              loc.translate('image_to_pdf_instructions'),
+              loc.translate('Image to PDF_instructions'),
               textAlign: TextAlign.center,
             ),
           ),

@@ -35,7 +35,7 @@ class CustomDrawer extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    loc.translate('app_title'),
+                    loc.translate(' Pdf Utility Pro'),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 20,

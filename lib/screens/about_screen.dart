@@ -7,10 +7,10 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(loc.translate('about_us')),
+        title: Text(loc.translate('about us')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -31,10 +31,10 @@ class AboutScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              loc.translate('app_title'),
+              loc.translate(' Pdf Utility Pro'),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
@@ -51,14 +51,15 @@ class AboutScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      loc.translate('about_app'),
+                      loc.translate('about app'),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      loc.translate('about_app_content'),
+                      loc.translate(
+                          'PDF Utility Pro is a professional application that provides a comprehensive set of smart tools for handling PDF files easily and efficiently. With this app, you can convert images and text to PDF, merge and split files, add signatures or watermarks, extract text, read and edit PDFs, and much more. Designed with a simple and user-friendly interface.'),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -75,23 +76,23 @@ class AboutScreen extends StatelessWidget {
                     Text(
                       loc.translate('features'),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 8),
-                    _buildFeatureItem(context, loc.translate('image_to_pdf')),
-                    _buildFeatureItem(context, loc.translate('text_to_pdf')),
-                    _buildFeatureItem(context, loc.translate('qr_barcode')),
-                    _buildFeatureItem(context, loc.translate('excel_to_pdf')),
-                    _buildFeatureItem(context, loc.translate('word_to_pdf')),
-                    _buildFeatureItem(context, loc.translate('merge_pdf')),
-                    _buildFeatureItem(context, loc.translate('split_pdf')),
-                    _buildFeatureItem(context, loc.translate('edit_pdf')),
-                    _buildFeatureItem(context, loc.translate('add_watermark')),
-                    _buildFeatureItem(context, loc.translate('add_signature')),
-                    _buildFeatureItem(context, loc.translate('pdf_scanner')),
-                    _buildFeatureItem(context, loc.translate('extract_text')),
-                    _buildFeatureItem(context, loc.translate('read_pdf')),
+                    buildFeatureItem(context, loc.translate('image to pdf')),
+                    buildFeatureItem(context, loc.translate('text to pdf')),
+                    buildFeatureItem(context, loc.translate('qr barcode')),
+                    buildFeatureItem(context, loc.translate('excel to pdf')),
+                    buildFeatureItem(context, loc.translate('word to pdf')),
+                    buildFeatureItem(context, loc.translate('merge pdf')),
+                    buildFeatureItem(context, loc.translate('split pdf')),
+                    buildFeatureItem(context, loc.translate('edit pdf')),
+                    buildFeatureItem(context, loc.translate('add watermark')),
+                    buildFeatureItem(context, loc.translate('add signature')),
+                    buildFeatureItem(context, loc.translate('pdf scanner')),
+                    buildFeatureItem(context, loc.translate('extract text')),
+                    buildFeatureItem(context, loc.translate('read pdf')),
                   ],
                 ),
               ),
@@ -104,21 +105,16 @@ class AboutScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      loc.translate('contact_us'),
+                      loc.translate('contact us'),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 8),
                     ListTile(
                       leading: const Icon(Icons.email),
                       title: Text(loc.translate('email')),
                       subtitle: const Text('support@pdfutilitypro.com'),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.language),
-                      title: Text(loc.translate('website')),
-                      subtitle: const Text('www.pdfutilitypro.com'),
                     ),
                   ],
                 ),
@@ -136,8 +132,8 @@ class AboutScreen extends StatelessWidget {
       ),
     );
   }
-  
-  Widget _buildFeatureItem(BuildContext context, String feature) {
+
+  Widget buildFeatureItem(BuildContext context, String feature) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
