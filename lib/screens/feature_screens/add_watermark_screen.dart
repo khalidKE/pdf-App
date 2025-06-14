@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
+import 'package:file_picker/file_picker.dart' as fp;
+import 'package:pdf/pdf.dart' as pdf;
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:pdf_utility_pro/utils/constants.dart';
+import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:pdf_utility_pro/providers/file_provider.dart';
+import 'package:pdf_utility_pro/models/file_item.dart';
+import 'package:pdfx/pdfx.dart';
 
 class AddWatermarkScreen extends StatefulWidget {
   const AddWatermarkScreen({Key? key}) : super(key: key);
@@ -11,59 +22,152 @@ class AddWatermarkScreen extends StatefulWidget {
 
 class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
   String? _selectedFile;
-  final TextEditingController _watermarkTextController = TextEditingController();
+  String? _fileName;
+  final TextEditingController _watermarkTextController =
+      TextEditingController();
   double _opacity = 0.3;
   bool _isProcessing = false;
-  
-  void _selectFile() {
-    // Mock file selection
-    setState(() {
-      _selectedFile = 'document.pdf';
-    });
+
+  Future<void> _selectFile() async {
+    final result = await fp.FilePicker.platform.pickFiles(
+      type: fp.FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _selectedFile = result.files.single.path;
+        _fileName = result.files.single.name;
+      });
+    }
   }
-  
-  void _addWatermark() async {
-    if (_selectedFile == null || _watermarkTextController.text.trim().isEmpty) return;
-    
+
+  Future<void> _addWatermark() async {
+    if (_selectedFile == null || _watermarkTextController.text.trim().isEmpty)
+      return;
     setState(() {
       _isProcessing = true;
     });
-    
-    // Simulate processing
-    await Future.delayed(const Duration(seconds: 2));
-    
-    setState(() {
-      _isProcessing = false;
-    });
-    
-    if (!mounted) return;
-    
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context).translate('watermark_added_success')),
-        backgroundColor: Colors.green,
-      ),
-    );
+    try {
+      final doc = await PdfDocument.openFile(_selectedFile!);
+      final dir = await getApplicationDocumentsDirectory();
+      final pdfDoc = pw.Document();
+      for (int i = 1; i <= doc.pagesCount; i++) {
+        final page = await doc.getPage(i);
+        final pageImage = await page.render(
+          width: page.width,
+          height: page.height,
+          format: PdfPageImageFormat.png,
+        );
+        final bytes = pageImage?.bytes;
+        if (bytes == null) {
+          await page.close();
+          continue;
+        }
+        final img = pw.MemoryImage(bytes);
+        pdfDoc.addPage(
+          pw.Page(
+            pageFormat: pdf.PdfPageFormat(
+                page.width.toDouble(), page.height.toDouble()),
+            build: (pw.Context context) {
+              return pw.Stack(
+                children: [
+                  pw.Center(child: pw.Image(img)),
+                  pw.Positioned(
+                    left: 0,
+                    right: 0,
+                    top: page.height / 2 - 30,
+                    child: pw.Center(
+                      child: pw.Opacity(
+                        opacity: _opacity,
+                        child: pw.Text(
+                          _watermarkTextController.text,
+                          style: pw.TextStyle(
+                            fontSize: 36,
+                            color: pdf.PdfColors.red,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+        await page.close();
+      }
+      await doc.close();
+      final fileName =
+          'Watermarked_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final filePath = '${dir.path}/$fileName';
+      final file = File(filePath);
+      await file.writeAsBytes(await pdfDoc.save());
+      // Add to recent files
+      final fileProvider = Provider.of<FileProvider>(context, listen: false);
+      final fileItem = FileItem(
+        name: fileName,
+        path: filePath,
+        size: file.lengthSync(),
+        dateModified: file.lastModifiedSync(),
+        type: FileType.pdf,
+      );
+      fileProvider.addRecentFile(fileItem);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)
+              .translate('watermark_added_success')),
+          backgroundColor: AppConstants.successColor,
+          action: SnackBarAction(
+            label: AppLocalizations.of(context).translate('open'),
+            textColor: Colors.white,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ReadPdfScreen(filePath: filePath),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      setState(() {
+        _selectedFile = null;
+        _fileName = null;
+        _watermarkTextController.clear();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isProcessing = false;
+      });
+    }
   }
-  
+
   @override
   void dispose() {
     _watermarkTextController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    
     return FeatureScreenTemplate(
       title: loc.translate('add_watermark'),
       icon: Icons.water_drop,
       actionButtonLabel: loc.translate('add_watermark'),
-      isActionButtonEnabled: _selectedFile != null && 
-                            _watermarkTextController.text.trim().isNotEmpty && 
-                            !_isProcessing,
+      isActionButtonEnabled: _selectedFile != null &&
+          _watermarkTextController.text.trim().isNotEmpty &&
+          !_isProcessing,
       isProcessing: _isProcessing,
       onActionButtonPressed: _addWatermark,
       body: Padding(
@@ -84,7 +188,8 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
                     icon: const Icon(Icons.upload_file),
                     label: Text(loc.translate('select_pdf_file')),
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
                     ),
                   ),
                 ),
@@ -99,7 +204,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
                         child: ListTile(
                           leading: const Icon(Icons.picture_as_pdf),
                           title: Text(
-                            _selectedFile!,
+                            _fileName ?? _selectedFile!,
                             overflow: TextOverflow.ellipsis,
                           ),
                           trailing: IconButton(
@@ -107,6 +212,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
                             onPressed: () {
                               setState(() {
                                 _selectedFile = null;
+                                _fileName = null;
                                 _watermarkTextController.clear();
                               });
                             },
@@ -130,12 +236,6 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
                         onChanged: (_) => setState(() {}),
                       ),
                       const SizedBox(height: 24),
-                      Text(
-                        loc.translate('watermark_options'),
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 16),
-                      // Add watermark options here
                     ],
                   ),
                 ),
