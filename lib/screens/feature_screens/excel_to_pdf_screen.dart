@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
@@ -12,6 +13,8 @@ import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:path/path.dart' as p;
 
 class ExcelToPdfScreen extends StatefulWidget {
   const ExcelToPdfScreen({Key? key}) : super(key: key);
@@ -98,6 +101,15 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> {
         type: FileType.pdf,
       );
       fileProvider.addRecentFile(fileItem);
+      // Add to history
+      Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
+        HistoryItem(
+          title: p.basename(filePath),
+          filePath: filePath,
+          operation: 'excel_to_pdf',
+          timestamp: DateTime.now(),
+        ),
+      );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

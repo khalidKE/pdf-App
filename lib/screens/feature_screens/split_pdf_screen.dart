@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
@@ -13,6 +14,8 @@ import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdfx/pdfx.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:path/path.dart' as p;
 
 class SplitPdfScreen extends StatefulWidget {
   const SplitPdfScreen({Key? key}) : super(key: key);
@@ -119,6 +122,16 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
         );
         fileProvider.addRecentFile(fileItem);
       }
+      // Add to history
+      final outputFilePath = splitFiles.first;
+      Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
+        HistoryItem(
+          title: p.basename(outputFilePath),
+          filePath: outputFilePath,
+          operation: 'split_pdf',
+          timestamp: DateTime.now(),
+        ),
+      );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

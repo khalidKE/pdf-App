@@ -16,7 +16,7 @@ class CustomDrawer extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final languageProvider = Provider.of<LanguageProvider>(context);
     final loc = AppLocalizations.of(context);
-    
+
     return Drawer(
       child: Column(
         children: [
@@ -64,21 +64,22 @@ class CustomDrawer extends StatelessWidget {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const HistoryScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const HistoryScreen()),
                     );
                   },
                 ),
-                ListTile(
-                  leading: const Icon(Icons.settings),
-                  title: Text(loc.translate('settings')),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                    );
-                  },
-                ),
+                // ListTile(
+                //   leading: const Icon(Icons.settings),
+                //   title: Text(loc.translate('settings')),
+                //   onTap: () {
+                //     Navigator.pop(context);
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                //     );
+                //   },
+                // ),
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.brightness_6),
@@ -115,7 +116,8 @@ class CustomDrawer extends StatelessWidget {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const PrivacyPolicyScreen()),
                     );
                   },
                 ),
@@ -126,7 +128,8 @@ class CustomDrawer extends StatelessWidget {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const AboutScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const AboutScreen()),
                     );
                   },
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:pdf/pdf.dart';
@@ -10,6 +11,8 @@ import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:path/path.dart' as p;
 
 class TextToPdfScreen extends StatefulWidget {
   const TextToPdfScreen({Key? key}) : super(key: key);
@@ -21,7 +24,7 @@ class TextToPdfScreen extends StatefulWidget {
 class _TextToPdfScreenState extends State<TextToPdfScreen> {
   final TextEditingController _textController = TextEditingController();
   bool _isProcessing = false;
-  
+
   Future<void> _createPdf() async {
     if (_textController.text.trim().isEmpty) return;
     setState(() {
@@ -41,7 +44,8 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
         ),
       );
       final dir = await getApplicationDocumentsDirectory();
-      final fileName = 'Text_to_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final fileName =
+          'Text_to_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final filePath = '${dir.path}/$fileName';
       final file = File(filePath);
       await file.writeAsBytes(await pdf.save());
@@ -55,10 +59,19 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
         type: FileType.pdf,
       );
       fileProvider.addRecentFile(fileItem);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context).translate('pdf_created_success')),
+      Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
+        HistoryItem(
+          title: p.basename(filePath),
+          filePath: filePath,
+          operation: 'text_to_pdf',
+          timestamp: DateTime.now(),
+        ),
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              AppLocalizations.of(context).translate('pdf_created_success')),
           backgroundColor: AppConstants.successColor,
           action: SnackBarAction(
             label: AppLocalizations.of(context).translate('open'),
@@ -68,8 +81,8 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ReadPdfScreen(filePath: filePath),
-      ),
-    );
+                ),
+              );
             },
           ),
         ),
@@ -90,22 +103,23 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
       });
     }
   }
-  
+
   @override
   void dispose() {
     _textController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    
+
     return FeatureScreenTemplate(
       title: loc.translate('text_to_pdf'),
       icon: Icons.text_fields,
       actionButtonLabel: loc.translate('create_pdf'),
-      isActionButtonEnabled: _textController.text.trim().isNotEmpty && !_isProcessing,
+      isActionButtonEnabled:
+          _textController.text.trim().isNotEmpty && !_isProcessing,
       isProcessing: _isProcessing,
       onActionButtonPressed: _createPdf,
       body: Padding(
@@ -123,13 +137,13 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
                 ),
-              child: TextField(
-                controller: _textController,
-                maxLines: null,
-                expands: true,
-                textAlignVertical: TextAlignVertical.top,
-                decoration: InputDecoration(
-                  hintText: loc.translate('enter_text_here'),
+                child: TextField(
+                  controller: _textController,
+                  maxLines: null,
+                  expands: true,
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: InputDecoration(
+                    hintText: loc.translate('enter_text_here'),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(16),
                   ),

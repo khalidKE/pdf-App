@@ -21,7 +21,7 @@ class FeatureGrid extends StatelessWidget {
 
   List<Feature> _getFeatures(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    
+
     return [
       Feature(
         title: loc.translate('image_to_pdf'),
@@ -104,14 +104,6 @@ class FeatureGrid extends StatelessWidget {
         category: 'extract',
       ),
       Feature(
-        title: loc.translate('read_pdf'),
-        description: loc.translate('read_pdf_desc'),
-        icon: Icons.menu_book,
-        color: AppConstants.primaryColor,
-        screen: const ReadPdfScreen(filePath: ''),
-        category: 'view',
-      ),
-      Feature(
         title: loc.translate('view_files'),
         description: loc.translate('view_files_desc'),
         icon: Icons.folder_open,
@@ -126,16 +118,18 @@ class FeatureGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final features = _getFeatures(context);
     final categories = features.map((f) => f.category).toSet().toList();
-    
+
     return DefaultTabController(
       length: categories.length,
       child: Column(
         children: [
           TabBar(
             isScrollable: true,
-            tabs: categories.map((category) => Tab(
-              text: category.toUpperCase(),
-            )).toList(),
+            tabs: categories
+                .map((category) => Tab(
+                      text: category.toUpperCase(),
+                    ))
+                .toList(),
             labelStyle: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
@@ -149,12 +143,14 @@ class FeatureGrid extends StatelessWidget {
           Expanded(
             child: TabBarView(
               children: categories.map((category) {
-                final categoryFeatures = features.where((f) => f.category == category).toList();
+                final categoryFeatures =
+                    features.where((f) => f.category == category).toList();
                 return AnimationLimiter(
                   child: GridView.builder(
                     padding: const EdgeInsets.all(AppConstants.defaultPadding),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
+                      crossAxisCount:
+                          MediaQuery.of(context).size.width > 600 ? 3 : 2,
                       childAspectRatio: 0.85,
                       crossAxisSpacing: AppConstants.defaultGridSpacing,
                       mainAxisSpacing: AppConstants.defaultGridSpacing,
@@ -164,10 +160,12 @@ class FeatureGrid extends StatelessWidget {
                       return AnimationConfiguration.staggeredGrid(
                         position: index,
                         duration: AppConstants.mediumAnimationDuration,
-                        columnCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
+                        columnCount:
+                            MediaQuery.of(context).size.width > 600 ? 3 : 2,
                         child: ScaleAnimation(
                           child: FadeInAnimation(
-                            child: FeatureCard(feature: categoryFeatures[index]),
+                            child:
+                                FeatureCard(feature: categoryFeatures[index]),
                           ),
                         ),
                       );
@@ -185,7 +183,7 @@ class FeatureGrid extends StatelessWidget {
 
 class FeatureCard extends StatelessWidget {
   final Feature feature;
-  
+
   const FeatureCard({
     Key? key,
     required this.feature,
@@ -209,7 +207,8 @@ class FeatureCard extends StatelessWidget {
         child: Tooltip(
           message: feature.description,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppConstants.defaultPadding, vertical: 8),
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.defaultPadding, vertical: 8),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -217,7 +216,8 @@ class FeatureCard extends StatelessWidget {
                   padding: const EdgeInsets.all(AppConstants.defaultPadding),
                   decoration: BoxDecoration(
                     color: feature.color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+                    borderRadius:
+                        BorderRadius.circular(AppConstants.defaultBorderRadius),
                   ),
                   child: Icon(
                     feature.icon,
@@ -252,13 +252,18 @@ class FeatureCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      if (feature.subtitle != null && feature.subtitle!.isNotEmpty)
+                      if (feature.subtitle != null &&
+                          feature.subtitle!.isNotEmpty)
                         Text(
                           feature.subtitle!,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 10,
-                            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.color
+                                ?.withOpacity(0.7),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

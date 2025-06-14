@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/theme_provider.dart';
 import 'package:pdf_utility_pro/providers/language_provider.dart';
@@ -38,6 +39,7 @@ void main() async {
     runApp(
       MultiProvider(
         providers: [
+                  ChangeNotifierProvider(create: (_) => HistoryProvider()),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
           ChangeNotifierProvider(create: (_) => LanguageProvider()),
           ChangeNotifierProvider(create: (_) => FileProvider()),

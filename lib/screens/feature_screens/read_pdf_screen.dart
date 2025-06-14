@@ -7,10 +7,12 @@ import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
+import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:pdf_utility_pro/models/history_item.dart';
 
 class ReadPdfScreen extends StatefulWidget {
   final String filePath;
-  
+
   const ReadPdfScreen({
     Key? key,
     required this.filePath,
@@ -25,16 +27,16 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> {
   int _totalPages = 0;
   bool _isLoading = true;
   PDFViewController? _pdfViewController;
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     // Add to recent files
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final fileProvider = Provider.of<FileProvider>(context, listen: false);
       final file = File(widget.filePath);
-      
+
       if (file.existsSync()) {
         final fileItem = FileItem(
           name: path.basename(widget.filePath),
@@ -47,12 +49,12 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> {
       }
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final fileName = path.basename(widget.filePath);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -100,7 +102,7 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> {
                       color: _isFavorite() ? Colors.red : null,
                     ),
                     const SizedBox(width: 8),
-                    Text(_isFavorite() 
+                    Text(_isFavorite()
                         ? loc.translate('remove_from_favorites')
                         : loc.translate('add_to_favorites')),
                   ],
@@ -190,16 +192,16 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> {
       ),
     );
   }
-  
+
   bool _isFavorite() {
     final fileProvider = Provider.of<FileProvider>(context, listen: false);
     return fileProvider.isFavorite(widget.filePath);
   }
-  
+
   void _toggleFavorite() {
     final fileProvider = Provider.of<FileProvider>(context, listen: false);
     final file = File(widget.filePath);
-    
+
     if (file.existsSync()) {
       final fileItem = FileItem(
         name: path.basename(widget.filePath),
@@ -211,12 +213,24 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> {
       fileProvider.toggleFavorite(fileItem);
     }
   }
-  
+
   Future<void> _printPdf() async {
     // Implement printing functionality
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(AppLocalizations.of(context).translate('printing_not_implemented')),
+        content: Text(
+            AppLocalizations.of(context).translate('printing_not_implemented')),
+      ),
+    );
+  }
+
+  void _addToHistory(String editedFilePath) {
+    Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
+      HistoryItem(
+        title: path.basename(editedFilePath),
+        filePath: editedFilePath,
+        operation: 'read_pdf',
+        timestamp: DateTime.now(),
       ),
     );
   }

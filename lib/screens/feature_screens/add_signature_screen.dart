@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
@@ -14,6 +15,8 @@ import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdfx/pdfx.dart';
 import 'package:signature/signature.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:path/path.dart' as p;
 
 class AddSignatureScreen extends StatefulWidget {
   const AddSignatureScreen({super.key});
@@ -174,6 +177,15 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
           type: FileType.pdf,
         );
         fileProvider.addRecentFile(fileItem);
+
+        Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
+          HistoryItem(
+            title: p.basename(filePath),
+            filePath: filePath,
+            operation: 'add signature',
+            timestamp: DateTime.now(),
+          ),
+        );
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

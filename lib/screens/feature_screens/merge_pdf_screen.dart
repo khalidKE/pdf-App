@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
@@ -10,6 +11,8 @@ import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart' as myfile;
 import 'package:pdf_merger/pdf_merger.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:path/path.dart' as p;
 
 class MergePdfScreen extends StatefulWidget {
   const MergePdfScreen({Key? key}) : super(key: key);
@@ -81,6 +84,15 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
           type: myfile.FileType.pdf,
         );
         fileProvider.addRecentFile(fileItem);
+
+        Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
+          HistoryItem(
+            title: p.basename(outputPath),
+            filePath: outputPath,
+            operation: 'merge_pdf', // أو 'split_pdf'
+            timestamp: DateTime.now(),
+          ),
+        );
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

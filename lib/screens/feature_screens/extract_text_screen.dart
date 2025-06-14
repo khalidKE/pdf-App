@@ -5,6 +5,10 @@ import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'dart:io';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:provider/provider.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:pdf_utility_pro/models/history_item.dart';
+import 'package:path/path.dart' as p;
 
 class ExtractTextScreen extends StatefulWidget {
   const ExtractTextScreen({super.key});
@@ -68,6 +72,16 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
         _extractedText = text.trim();
         _isProcessing = false;
       });
+
+      // بعد نجاح الاستخراج:
+      Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
+        HistoryItem(
+          title: p.basename(_selectedFile!),
+          filePath: _selectedFile!,
+          operation: 'extract_text',
+          timestamp: DateTime.now(),
+        ),
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

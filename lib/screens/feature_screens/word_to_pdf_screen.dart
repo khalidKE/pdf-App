@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
@@ -12,6 +13,8 @@ import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:archive/archive_io.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:path/path.dart' as p;
 
 String _extractTextFromDocx(String filePath) {
   final inputStream = InputFileStream(filePath);
@@ -61,7 +64,8 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
     });
     try {
       final text = _extractTextFromDocx(_selectedFile!);
-      if (text.isEmpty) throw Exception('Could not extract text from Word file.');
+      if (text.isEmpty)
+        throw Exception('Could not extract text from Word file.');
       final pdf = pw.Document();
       pdf.addPage(
         pw.Page(
@@ -75,7 +79,8 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
         ),
       );
       final dir = await getApplicationDocumentsDirectory();
-      final fileName = 'Word_to_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final fileName =
+          'Word_to_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final filePath = '${dir.path}/$fileName';
       final file = File(filePath);
       await file.writeAsBytes(await pdf.save());
@@ -89,10 +94,19 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
         type: FileType.pdf,
       );
       fileProvider.addRecentFile(fileItem);
+      Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
+        HistoryItem(
+          title: p.basename(filePath),
+          filePath: filePath,
+          operation: 'word_to_pdf',
+          timestamp: DateTime.now(),
+        ),
+      );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context).translate('pdf_created_success')),
+          content: Text(
+              AppLocalizations.of(context).translate('pdf_created_success')),
           backgroundColor: AppConstants.successColor,
           action: SnackBarAction(
             label: AppLocalizations.of(context).translate('open'),
@@ -175,7 +189,8 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
                   icon: const Icon(Icons.upload_file),
                   label: Text(loc.translate('select_word_file')),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                   ),
                 ),
             ],

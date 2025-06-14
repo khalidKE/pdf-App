@@ -8,6 +8,10 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:pdf_utility_pro/models/history_item.dart';
+import 'package:path/path.dart' as p;
 
 class QrBarcodeScreen extends StatefulWidget {
   const QrBarcodeScreen({Key? key}) : super(key: key);
@@ -240,6 +244,17 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
             ),
           ),
       ],
+    );
+  }
+
+  void _addToHistory(String editedFilePath) {
+    Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
+      HistoryItem(
+        title: p.basename(editedFilePath),
+        filePath: editedFilePath,
+        operation: 'qr_barcode',
+        timestamp: DateTime.now(),
+      ),
     );
   }
 }

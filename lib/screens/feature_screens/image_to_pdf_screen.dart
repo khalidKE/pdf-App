@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,6 +15,8 @@ import 'dart:io';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:pdf_utility_pro/utils/constants.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:path/path.dart' as p;
 
 class ImageToPdfScreen extends StatefulWidget {
   const ImageToPdfScreen({Key? key}) : super(key: key);
@@ -124,6 +127,16 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
         type: FileType.pdf,
       );
       fileProvider.addRecentFile(fileItem);
+
+      // Add to history
+      Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
+        HistoryItem(
+          title: p.basename(filePath),
+          filePath: filePath,
+          operation: 'image_to_pdf',
+          timestamp: DateTime.now(),
+        ),
+      );
 
       if (!mounted) return;
 
