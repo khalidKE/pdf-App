@@ -95,20 +95,20 @@ class RecentFilesList extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(
-                    icon: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: isFavorite ? Colors.red : null,
-                    ),
-                    onPressed: () {
-                      fileProvider.toggleFavorite(file);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.more_vert),
-                    onPressed: () {
-                      _showFileOptions(context, file, fileProvider);
-                    },
+              IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite ? Colors.red : null,
+                ),
+                onPressed: () {
+                  fileProvider.toggleFavorite(file);
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () {
+                  _showFileOptions(context, file, fileProvider);
+                },
                   ),
                 ],
               ),

@@ -55,10 +55,10 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
         type: FileType.pdf,
       );
       fileProvider.addRecentFile(fileItem);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).translate('pdf_created_success')),
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppLocalizations.of(context).translate('pdf_created_success')),
           backgroundColor: AppConstants.successColor,
           action: SnackBarAction(
             label: AppLocalizations.of(context).translate('open'),
@@ -68,8 +68,8 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ReadPdfScreen(filePath: filePath),
-                ),
-              );
+      ),
+    );
             },
           ),
         ),
@@ -123,13 +123,13 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: TextField(
-                  controller: _textController,
-                  maxLines: null,
-                  expands: true,
-                  textAlignVertical: TextAlignVertical.top,
-                  decoration: InputDecoration(
-                    hintText: loc.translate('enter_text_here'),
+              child: TextField(
+                controller: _textController,
+                maxLines: null,
+                expands: true,
+                textAlignVertical: TextAlignVertical.top,
+                decoration: InputDecoration(
+                  hintText: loc.translate('enter_text_here'),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(16),
                   ),

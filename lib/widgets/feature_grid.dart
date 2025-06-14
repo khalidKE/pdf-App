@@ -10,7 +10,6 @@ import 'package:pdf_utility_pro/screens/feature_screens/merge_pdf_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/split_pdf_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/add_watermark_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/add_signature_screen.dart';
-import 'package:pdf_utility_pro/screens/feature_screens/pdf_scanner_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/extract_text_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/view_files_screen.dart';
@@ -95,14 +94,6 @@ class FeatureGrid extends StatelessWidget {
         color: AppConstants.secondaryColor,
         screen: const AddSignatureScreen(),
         category: 'edit',
-      ),
-      Feature(
-        title: loc.translate('pdf_scanner'),
-        description: loc.translate('pdf_scanner_desc'),
-        icon: Icons.document_scanner,
-        color: AppConstants.accentColor,
-        screen: const PdfScannerScreen(),
-        category: 'scan',
       ),
       Feature(
         title: loc.translate('extract_text'),

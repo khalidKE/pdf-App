@@ -85,25 +85,25 @@ class FeatureScreenTemplate extends StatelessWidget {
                 ),
               ],
             ),
-            child: SizedBox(
-              width: double.infinity,
+              child: SizedBox(
+                width: double.infinity,
               height: 48,
-              child: ElevatedButton(
-                onPressed: isActionButtonEnabled ? onActionButtonPressed : null,
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                child: ElevatedButton(
+                  onPressed: isActionButtonEnabled ? onActionButtonPressed : null,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                ),
-                child: isProcessing
-                    ? processingIndicator ?? const CircularProgressIndicator(color: Colors.white)
-                    : Text(
-                        actionButtonLabel,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                  child: isProcessing
+                      ? processingIndicator ?? const CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                          actionButtonLabel,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                         ),
-                      ),
+                ),
               ),
             ),
           ),

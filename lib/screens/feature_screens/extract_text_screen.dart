@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
+import 'package:file_picker/file_picker.dart' as fp;
+import 'dart:io';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class ExtractTextScreen extends StatefulWidget {
-  const ExtractTextScreen({Key? key}) : super(key: key);
+  const ExtractTextScreen({super.key});
 
   @override
   State<ExtractTextScreen> createState() => _ExtractTextScreenState();
@@ -11,57 +15,115 @@ class ExtractTextScreen extends StatefulWidget {
 
 class _ExtractTextScreenState extends State<ExtractTextScreen> {
   String? _selectedFile;
+  String? _fileName;
   String? _extractedText;
   bool _isProcessing = false;
-  
-  void _selectFile() {
-    // Mock file selection
-    setState(() {
-      _selectedFile = 'document.pdf';
-    });
+
+  Future<void> _selectFile() async {
+    try {
+      final result = await fp.FilePicker.platform.pickFiles(
+        type: fp.FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (result != null && result.files.single.path != null) {
+        setState(() {
+          _selectedFile = result.files.single.path;
+          _fileName = result.files.single.name;
+          _extractedText =
+              null; // Reset extracted text when selecting a new file
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              AppLocalizations.of(context).translate('error_selecting_file')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
-  
-  void _extractText() async {
+
+  Future<void> _extractText() async {
     if (_selectedFile == null) return;
-    
+
     setState(() {
       _isProcessing = true;
     });
-    
-    // Simulate processing
-    await Future.delayed(const Duration(seconds: 2));
-    
-    setState(() {
-      _isProcessing = false;
-      _extractedText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-          'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
-          'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris '
-          'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in '
-          'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.';
-    });
+
+    try {
+      final file = File(_selectedFile!);
+      final bytes = await file.readAsBytes();
+      final document = PdfDocument(inputBytes: bytes);
+      final text = PdfTextExtractor(document).extractText();
+      document.dispose();
+
+      if (text.trim().isEmpty) {
+        throw Exception('No text found in the PDF');
+      }
+
+      setState(() {
+        _extractedText = text.trim();
+        _isProcessing = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              AppLocalizations.of(context).translate('text_extracted_success')),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isProcessing = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              '${AppLocalizations.of(context).translate('error_extracting_text')}: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
-  
-  void _copyText() {
+
+  Future<void> _copyText() async {
     if (_extractedText == null) return;
-    
-    // Copy to clipboard logic would go here
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context).translate('text_copied')),
-      ),
-    );
+
+    try {
+      await Clipboard.setData(ClipboardData(text: _extractedText!));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).translate('text_copied')),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              '${AppLocalizations.of(context).translate('error_copying_text')}: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    
+
     return FeatureScreenTemplate(
       title: loc.translate('extract_text'),
       icon: Icons.text_snippet,
-      actionButtonLabel: _extractedText == null 
-          ? loc.translate('extract_text') 
+      actionButtonLabel: _extractedText == null
+          ? loc.translate('extract_text')
           : loc.translate('copy_text'),
       isActionButtonEnabled: _selectedFile != null && !_isProcessing,
       isProcessing: _isProcessing,
@@ -74,6 +136,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
             Text(
               loc.translate('extract_text_instructions'),
               textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 24),
             if (_selectedFile == null)
@@ -83,7 +146,8 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
                   icon: const Icon(Icons.upload_file),
                   label: Text(loc.translate('select_file')),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                   ),
                 ),
               )
@@ -93,10 +157,11 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Card(
+                      elevation: 4,
                       child: ListTile(
-                        leading: const Icon(Icons.insert_drive_file),
+                        leading: const Icon(Icons.picture_as_pdf),
                         title: Text(
-                          _selectedFile!,
+                          _fileName ?? _selectedFile!,
                           overflow: TextOverflow.ellipsis,
                         ),
                         trailing: IconButton(
@@ -104,6 +169,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
                           onPressed: () {
                             setState(() {
                               _selectedFile = null;
+                              _fileName = null;
                               _extractedText = null;
                             });
                           },
@@ -126,7 +192,10 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: SingleChildScrollView(
-                            child: Text(_extractedText!),
+                            child: SelectableText(
+                              _extractedText!,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
                           ),
                         ),
                       ),
