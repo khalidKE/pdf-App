@@ -105,8 +105,8 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
 
     try {
       final signatureImageBytes = await _signatureController.toPngBytes(
-        height: 100,
-        width: 300,
+        height: 200,
+        width: 400,
       );
 
       if (signatureImageBytes == null || signatureImageBytes.isEmpty) {
