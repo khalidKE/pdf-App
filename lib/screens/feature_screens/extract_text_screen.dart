@@ -17,11 +17,37 @@ class ExtractTextScreen extends StatefulWidget {
   State<ExtractTextScreen> createState() => _ExtractTextScreenState();
 }
 
-class _ExtractTextScreenState extends State<ExtractTextScreen> {
-  String? _selectedFile;
+class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTickerProviderStateMixin {
+  File? _selectedFile;
   String? _fileName;
-  String? _extractedText;
   bool _isProcessing = false;
+  String _extractedText = '';
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutBack,
+    ));
+
+    _animationController.forward();
+  }
 
   Future<void> _selectFile() async {
     try {
@@ -32,10 +58,10 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
 
       if (result != null && result.files.single.path != null) {
         setState(() {
-          _selectedFile = result.files.single.path;
+          _selectedFile = File(result.files.single.path!);
           _fileName = result.files.single.name;
           _extractedText =
-              null; // Reset extracted text when selecting a new file
+              ''; // Reset extracted text when selecting a new file
         });
       }
     } catch (e) {
@@ -58,7 +84,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
     });
 
     try {
-      final file = File(_selectedFile!);
+      final file = _selectedFile!;
       final bytes = await file.readAsBytes();
       final document = PdfDocument(inputBytes: bytes);
       final text = PdfTextExtractor(document).extractText();
@@ -76,8 +102,8 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
       // بعد نجاح الاستخراج:
       Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
         HistoryItem(
-          title: p.basename(_selectedFile!),
-          filePath: _selectedFile!,
+          title: p.basename(file.path),
+          filePath: file.path,
           operation: 'Extract Text',
           timestamp: DateTime.now(),
         ),
@@ -106,10 +132,10 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
   }
 
   Future<void> _copyText() async {
-    if (_extractedText == null) return;
+    if (_extractedText.isEmpty) return;
 
     try {
-      await Clipboard.setData(ClipboardData(text: _extractedText!));
+      await Clipboard.setData(ClipboardData(text: _extractedText));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -130,18 +156,24 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
       title: loc.translate('Extract Text'),
       icon: Icons.text_snippet,
-      actionButtonLabel: _extractedText == null
+      actionButtonLabel: _extractedText.isEmpty
           ? loc.translate('Extract Text')
           : loc.translate('copy_text'),
       isActionButtonEnabled: _selectedFile != null && !_isProcessing,
       isProcessing: _isProcessing,
-      onActionButtonPressed: _extractedText == null ? _extractText : _copyText,
+      onActionButtonPressed: _extractedText.isEmpty ? _extractText : _copyText,
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -156,66 +188,73 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> {
             const SizedBox(height: 24),
             if (_selectedFile == null)
               Center(
-                child: ElevatedButton.icon(
-                  onPressed: _selectFile,
-                  icon: const Icon(Icons.upload_file),
-                  label: Text(loc.translate('Select File')),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
+                child: AnimatedScale(
+                  scale: _scaleAnimation.value,
+                  duration: const Duration(milliseconds: 500),
+                  child: ElevatedButton.icon(
+                    onPressed: _selectFile,
+                    icon: const Icon(Icons.upload_file),
+                    label: Text(loc.translate('Select File')),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                    ),
                   ),
                 ),
               )
             else
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Card(
-                      elevation: 4,
-                      child: ListTile(
-                        leading: const Icon(Icons.picture_as_pdf),
-                        title: Text(
-                          _fileName ?? _selectedFile!,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () {
-                            setState(() {
-                              _selectedFile = null;
-                              _fileName = null;
-                              _extractedText = null;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    if (_extractedText != null) ...[
-                      Text(
-                        loc.translate('extracted_text'),
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface,
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(8),
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Card(
+                        elevation: 4,
+                        child: ListTile(
+                          leading: const Icon(Icons.picture_as_pdf),
+                          title: Text(
+                            _fileName ?? _selectedFile!.path,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          child: SingleChildScrollView(
-                            child: SelectableText(
-                              _extractedText!,
-                              style: Theme.of(context).textTheme.bodyMedium,
+                          trailing: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              setState(() {
+                                _selectedFile = null;
+                                _fileName = null;
+                                _extractedText = '';
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      if (_extractedText.isNotEmpty) ...[
+                        Text(
+                          loc.translate('extracted_text'),
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: SingleChildScrollView(
+                              child: SelectableText(
+                                _extractedText,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
           ],

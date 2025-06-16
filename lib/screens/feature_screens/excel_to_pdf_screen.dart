@@ -23,10 +23,36 @@ class ExcelToPdfScreen extends StatefulWidget {
   State<ExcelToPdfScreen> createState() => _ExcelToPdfScreenState();
 }
 
-class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> {
-  String? _selectedFile;
+class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> with SingleTickerProviderStateMixin {
+  File? _selectedFile;
   String? _fileName;
   bool _isProcessing = false;
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutBack,
+    ));
+
+    _animationController.forward();
+  }
 
   Future<void> _selectFile() async {
     final result = await fp.FilePicker.platform.pickFiles(
@@ -35,7 +61,7 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> {
     );
     if (result != null && result.files.single.path != null) {
       setState(() {
-        _selectedFile = result.files.single.path;
+        _selectedFile = File(result.files.single.path!);
         _fileName = result.files.single.name;
       });
     }
@@ -47,7 +73,7 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> {
       _isProcessing = true;
     });
     try {
-      final bytes = File(_selectedFile!).readAsBytesSync();
+      final bytes = await _selectedFile!.readAsBytes();
       final excel = Excel.decodeBytes(bytes);
       final pdf = pw.Document();
       for (var table in excel.tables.keys) {
@@ -149,6 +175,12 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> {
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return FeatureScreenTemplate(
@@ -177,29 +209,36 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> {
               ),
               const SizedBox(height: 32),
               if (_selectedFile != null)
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.insert_drive_file),
-                    title: Text(_fileName ?? ''),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        setState(() {
-                          _selectedFile = null;
-                          _fileName = null;
-                        });
-                      },
+                SlideTransition(
+                  position: _slideAnimation,
+                  child: Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.insert_drive_file),
+                      title: Text(_fileName ?? ''),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          setState(() {
+                            _selectedFile = null;
+                            _fileName = null;
+                          });
+                        },
+                      ),
                     ),
                   ),
                 )
               else
-                ElevatedButton.icon(
-                  onPressed: _selectFile,
-                  icon: const Icon(Icons.upload_file),
-                  label: Text(loc.translate('Select excel file')),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
+                AnimatedScale(
+                  scale: _scaleAnimation.value,
+                  duration: const Duration(milliseconds: 500),
+                  child: ElevatedButton.icon(
+                    onPressed: _selectFile,
+                    icon: const Icon(Icons.upload_file),
+                    label: Text(loc.translate('Select excel file')),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                    ),
                   ),
                 ),
             ],

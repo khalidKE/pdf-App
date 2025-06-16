@@ -21,9 +21,36 @@ class MergePdfScreen extends StatefulWidget {
   State<MergePdfScreen> createState() => _MergePdfScreenState();
 }
 
-class _MergePdfScreenState extends State<MergePdfScreen> {
-  List<String> _selectedFiles = [];
+class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProviderStateMixin {
+  List<File> _selectedFiles = [];
+  List<String> _fileNames = [];
   bool _isProcessing = false;
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutBack,
+    ));
+
+    _animationController.forward();
+  }
 
   Future<void> _selectFiles() async {
     final result = await fp.FilePicker.platform.pickFiles(
@@ -33,7 +60,8 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
     );
     if (result != null && result.files.isNotEmpty) {
       setState(() {
-        _selectedFiles = result.files.map((f) => f.path!).toList();
+        _selectedFiles = result.files.map((f) => File(f.path!)).toList();
+        _fileNames = result.files.map((f) => f.name!).toList();
       });
     }
   }
@@ -53,7 +81,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
 
       // بعض نسخ pdf_merger تتوقع outputDirPath هو المسار الكامل للملف وليس فقط المجلد
       final response = await PdfMerger.mergeMultiplePDF(
-        paths: _selectedFiles,
+        paths: _selectedFiles.map((f) => f.path!).toList(),
         outputDirPath: outputPath,
       );
 
@@ -118,6 +146,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
 
         setState(() {
           _selectedFiles = [];
+          _fileNames = [];
         });
       } else {
         throw Exception('Merge failed: ${response.message}');
@@ -137,6 +166,12 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
 
@@ -149,18 +184,26 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
       onActionButtonPressed: _mergePdfs,
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              loc.translate(
-                  'Select multiple PDF files to merge them into a single PDF document. You can reorder the files by dragging them.'),
-              textAlign: TextAlign.center,
+          AnimatedOpacity(
+            opacity: 1.0,
+            duration: const Duration(milliseconds: 500),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                loc.translate(
+                    'Select multiple PDF files to merge them into a single PDF document. You can reorder the files by dragging them.'),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-          ElevatedButton.icon(
-            onPressed: _selectFiles,
-            icon: const Icon(Icons.add_circle_outline),
-            label: Text(loc.translate('Select pdf files')),
+          AnimatedScale(
+            scale: _scaleAnimation.value,
+            duration: const Duration(milliseconds: 500),
+            child: ElevatedButton.icon(
+              onPressed: _selectFiles,
+              icon: const Icon(Icons.add_circle_outline),
+              label: Text(loc.translate('Select pdf files')),
+            ),
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -173,38 +216,42 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
                       ),
                     ),
                   )
-                : ReorderableListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _selectedFiles.length,
-                    onReorder: (oldIndex, newIndex) {
-                      setState(() {
-                        if (oldIndex < newIndex) {
-                          newIndex -= 1;
-                        }
-                        final item = _selectedFiles.removeAt(oldIndex);
-                        _selectedFiles.insert(newIndex, item);
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      return Card(
-                        key: Key('$index'),
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          leading: const Icon(Icons.picture_as_pdf),
-                          title: Text(_selectedFiles[index].split('/').last),
-                          subtitle:
-                              Text('${index + 1} of ${_selectedFiles.length}'),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              setState(() {
-                                _selectedFiles.removeAt(index);
-                              });
-                            },
+                : SlideTransition(
+                    position: _slideAnimation,
+                    child: ReorderableListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _selectedFiles.length,
+                      onReorder: (oldIndex, newIndex) {
+                        setState(() {
+                          if (oldIndex < newIndex) {
+                            newIndex -= 1;
+                          }
+                          final item = _selectedFiles.removeAt(oldIndex);
+                          _selectedFiles.insert(newIndex, item);
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        return Card(
+                          key: Key('$index'),
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: ListTile(
+                            leading: const Icon(Icons.picture_as_pdf),
+                            title: Text(_fileNames[index]),
+                            subtitle:
+                                Text('${index + 1} of ${_selectedFiles.length}'),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedFiles.removeAt(index);
+                                  _fileNames.removeAt(index);
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
           ),
         ],

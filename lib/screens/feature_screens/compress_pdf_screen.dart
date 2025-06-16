@@ -13,10 +13,37 @@ class CompressPdfScreen extends StatefulWidget {
   State<CompressPdfScreen> createState() => _CompressPdfScreenState();
 }
 
-class _CompressPdfScreenState extends State<CompressPdfScreen> {
-  String? _selectedFile;
+class _CompressPdfScreenState extends State<CompressPdfScreen> with SingleTickerProviderStateMixin {
+  File? _selectedFile;
   String? _fileName;
   bool _isProcessing = false;
+
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutBack,
+    ));
+
+    _animationController.forward();
+  }
 
   Future<void> _selectFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -26,7 +53,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
 
     if (result != null && result.files.single.path != null) {
       setState(() {
-        _selectedFile = result.files.single.path;
+        _selectedFile = File(result.files.single.path!);
         _fileName = result.files.single.name;
       });
     }
@@ -40,8 +67,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
     });
 
     try {
-      final File file = File(_selectedFile!);
-      final List<int> bytes = await file.readAsBytes();
+      final List<int> bytes = await _selectedFile!.readAsBytes();
 
       final PdfDocument document = PdfDocument(inputBytes: bytes);
 
@@ -78,6 +104,12 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
 
@@ -100,40 +132,47 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
             if (_selectedFile == null)
               Expanded(
                 child: Center(
-                  child: ElevatedButton.icon(
-                    onPressed: _selectFile,
-                    icon: const Icon(Icons.upload_file),
-                    label: Text(loc.translate('Select pdf file')),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+                  child: AnimatedScale(
+                    scale: _scaleAnimation.value,
+                    duration: const Duration(milliseconds: 500),
+                    child: ElevatedButton.icon(
+                      onPressed: _selectFile,
+                      icon: const Icon(Icons.upload_file),
+                      label: Text(loc.translate('Select pdf file')),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                      ),
                     ),
                   ),
                 ),
               )
             else
               Expanded(
-                child: Column(
-                  children: [
-                    Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.picture_as_pdf),
-                        title: Text(
-                          _fileName ?? _selectedFile!,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () {
-                            setState(() {
-                              _selectedFile = null;
-                              _fileName = null;
-                            });
-                          },
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Column(
+                    children: [
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.picture_as_pdf),
+                          title: Text(
+                            _fileName ?? _selectedFile!.path,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              setState(() {
+                                _selectedFile = null;
+                                _fileName = null;
+                              });
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
           ],

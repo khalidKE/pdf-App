@@ -23,13 +23,42 @@ class AddWatermarkScreen extends StatefulWidget {
   State<AddWatermarkScreen> createState() => _AddWatermarkScreenState();
 }
 
-class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
-  String? _selectedFile;
+class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTickerProviderStateMixin {
+  File? _selectedFile;
   String? _fileName;
-  final TextEditingController _watermarkTextController =
-      TextEditingController();
-  double _opacity = 0.3;
   bool _isProcessing = false;
+  final TextEditingController _watermarkTextController = TextEditingController();
+  final TextEditingController _positionXController = TextEditingController();
+  final TextEditingController _positionYController = TextEditingController();
+  final TextEditingController _fontSizeController = TextEditingController();
+  final TextEditingController _colorController = TextEditingController();
+
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutBack,
+    ));
+
+    _animationController.forward();
+  }
 
   Future<void> _selectFile() async {
     final result = await fp.FilePicker.platform.pickFiles(
@@ -38,7 +67,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
     );
     if (result != null && result.files.single.path != null) {
       setState(() {
-        _selectedFile = result.files.single.path;
+        _selectedFile = File(result.files.single.path!);
         _fileName = result.files.single.name;
       });
     }
@@ -51,7 +80,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
       _isProcessing = true;
     });
     try {
-      final doc = await PdfDocument.openFile(_selectedFile!);
+      final doc = await PdfDocument.openFile(_selectedFile!.path);
       final dir = await getApplicationDocumentsDirectory();
       final pdfDoc = pw.Document();
       for (int i = 1; i <= doc.pagesCount; i++) {
@@ -81,7 +110,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
                     top: page.height / 2 - 30,
                     child: pw.Center(
                       child: pw.Opacity(
-                        opacity: _opacity,
+                        opacity: 0.3,
                         child: pw.Text(
                           _watermarkTextController.text,
                           style: pw.TextStyle(
@@ -166,6 +195,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
   @override
   void dispose() {
     _watermarkTextController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -195,13 +225,17 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
             if (_selectedFile == null)
               Expanded(
                 child: Center(
-                  child: ElevatedButton.icon(
-                    onPressed: _selectFile,
-                    icon: const Icon(Icons.upload_file),
-                    label: Text(loc.translate('Select pdf file')),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+                  child: AnimatedScale(
+                    scale: _scaleAnimation.value,
+                    duration: const Duration(milliseconds: 500),
+                    child: ElevatedButton.icon(
+                      onPressed: _selectFile,
+                      icon: const Icon(Icons.upload_file),
+                      label: Text(loc.translate('Select pdf file')),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                      ),
                     ),
                   ),
                 ),
@@ -209,46 +243,49 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> {
             else
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.picture_as_pdf),
-                          title: Text(
-                            _fileName ?? _selectedFile!,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () {
-                              setState(() {
-                                _selectedFile = null;
-                                _fileName = null;
-                                _watermarkTextController.clear();
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        loc.translate('watermark_text'),
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _watermarkTextController,
-                        decoration: InputDecoration(
-                          labelText: loc.translate('enter_watermark_text'),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Card(
+                          child: ListTile(
+                            leading: const Icon(Icons.picture_as_pdf),
+                            title: Text(
+                              _fileName ?? _selectedFile!.path,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedFile = null;
+                                  _fileName = null;
+                                  _watermarkTextController.clear();
+                                });
+                              },
+                            ),
                           ),
                         ),
-                        onChanged: (_) => setState(() {}),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
+                        const SizedBox(height: 24),
+                        Text(
+                          loc.translate('watermark_text'),
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: _watermarkTextController,
+                          decoration: InputDecoration(
+                            labelText: loc.translate('enter_watermark_text'),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
                   ),
                 ),
               ),

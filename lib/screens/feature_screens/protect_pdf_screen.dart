@@ -13,12 +13,36 @@ class ProtectPdfScreen extends StatefulWidget {
   State<ProtectPdfScreen> createState() => _ProtectPdfScreenState();
 }
 
-class _ProtectPdfScreenState extends State<ProtectPdfScreen> {
-  String? _selectedFile;
-  String? _fileName;
-  final TextEditingController _passwordController = TextEditingController();
+class _ProtectPdfScreenState extends State<ProtectPdfScreen> with SingleTickerProviderStateMixin {
+  File? _selectedFile;
+  String _password = '';
   bool _isProcessing = false;
-  bool _isPasswordVisible = false;
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutBack,
+    ));
+
+    _animationController.forward();
+  }
 
   Future<void> _selectFile() async {
     final result = await fp.FilePicker.platform.pickFiles(
@@ -27,14 +51,13 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen> {
     );
     if (result != null && result.files.single.path != null) {
       setState(() {
-        _selectedFile = result.files.single.path;
-        _fileName = result.files.single.name;
+        _selectedFile = File(result.files.single.path!);
       });
     }
   }
 
   Future<void> _protectPdf() async {
-    if (_selectedFile == null || _passwordController.text.trim().isEmpty)
+    if (_selectedFile == null || _password.isEmpty)
       return;
 
     setState(() {
@@ -42,21 +65,17 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen> {
     });
 
     try {
-      final File file = File(_selectedFile!);
-      final List<int> bytes = await file.readAsBytes();
+      final PdfDocument document = PdfDocument(inputBytes: await _selectedFile!.readAsBytes());
 
-      final PdfDocument document = PdfDocument(inputBytes: bytes);
-
-      final password = _passwordController.text.trim();
-      document.security.userPassword = password;
-      document.security.ownerPassword = password;
+      document.security.userPassword = _password;
+      document.security.ownerPassword = _password;
 
       final List<int> protectedBytes = await document.save();
       document.dispose();
 
       final outputDir = await getApplicationDocumentsDirectory();
       final outputPath =
-          '${outputDir.path}/protected_${_fileName ?? 'output.pdf'}';
+          '${outputDir.path}/protected_${_selectedFile!.path.split('/').last}';
       final File protectedFile = File(outputPath);
       await protectedFile.writeAsBytes(protectedBytes);
 
@@ -84,7 +103,7 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen> {
 
   @override
   void dispose() {
-    _passwordController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -97,7 +116,7 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen> {
       icon: Icons.lock,
       actionButtonLabel: loc.translate('Protect PDF'),
       isActionButtonEnabled: _selectedFile != null &&
-          _passwordController.text.trim().isNotEmpty &&
+          _password.isNotEmpty &&
           !_isProcessing,
       isProcessing: _isProcessing,
       onActionButtonPressed: _protectPdf,
@@ -115,13 +134,17 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen> {
             if (_selectedFile == null)
               Expanded(
                 child: Center(
-                  child: ElevatedButton.icon(
-                    onPressed: _selectFile,
-                    icon: const Icon(Icons.upload_file),
-                    label: Text(loc.translate('Select pdf file')),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+                  child: AnimatedScale(
+                    scale: _scaleAnimation.value,
+                    duration: const Duration(milliseconds: 500),
+                    child: ElevatedButton.icon(
+                      onPressed: _selectFile,
+                      icon: const Icon(Icons.upload_file),
+                      label: Text(loc.translate('Select pdf file')),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                      ),
                     ),
                   ),
                 ),
@@ -129,54 +152,44 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen> {
             else
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.picture_as_pdf),
-                          title: Text(
-                            _fileName ?? _selectedFile!,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () {
-                              setState(() {
-                                _selectedFile = null;
-                                _fileName = null;
-                                _passwordController.clear();
-                                _isPasswordVisible = false;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: !_isPasswordVisible,
-                        decoration: InputDecoration(
-                          labelText: loc.translate('Enter password'),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Card(
+                          child: ListTile(
+                            leading: const Icon(Icons.picture_as_pdf),
+                            title: Text(
+                              _selectedFile!.path.split('/').last,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
+                            trailing: IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedFile = null;
+                                  _password = '';
+                                });
+                              },
+                            ),
                           ),
                         ),
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    ],
+                        const SizedBox(height: 24),
+                        TextField(
+                          controller: TextEditingController(text: _password),
+                          onChanged: (value) => setState(() {
+                            _password = value;
+                          }),
+                          decoration: InputDecoration(
+                            labelText: loc.translate('Enter password'),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

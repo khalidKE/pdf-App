@@ -21,9 +21,35 @@ class TextToPdfScreen extends StatefulWidget {
   State<TextToPdfScreen> createState() => _TextToPdfScreenState();
 }
 
-class _TextToPdfScreenState extends State<TextToPdfScreen> {
+class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _textController = TextEditingController();
   bool _isProcessing = false;
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutBack,
+    ));
+
+    _animationController.forward();
+  }
 
   Future<void> _createPdf() async {
     if (_textController.text.trim().isEmpty) return;
@@ -107,6 +133,7 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
   @override
   void dispose() {
     _textController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -133,22 +160,25 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: TextField(
-                  controller: _textController,
-                  maxLines: null,
-                  expands: true,
-                  textAlignVertical: TextAlignVertical.top,
-                  decoration: InputDecoration(
-                    hintText: loc.translate('Enter text here'),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(16),
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  onChanged: (_) => setState(() {}),
+                  child: TextField(
+                    controller: _textController,
+                    maxLines: null,
+                    expands: true,
+                    textAlignVertical: TextAlignVertical.top,
+                    decoration: InputDecoration(
+                      hintText: loc.translate('Enter text here'),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(16),
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
                 ),
               ),
             ),

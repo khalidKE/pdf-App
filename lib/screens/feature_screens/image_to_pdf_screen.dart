@@ -25,17 +25,46 @@ class ImageToPdfScreen extends StatefulWidget {
   State<ImageToPdfScreen> createState() => _ImageToPdfScreenState();
 }
 
-class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
-  final List<XFile> _selectedImages = [];
+class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerProviderStateMixin {
+  List<File> _selectedImages = [];
+  List<String> _imageNames = [];
   bool _isProcessing = false;
   final ImagePicker _picker = ImagePicker();
+
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutBack,
+    ));
+
+    _animationController.forward();
+  }
 
   Future<void> _selectImages() async {
     final List<XFile>? images = await _picker.pickMultiImage();
 
     if (images != null && images.isNotEmpty) {
       setState(() {
-        _selectedImages.addAll(images);
+        _selectedImages.addAll(images.map((e) => File(e.path)));
+        _imageNames.addAll(images.map((e) => e.name));
       });
     }
   }
@@ -45,7 +74,8 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
       final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
       if (photo != null) {
         setState(() {
-          _selectedImages.add(photo);
+          _selectedImages.add(File(photo.path));
+          _imageNames.add(photo.name);
         });
       }
     } on PlatformException catch (e) {
@@ -90,7 +120,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
       // Add each image as a page
       for (var imageFile in _selectedImages) {
         final image = pw.MemoryImage(
-          File(imageFile.path).readAsBytesSync(),
+          imageFile.readAsBytesSync(),
         );
 
         pdf.addPage(
@@ -164,6 +194,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
       // Clear selected images
       setState(() {
         _selectedImages.clear();
+        _imageNames.clear();
       });
     } catch (e) {
       // Show error message
@@ -183,7 +214,14 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
   void _removeImage(int index) {
     setState(() {
       _selectedImages.removeAt(index);
+      _imageNames.removeAt(index);
     });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -203,29 +241,37 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              loc.translate(
-                  'Select images from your device or take photos with your camera to convert them into a PDF document.'),
-              textAlign: TextAlign.center,
+          AnimatedOpacity(
+            opacity: 1.0,
+            duration: const Duration(milliseconds: 500),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                loc.translate(
+                    'Select images from your device or take photos with your camera to convert them into a PDF document.'),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                onPressed: _selectImages,
-                icon: const Icon(Icons.photo_library),
-                label: Text(loc.translate('Select Images')),
-              ),
-              const SizedBox(width: 16),
-              ElevatedButton.icon(
-                onPressed: _takePhoto,
-                icon: const Icon(Icons.camera_alt),
-                label: Text(loc.translate('Take Photo')),
-              ),
-            ],
+          AnimatedScale(
+            scale: _scaleAnimation.value,
+            duration: const Duration(milliseconds: 500),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _selectImages,
+                  icon: const Icon(Icons.photo_library),
+                  label: Text(loc.translate('Select Images')),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: _takePhoto,
+                  icon: const Icon(Icons.camera_alt),
+                  label: Text(loc.translate('Take Photo')),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -249,70 +295,24 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
                       ],
                     ),
                   )
-                : GridView.builder(
-                    padding: const EdgeInsets.all(16),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.75,
+                : SlideTransition(
+                    position: _slideAnimation,
+                    child: GridView.builder(
+                      padding: const EdgeInsets.all(16),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                      ),
+                      itemCount: _selectedImages.length,
+                      itemBuilder: (context, index) {
+                        return Image.file(
+                          _selectedImages[index],
+                          fit: BoxFit.cover,
+                        );
+                      },
                     ),
-                    itemCount: _selectedImages.length,
-                    itemBuilder: (context, index) {
-                      return _buildImageCard(index);
-                    },
                   ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImageCard(int index) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.file(
-            File(_selectedImages[index].path),
-            fit: BoxFit.cover,
-          ),
-          Positioned(
-            top: 8,
-            right: 8,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onPressed: () => _removeImage(index),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              color: Colors.black.withOpacity(0.5),
-              child: Text(
-                'Image ${index + 1}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
           ),
         ],
       ),

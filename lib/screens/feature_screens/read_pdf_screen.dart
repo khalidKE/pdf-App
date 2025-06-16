@@ -22,15 +22,32 @@ class ReadPdfScreen extends StatefulWidget {
   State<ReadPdfScreen> createState() => _ReadPdfScreenState();
 }
 
-class _ReadPdfScreenState extends State<ReadPdfScreen> {
+class _ReadPdfScreenState extends State<ReadPdfScreen> with SingleTickerProviderStateMixin {
   int _currentPage = 0;
   int _totalPages = 0;
   bool _isLoading = true;
   PDFViewController? _pdfViewController;
 
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
+
   @override
   void initState() {
     super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1.0), // Slide from bottom
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+
+    _animationController.forward();
 
     // Add to recent files
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -48,6 +65,12 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> {
         fileProvider.addRecentFile(fileItem);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -114,80 +137,88 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> {
       ),
       body: Stack(
         children: [
-          PDFView(
-            filePath: widget.filePath,
-            enableSwipe: true,
-            swipeHorizontal: true,
-            autoSpacing: true,
-            pageFling: true,
-            pageSnap: true,
-            defaultPage: _currentPage,
-            onRender: (_pages) {
-              setState(() {
-                _totalPages = _pages!;
-                _isLoading = false;
-              });
-            },
-            onError: (error) {
-              setState(() {
-                _isLoading = false;
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(error.toString()),
-                ),
-              );
-            },
-            onPageError: (page, error) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Error loading page $page: $error'),
-                ),
-              );
-            },
-            onViewCreated: (PDFViewController pdfViewController) {
-              _pdfViewController = pdfViewController;
-            },
-            onPageChanged: (int? page, int? total) {
-              setState(() {
-                _currentPage = page!;
-              });
-            },
+          AnimatedOpacity(
+            opacity: 1.0,
+            duration: const Duration(milliseconds: 500),
+            child: PDFView(
+              filePath: widget.filePath,
+              enableSwipe: true,
+              swipeHorizontal: true,
+              autoSpacing: true,
+              pageFling: true,
+              pageSnap: true,
+              defaultPage: _currentPage,
+              onRender: (_pages) {
+                setState(() {
+                  _totalPages = _pages!;
+                  _isLoading = false;
+                });
+              },
+              onError: (error) {
+                setState(() {
+                  _isLoading = false;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(error.toString()),
+                  ),
+                );
+              },
+              onPageError: (page, error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error loading page $page: $error'),
+                  ),
+                );
+              },
+              onViewCreated: (PDFViewController pdfViewController) {
+                _pdfViewController = pdfViewController;
+              },
+              onPageChanged: (int? page, int? total) {
+                setState(() {
+                  _currentPage = page!;
+                });
+              },
+            ),
           ),
-          _isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : const SizedBox.shrink(),
+          if (_isLoading)
+            Center(
+              child: CircularProgressIndicator(),
+            )
+          else
+            const SizedBox.shrink(),
         ],
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        color: Theme.of(context).colorScheme.surface,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back_ios),
-              onPressed: _currentPage > 0
-                  ? () {
-                      _pdfViewController?.setPage(_currentPage - 1);
-                    }
-                  : null,
-            ),
-            Text(
-              '${_currentPage + 1} / $_totalPages',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            IconButton(
-              icon: const Icon(Icons.arrow_forward_ios),
-              onPressed: _currentPage < _totalPages - 1
-                  ? () {
-                      _pdfViewController?.setPage(_currentPage + 1);
-                    }
-                  : null,
-            ),
-          ],
+      bottomNavigationBar: SlideTransition(
+        position: _slideAnimation,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          color: Theme.of(context).colorScheme.surface,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios),
+                onPressed: _currentPage > 0
+                    ? () {
+                        _pdfViewController?.setPage(_currentPage - 1);
+                      }
+                    : null,
+              ),
+              Text(
+                '${_currentPage + 1} / $_totalPages',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: const Icon(Icons.arrow_forward_ios),
+                onPressed: _currentPage < _totalPages - 1
+                    ? () {
+                        _pdfViewController?.setPage(_currentPage + 1);
+                      }
+                    : null,
+              ),
+            ],
+          ),
         ),
       ),
     );
