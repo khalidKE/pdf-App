@@ -6,7 +6,7 @@ import 'package:pdf_utility_pro/providers/theme_provider.dart';
 import 'package:pdf_utility_pro/providers/language_provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/providers/settings_provider.dart';
-import 'package:pdf_utility_pro/screens/home_screen.dart';
+import 'package:pdf_utility_pro/screens/splash_screen.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pdf_utility_pro/utils/permission_handler.dart';
@@ -251,7 +251,7 @@ class MyApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            home: const HomeScreen(),
+            home: const SplashScreen(),
           );
         },
       ),
