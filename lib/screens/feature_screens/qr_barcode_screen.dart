@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:path/path.dart' as p;
+import 'package:url_launcher/url_launcher.dart'; // Add this import
 
 class QrBarcodeScreen extends StatefulWidget {
   const QrBarcodeScreen({Key? key}) : super(key: key);
@@ -63,6 +64,16 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not launch $url')),
       );
     }
   }
@@ -238,9 +249,12 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
         if (_scanResult != null)
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Text(
-              '${loc.translate('scan_result')}: $_scanResult',
-              style: Theme.of(context).textTheme.titleMedium,
+            child: TextButton(
+              onPressed: () => _launchURL(_scanResult!),
+              child: Text(
+                '${loc.translate('scan_result')}: $_scanResult',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
             ),
           ),
       ],
