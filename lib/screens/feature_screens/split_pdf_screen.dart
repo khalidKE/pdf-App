@@ -45,93 +45,91 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
 
   List<int> _parsePages(String input) {
     final List<int> pages = [];
-    final parts = input.split(',');
+    final parts =
+        input.replaceAll(':', '-').split(',').map((part) => part.trim());
     for (var part in parts) {
       if (part.contains('-')) {
         final range = part.split('-');
         if (range.length == 2) {
-          final start = int.tryParse(range[0].trim());
-          final end = int.tryParse(range[1].trim());
-          if (start != null && end != null && start <= end) {
+          final start = int.tryParse(range[0]);
+          final end = int.tryParse(range[1]);
+          if (start != null && end != null && start > 0 && end >= start) {
             pages.addAll(List.generate(end - start + 1, (i) => start + i));
           }
         }
       } else {
-        final page = int.tryParse(part.trim());
-        if (page != null) pages.add(page);
+        final page = int.tryParse(part);
+        if (page != null && page > 0) {
+          pages.add(page);
+        }
       }
     }
-    return pages;
+    return pages.toSet().toList()..sort();
   }
 
   Future<void> _splitPdf() async {
     if (_selectedFile == null || _pagesController.text.trim().isEmpty) return;
-    setState(() {
-      _isProcessing = true;
-    });
+    setState(() => _isProcessing = true);
+
     try {
       final pages = _parsePages(_pagesController.text.trim());
       if (pages.isEmpty) throw Exception('No valid pages specified.');
+
       final doc = await PdfDocument.openFile(_selectedFile!);
+      final outputPdf = pw.Document();
       final dir = await getApplicationDocumentsDirectory();
-      final splitFiles = <String>[];
+
       for (final pageNum in pages) {
         if (pageNum < 1 || pageNum > doc.pagesCount) continue;
+
         final page = await doc.getPage(pageNum);
-        final pageImage = await page.render(
+        final image = await page.render(
           width: page.width,
           height: page.height,
           format: PdfPageImageFormat.png,
         );
-        final bytes = pageImage?.bytes;
-        if (bytes == null) {
-          await page.close();
-          continue;
-        }
-        final img = pw.MemoryImage(bytes);
-        final pdfDoc = pw.Document();
-        pdfDoc.addPage(
-          pw.Page(
-            pageFormat: pdf.PdfPageFormat(
-                page.width.toDouble(), page.height.toDouble()),
-            build: (pw.Context context) {
-              return pw.Center(child: pw.Image(img));
-            },
-          ),
-        );
-        final fileName =
-            'Split_Page_${pageNum}_${DateTime.now().millisecondsSinceEpoch}.pdf';
-        final filePath = '${dir.path}/$fileName';
-        final file = File(filePath);
-        await file.writeAsBytes(await pdfDoc.save());
-        splitFiles.add(filePath);
         await page.close();
+
+        if (image?.bytes != null) {
+          final img = pw.MemoryImage(image!.bytes);
+          outputPdf.addPage(
+            pw.Page(
+              pageFormat: pdf.PdfPageFormat(
+                page.width.toDouble(),
+                page.height.toDouble(),
+              ),
+              build: (pw.Context context) => pw.Center(child: pw.Image(img)),
+            ),
+          );
+        }
       }
+
+      final outputPath =
+          '${dir.path}/Split_Pages_${pages.first}-${pages.last}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final outputFile = File(outputPath);
+      await outputFile.writeAsBytes(await outputPdf.save());
+
       await doc.close();
-      if (splitFiles.isEmpty) throw Exception('No pages were split.');
-      // Add to recent files
+
       final fileProvider = Provider.of<FileProvider>(context, listen: false);
-      for (final filePath in splitFiles) {
-        final file = File(filePath);
-        final fileItem = FileItem(
-          name: filePath.split('/').last,
-          path: filePath,
-          size: file.lengthSync(),
-          dateModified: file.lastModifiedSync(),
-          type: FileType.pdf,
-        );
-        fileProvider.addRecentFile(fileItem);
-      }
-      // Add to history
-      final outputFilePath = splitFiles.first;
+      final fileItem = FileItem(
+        name: p.basename(outputPath),
+        path: outputPath,
+        size: outputFile.lengthSync(),
+        dateModified: outputFile.lastModifiedSync(),
+        type: FileType.pdf,
+      );
+      fileProvider.addRecentFile(fileItem);
+
       Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
         HistoryItem(
-          title: p.basename(outputFilePath),
-          filePath: outputFilePath,
+          title: p.basename(outputPath),
+          filePath: outputPath,
           operation: 'Split PDF',
           timestamp: DateTime.now(),
         ),
       );
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -145,14 +143,14 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      ReadPdfScreen(filePath: splitFiles.first),
+                  builder: (context) => ReadPdfScreen(filePath: outputPath),
                 ),
               );
             },
           ),
         ),
       );
+
       setState(() {
         _selectedFile = null;
         _fileName = null;
@@ -166,9 +164,7 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
         ),
       );
     } finally {
-      setState(() {
-        _isProcessing = false;
-      });
+      setState(() => _isProcessing = false);
     }
   }
 
@@ -197,7 +193,7 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
           children: [
             Text(
               loc.translate(
-                  'Select a PDF file and specify the pages to split into separate PDF documents.'),
+                  'Select a PDF file and specify the pages to split into a single PDF document.'),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -242,15 +238,14 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        loc.translate('split_options'),
+                        loc.translate('split pages'),
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 16),
                       TextField(
                         controller: _pagesController,
                         decoration: InputDecoration(
-                          labelText: loc.translate('pages_to_split'),
-                          hintText: loc.translate('pages_hint'),
+                          labelText: loc.translate('pages to split'),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -260,7 +255,7 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        loc.translate('pages_format_help'),
+                        'Enter single pages (e.g., "2") or ranges (e.g., "2-4" or "2:4").',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],

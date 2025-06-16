@@ -54,7 +54,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content:
-                  Text(AppLocalizations.of(context).translate('qr_saved'))),
+                  Text(AppLocalizations.of(context).translate('QR Saved'))),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -252,7 +252,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
             child: TextButton(
               onPressed: () => _launchURL(_scanResult!),
               child: Text(
-                '${loc.translate('scan_result')}: $_scanResult',
+                '${loc.translate('Scan result')}: $_scanResult',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
