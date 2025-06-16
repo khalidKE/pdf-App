@@ -12,6 +12,8 @@ import 'package:pdf_utility_pro/screens/feature_screens/add_watermark_screen.dar
 import 'package:pdf_utility_pro/screens/feature_screens/add_signature_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/extract_text_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/view_files_screen.dart';
+import 'package:pdf_utility_pro/screens/feature_screens/compress_pdf_screen.dart';
+import 'package:pdf_utility_pro/screens/feature_screens/protect_pdf_screen.dart';
 import 'package:pdf_utility_pro/utils/constants.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
@@ -109,6 +111,24 @@ class FeatureGrid extends StatelessWidget {
         color: AppConstants.secondaryColor,
         screen: const ViewFilesScreen(),
         category: 'view',
+      ),
+      Feature(
+        title: loc.translate('Protect PDF'),
+        description: loc.translate('Add password to PDF'),
+        icon: Icons.lock,
+        color: AppConstants.errorColor,
+        screen: const ProtectPdfScreen(),
+        category: 'security',
+        isNew: true,
+      ),
+      Feature(
+        title: loc.translate('Compress PDF'),
+        description: loc.translate('Reduce PDF file size'),
+        icon: Icons.compress,
+        color: AppConstants.successColor,
+        screen: const CompressPdfScreen(),
+        category: 'utility',
+        isNew: true,
       ),
     ];
   }
