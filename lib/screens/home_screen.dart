@@ -40,53 +40,78 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
+  Future<bool> _onWillPop(AppLocalizations loc) async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(loc.translate('Exit App')),
+            content: Text(loc.translate('Are you sure you want to exit?')),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(loc.translate('Stay')),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(loc.translate('Exit')),
+              ),
+            ],
+          ),
+        )) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context) {
     try {
       final languageProvider = Provider.of<LanguageProvider>(context);
       final isRtl = languageProvider.isRTL;
+      final loc = AppLocalizations.of(context);
 
       return Directionality(
         textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(
-              AppLocalizations.of(context).translate(' Pdf Utility Pro'),
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            centerTitle: true,
-            elevation: 0,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: () {
-                  // Implement search functionality
-                  showSearch(
-                    context: context,
-                    delegate: AppSearchDelegate(),
-                  );
-                },
+        child: WillPopScope(
+          onWillPop: () => _onWillPop(loc),
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(
+                loc.translate(' Pdf Utility Pro'),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-            ],
-            bottom: TabBar(
-              controller: _tabController,
-              tabs: [
-                Tab(text: AppLocalizations.of(context).translate('Tools')),
-                Tab(text: AppLocalizations.of(context).translate('Recent')),
-                Tab(text: AppLocalizations.of(context).translate('Favorites')),
+              centerTitle: true,
+              elevation: 0,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    // Implement search functionality
+                    showSearch(
+                      context: context,
+                      delegate: AppSearchDelegate(),
+                    );
+                  },
+                ),
               ],
-              indicatorSize: TabBarIndicatorSize.label,
-              indicatorWeight: 3,
+              bottom: TabBar(
+                controller: _tabController,
+                tabs: [
+                  Tab(text: loc.translate('Tools')),
+                  Tab(text: loc.translate('Recent')),
+                  Tab(text: loc.translate('Favorites')),
+                ],
+                indicatorSize: TabBarIndicatorSize.label,
+                indicatorWeight: 3,
+              ),
             ),
-          ),
-          drawer: const CustomDrawer(),
-          body: TabBarView(
-            controller: _tabController,
-            children: const [
-              FeatureGrid(),
-              RecentFilesTab(),
-              FavoritesTab(),
-            ],
+            drawer: const CustomDrawer(),
+            body: TabBarView(
+              controller: _tabController,
+              children: const [
+                FeatureGrid(),
+                RecentFilesTab(),
+                FavoritesTab(),
+              ],
+            ),
           ),
         ),
       );
