@@ -10,7 +10,7 @@ class HistoryProvider with ChangeNotifier {
 
   Future<void> loadHistory() async {
     final prefs = await SharedPreferences.getInstance();
-    final historyJson = prefs.getString('history_items');
+    final historyJson = prefs.getString('history items');
     if (historyJson != null) {
       final List decoded = jsonDecode(historyJson);
       _historyItems = decoded.map((e) => HistoryItem.fromJson(e)).toList();
@@ -19,8 +19,7 @@ class HistoryProvider with ChangeNotifier {
     }
     notifyListeners();
   }
-
-  Future<void> addHistoryItem(HistoryItem item) async {
+ Future<void> addHistoryItem(HistoryItem item) async {
     _historyItems.insert(0, item);
     await _saveHistory();
     notifyListeners();
@@ -35,13 +34,13 @@ class HistoryProvider with ChangeNotifier {
   Future<void> clearHistory() async {
     _historyItems.clear();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('history_items');
+    await prefs.remove('history items');
     notifyListeners();
   }
 
   Future<void> _saveHistory() async {
     final prefs = await SharedPreferences.getInstance();
     final encoded = jsonEncode(_historyItems.map((e) => e.toJson()).toList());
-    await prefs.setString('history_items', encoded);
+    await prefs.setString('history items', encoded);
   }
 }

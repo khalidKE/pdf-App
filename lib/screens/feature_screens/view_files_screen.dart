@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:pdf_utility_pro/utils/permission_handler.dart';
 
 class ViewFilesScreen extends StatefulWidget {
   const ViewFilesScreen({super.key});
@@ -58,7 +58,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen>
   }
 
   Future<void> _initializeDirectory() async {
-    if (!await _requestPermissions()) {
+    if (!await AppPermissionHandler.requestStoragePermission()) {
       if (!mounted) return;
       _showSnackBar(
           'Storage permission denied. Please grant permission to access files.',
@@ -70,9 +70,9 @@ class _ViewFilesScreenState extends State<ViewFilesScreen>
     }
 
     try {
-      final dir = await getApplicationDocumentsDirectory();
+      final appDirPath = await AppPermissionHandler.getAppDirectory();
       setState(() {
-        _currentPath = dir.path;
+        _currentPath = appDirPath;
         _loadFiles();
       });
     } catch (e) {
@@ -82,22 +82,6 @@ class _ViewFilesScreenState extends State<ViewFilesScreen>
         _isLoading = false;
       });
     }
-  }
-
-  Future<bool> _requestPermissions() async {
-    if (Platform.isAndroid) {
-      if (await Permission.manageExternalStorage.isDenied) {
-        final status = await Permission.manageExternalStorage.request();
-        if (status.isDenied) {
-          return await Permission.storage.request().isGranted;
-        }
-        return status.isGranted;
-      }
-      return await Permission.storage.isGranted;
-    } else if (Platform.isIOS) {
-      return await Permission.storage.request().isGranted;
-    }
-    return true;
   }
 
   void _loadFiles() {
@@ -957,6 +941,9 @@ class FileSearchDelegate extends SearchDelegate<String> {
       case 'xls':
       case 'xlsx':
         return 'Excel File';
+      case 'ppt':
+      case 'pptx':
+        return 'PowerPoint Presentation';
       case 'txt':
         return 'Text File';
       default:

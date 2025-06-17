@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:pdf_utility_pro/screens/home_screen.dart';
+import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
+import 'package:pdf_utility_pro/utils/pdf_intent_handler.dart';
 import 'package:shimmer/shimmer.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -52,21 +54,55 @@ class _SplashScreenState extends State<SplashScreen>
 
     _animationController.forward();
 
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const HomeScreen(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 500),
-          ),
-        );
+    _checkForPdfFile();
+  }
+
+  Future<void> _checkForPdfFile() async {
+    // Wait for a short delay to ensure the splash screen is shown
+    await Future.delayed(const Duration(seconds: 2));
+    
+    if (!mounted) return;
+
+    try {
+      // Check if the app was opened with a PDF file
+      final hasPdfFile = await PdfIntentHandler.hasPdfFile();
+      
+      if (hasPdfFile) {
+        final pdfFilePath = await PdfIntentHandler.getPdfFilePath();
+        if (pdfFilePath != null && mounted) {
+          // Navigate to PDF reader with the file
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  ReadPdfScreen(filePath: pdfFilePath),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              transitionDuration: const Duration(milliseconds: 500),
+            ),
+          );
+          return;
+        }
       }
-    });
+    } catch (e) {
+      debugPrint('Error checking for PDF file: $e');
+    }
+
+    // If no PDF file or error occurred, navigate to home screen
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const HomeScreen(),
+          transitionsBuilder:
+              (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+        ),
+      );
+    }
   }
 
   @override

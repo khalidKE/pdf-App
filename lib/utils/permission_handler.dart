@@ -11,8 +11,21 @@ class AppPermissionHandler {
   
   static Future<bool> requestStoragePermission() async {
     if (Platform.isAndroid) {
-      final status = await Permission.storage.request();
-      return status.isGranted;
+      if (await Permission.manageExternalStorage.isDenied) {
+        final status = await Permission.manageExternalStorage.request();
+        if (status.isDenied) {
+          // If MANAGE_EXTERNAL_STORAGE is denied again, guide user to app settings
+          await openAppSettings();
+          return false;
+        }
+        return status.isGranted; // Permission granted from initial request
+      } else if (await Permission.manageExternalStorage.isGranted) {
+        return true; // MANAGE_EXTERNAL_STORAGE is already granted
+      } else {
+        // Fallback for older Android versions or if MANAGE_EXTERNAL_STORAGE is not applicable/needed
+        final status = await Permission.storage.request();
+        return status.isGranted;
+      }
     } else if (Platform.isIOS) {
       // iOS doesn't need explicit permission for app document directory
       return true;

@@ -5,6 +5,8 @@ import 'package:pdf_utility_pro/widgets/recent_files_list.dart';
 import 'package:pdf_utility_pro/widgets/favorite_files_list.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
+import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
+import 'package:pdf_utility_pro/utils/pdf_intent_handler.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -14,13 +16,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addObserver(this);
 
     // Load files when the screen is first shown
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -34,7 +37,38 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    // Check for PDF files when app becomes active
+    if (state == AppLifecycleState.resumed) {
+      _checkForPdfFile();
+    }
+  }
+
+  Future<void> _checkForPdfFile() async {
+    try {
+      final hasPdfFile = await PdfIntentHandler.hasPdfFile();
+      
+      if (hasPdfFile) {
+        final pdfFilePath = await PdfIntentHandler.getPdfFilePath();
+        if (pdfFilePath != null && mounted) {
+          // Navigate to PDF reader with the file
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ReadPdfScreen(filePath: pdfFilePath),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking for PDF file: $e');
+    }
   }
 
   Future<bool> _onWillPop() async {
