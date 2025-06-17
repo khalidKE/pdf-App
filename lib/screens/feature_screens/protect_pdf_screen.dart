@@ -56,8 +56,9 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen> with SingleTickerPr
   }
 
   Future<void> _protectPdf() async {
-    if (_selectedFile == null || _password.isEmpty)
+    if (_selectedFile == null || _password.isEmpty) {
       return;
+    }
 
     setState(() {
       _isProcessing = true;

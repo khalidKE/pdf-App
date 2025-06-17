@@ -6,8 +6,6 @@ import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
-import 'package:pdf_utility_pro/providers/history_provider.dart';
-import 'package:pdf_utility_pro/models/history_item.dart';
 
 class ReadPdfScreen extends StatefulWidget {
   final String filePath;
@@ -103,12 +101,12 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> with SingleTickerProvider
               }
             },
             itemBuilder: (context) => [
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'print',
                 child: Row(
                   children: [
-                    const Icon(Icons.print, size: 20),
-                    const SizedBox(width: 8),
+                    Icon(Icons.print, size: 20),
+                    SizedBox(width: 8),
                     Text('print'),
                   ],
                 ),
@@ -146,9 +144,9 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> with SingleTickerProvider
               pageFling: true,
               pageSnap: true,
               defaultPage: _currentPage,
-              onRender: (_pages) {
+              onRender: (pages) {
                 setState(() {
-                  _totalPages = _pages!;
+                  _totalPages = pages!;
                   _isLoading = false;
                 });
               },
@@ -180,7 +178,7 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> with SingleTickerProvider
             ),
           ),
           if (_isLoading)
-            Center(
+            const Center(
               child: CircularProgressIndicator(),
             )
           else
@@ -246,21 +244,11 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> with SingleTickerProvider
   Future<void> _printPdf() async {
     // Implement printing functionality
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text(
             'Printing functionality is not implemented yet'),
       ),
     );
   }
 
-  void _addToHistory(String editedFilePath) {
-    Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
-      HistoryItem(
-        title: path.basename(editedFilePath),
-        filePath: editedFilePath,
-        operation: 'read_pdf',
-        timestamp: DateTime.now(),
-      ),
-    );
-  }
 }

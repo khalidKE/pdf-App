@@ -4,12 +4,10 @@ import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/theme_provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
-import 'package:pdf_utility_pro/providers/settings_provider.dart';
 import 'package:pdf_utility_pro/screens/splash_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pdf_utility_pro/utils/permission_handler.dart';
 import 'package:pdf_utility_pro/utils/constants.dart';
-import 'package:pdf_utility_pro/widgets/error_widget.dart';
 import 'dart:async';
 
 void main() async {
@@ -40,7 +38,6 @@ void main() async {
                   ChangeNotifierProvider(create: (_) => HistoryProvider()),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
           ChangeNotifierProvider(create: (_) => FileProvider()),
-          ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ],
         child: const MyApp(),
       ),
@@ -56,11 +53,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ErrorBoundary(
-      onError: () {
-        debugPrint('Error occurred in app');
-      },
-      child: Consumer<ThemeProvider>(
+    return Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) {
           return MaterialApp(
             title: AppConstants.appName,
@@ -118,14 +111,14 @@ class MyApp extends StatelessWidget {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
+                  borderSide: const BorderSide(
                     color: AppConstants.primaryColor,
                     width: 2,
                   ),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
+                  borderSide: const BorderSide(
                     color: AppConstants.errorColor,
                     width: 1,
                   ),
@@ -245,12 +238,12 @@ class MyApp extends StatelessWidget {
             ],
             supportedLocales: const [
               Locale('en', 'US'),
-              Locale('ar', 'SA'),
+             
             ],
             home: const SplashScreen(),
           );
         },
-      ),
+      
     );
   }
 }

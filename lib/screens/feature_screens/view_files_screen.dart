@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:pdf_utility_pro/utils/constants.dart';
+
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:pdf_utility_pro/providers/file_provider.dart';
-import 'package:pdf_utility_pro/models/file_item.dart';
+
 import 'package:share_plus/share_plus.dart';
-import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ViewFilesScreen extends StatefulWidget {
@@ -258,8 +255,8 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Unsupported file type'),
+                  const SnackBar(
+                    content: Text('Unsupported file type'),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -390,9 +387,12 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
     if (name.endsWith('.pdf')) return Icons.picture_as_pdf;
     if (name.endsWith('.jpg') ||
         name.endsWith('.jpeg') ||
-        name.endsWith('.png')) return Icons.image;
-    if (name.endsWith('.xlsx') || name.endsWith('.xls'))
+        name.endsWith('.png')) {
+      return Icons.image;
+    }
+    if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
       return Icons.table_chart;
+    }
     if (name.endsWith('.ppt') || name.endsWith('.pptx')) return Icons.slideshow;
     if (name.endsWith('.txt')) return Icons.text_snippet;
     return Icons.insert_drive_file;
@@ -454,17 +454,17 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
               });
             },
             itemBuilder: (context) => [
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'name',
-                child: const Text('Sort by Name'),
+                child: Text('Sort by Name'),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'date',
-                child: const Text('Sort by Date'),
+                child: Text('Sort by Date'),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'size',
-                child: const Text('Sort by Size'),
+                child: Text('Sort by Size'),
               ),
             ],
           ),
@@ -502,7 +502,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
                         } else {
                           if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
+                            const SnackBar(
                               content: Text('Cannot access parent directory'),
                               backgroundColor: Colors.red,
                             ),
@@ -518,7 +518,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredFiles.isEmpty
-                    ? Center(child: Text('No files found'))
+                    ? const Center(child: Text('No files found'))
                     : ListView.builder(
                         itemCount: _filteredFiles.length,
                         itemBuilder: (context, index) {
@@ -550,7 +550,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
                                 );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
+                                  const SnackBar(
                                     content: Text('Unsupported file type'),
                                     backgroundColor: Colors.red,
                                   ),
@@ -644,7 +644,7 @@ class FileSearchDelegate extends SearchDelegate<String> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ViewFilesScreen(),
+                  builder: (context) => const ViewFilesScreen(),
                 ),
               ).then((_) {
                 // Update path after returning
@@ -675,9 +675,12 @@ class FileSearchDelegate extends SearchDelegate<String> {
     if (name.endsWith('.pdf')) return Icons.picture_as_pdf;
     if (name.endsWith('.jpg') ||
         name.endsWith('.jpeg') ||
-        name.endsWith('.png')) return Icons.image;
-    if (name.endsWith('.xlsx') || name.endsWith('.xls'))
+        name.endsWith('.png')) {
+      return Icons.image;
+    }
+    if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
       return Icons.table_chart;
+    }
     if (name.endsWith('.ppt') || name.endsWith('.pptx')) return Icons.slideshow;
     if (name.endsWith('.txt')) return Icons.text_snippet;
     return Icons.insert_drive_file;

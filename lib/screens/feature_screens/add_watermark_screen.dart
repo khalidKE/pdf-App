@@ -6,7 +6,6 @@ import 'package:pdf/pdf.dart' as pdf;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:pdf_utility_pro/utils/constants.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:provider/provider.dart';
@@ -23,12 +22,13 @@ class AddWatermarkScreen extends StatefulWidget {
   State<AddWatermarkScreen> createState() => _AddWatermarkScreenState();
 }
 
-class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTickerProviderStateMixin {
+class _AddWatermarkScreenState extends State<AddWatermarkScreen>
+    with SingleTickerProviderStateMixin {
   File? _selectedFile;
   String? _fileName;
   bool _isProcessing = false;
-  final TextEditingController _watermarkTextController = TextEditingController();
- 
+  final TextEditingController _watermarkTextController =
+      TextEditingController();
 
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
@@ -49,7 +49,8 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTick
       parent: _animationController,
       curve: Curves.easeOut,
     ));
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
+    _scaleAnimation =
+        Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOutBack,
     ));
@@ -212,8 +213,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTick
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              
-                  'Select a PDF file and add a text watermark to it.',
+              'Select a PDF file and add a text watermark to it.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -264,14 +264,14 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTick
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          'watermark_text',
+                          'Watermark text',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 16),
                         TextField(
                           controller: _watermarkTextController,
                           decoration: InputDecoration(
-                            labelText: 'enter_watermark_text',
+                            labelText: 'Enter watermark text',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),

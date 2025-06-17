@@ -233,7 +233,6 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return FeatureScreenTemplate(
       title: 'Add Signature',
       icon: Icons.draw,
@@ -247,8 +246,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              
-                  'Select a PDF file and draw your signature to add to it',
+              'Select a PDF file and draw your signature to add to it',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -296,7 +294,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'draw_signature',
+                          'Draw signature',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 8),
@@ -323,7 +321,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
               child: ElevatedButton.icon(
                 onPressed: _clearSignature,
                 icon: const Icon(Icons.clear),
-                label: const Text('clear_signature'),
+                label: const Text('Clear signature'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 176, 68, 56),
                 ),

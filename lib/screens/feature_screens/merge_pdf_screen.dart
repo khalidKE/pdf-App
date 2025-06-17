@@ -87,7 +87,6 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
         final mergedPath = response.response!;
         final file = File(mergedPath);
 
-        // تحقق من وجود الملف فعلياً قبل المتابعة
         if (!await file.exists()) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

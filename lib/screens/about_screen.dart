@@ -66,12 +66,20 @@ class AboutScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             InkWell(
-              onTap: () => _launchURL('mailto:support@pdfutilitypro.com'),
+              onTap: () => _launchURL('mailto:khalidelabd.fcai.usc@gmail.com'),
               child: const Text(
-                'support@pdfutilitypro.com',
+                'Developer',
                 style: TextStyle(
                   color: Colors.blue,
-                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: () => _launchURL('mailto:abuelhassan179@gmail.com'),
+              child: const Text(
+                'Owner',
+                style: TextStyle(
+                  color: Colors.blue,
                 ),
               ),
             ),

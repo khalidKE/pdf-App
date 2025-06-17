@@ -6,7 +6,6 @@ import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
-import 'package:intl/intl.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -81,13 +80,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
       HistoryItem(
         title: p.basename(filePath),
         filePath: filePath,
-        operation: 'open_pdf',
+        operation: 'open pdf',
         timestamp: DateTime.now(),
       ),
     );
-    // ثم افتح الملف فعلياً أو انتقل لشاشة القراءة
-    // Replace the following with your actual PDF viewer screen
-    // For example:
+    
 
     Navigator.push(
         context,

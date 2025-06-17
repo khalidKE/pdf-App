@@ -63,8 +63,9 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
     });
     try {
       final text = _extractTextFromDocx(_selectedFile!);
-      if (text.isEmpty)
+      if (text.isEmpty) {
         throw Exception('Could not extract text from Word file.');
+      }
       final pdf = pw.Document();
       pdf.addPage(
         pw.Page(
@@ -183,7 +184,7 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
               ElevatedButton.icon(
                 onPressed: _selectFile,
                 icon: const Icon(Icons.upload_file),
-                label: Text('Select word file'),
+                label: const Text('Select word file'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 24, vertical: 12),

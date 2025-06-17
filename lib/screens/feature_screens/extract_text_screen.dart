@@ -66,8 +66,8 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Error selecting file'),
+        const SnackBar(
+          content: Text('Error selecting file'),
           backgroundColor: Colors.red,
         ),
       );
@@ -108,8 +108,8 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Text extracted successfully'),
+        const SnackBar(
+          content: Text('Text extracted successfully'),
           backgroundColor: Colors.green,
         ),
       );
@@ -134,8 +134,8 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
       await Clipboard.setData(ClipboardData(text: _extractedText));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Text copied'),
+        const SnackBar(
+          content: Text('Text copied'),
           backgroundColor: Colors.green,
         ),
       );

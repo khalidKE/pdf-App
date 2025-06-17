@@ -25,7 +25,6 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
   bool _isProcessing = false;
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
-  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
@@ -41,10 +40,6 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOut,
-    ));
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutBack,
     ));
 
     _animationController.forward();

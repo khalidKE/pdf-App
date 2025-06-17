@@ -232,8 +232,8 @@ class AppSearchDelegate extends SearchDelegate {
     final fileProvider = Provider.of<FileProvider>(context);
 
     if (query.isEmpty) {
-      return Center(
-        child: Text('search_hint'),
+      return const Center(
+        child: Text('Search for files'),
       );
     }
 
@@ -246,19 +246,19 @@ class AppSearchDelegate extends SearchDelegate {
         .toList();
 
     if (recentResults.isEmpty && favoriteResults.isEmpty) {
-      return Center(
-        child: Text('no_search_results'),
+      return const Center(
+        child: Text('No search results'),
       );
     }
 
     return ListView(
       children: [
         if (recentResults.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.all(16),
+          const Padding(
+            padding: EdgeInsets.all(16),
             child: Text(
-              'recent_files',
-              style: const TextStyle(
+              'Recent Files',
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),
@@ -275,11 +275,11 @@ class AppSearchDelegate extends SearchDelegate {
               )),
         ],
         if (favoriteResults.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.all(16),
+          const Padding(
+            padding: EdgeInsets.all(16),
             child: Text(
               'favorites',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:pdf_utility_pro/screens/home_screen.dart';
-import 'package:pdf_utility_pro/utils/constants.dart';
 import 'package:shimmer/shimmer.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -129,7 +128,7 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
                             ],
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.picture_as_pdf,
                             size: 80,
                             color: Colors.white,
@@ -149,7 +148,7 @@ class _SplashScreenState extends State<SplashScreen>
                       baseColor: Colors.white,
                       highlightColor: theme.colorScheme.secondary,
                       period: const Duration(milliseconds: 1500),
-                      child: Text(
+                      child: const Text(
                         'PDF Utility Pro',
                         style: TextStyle(
                           fontSize: 40,

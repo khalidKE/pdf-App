@@ -79,8 +79,8 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
     } on PlatformException catch (e) {
       if (e.code == 'camera_access_denied') {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Camera access denied'),
+          const SnackBar(
+            content: Text('Camera access denied'),
             backgroundColor: AppConstants.errorColor,
           ),
         );

@@ -70,17 +70,7 @@ class CustomDrawer extends StatelessWidget {
                     );
                   },
                 ),
-                // ListTile(
-                //   leading: const Icon(Icons.settings),
-                //   title: Text('settings')),
-                //   onTap: () {
-                //     Navigator.pop(context);
-                //     Navigator.push(
-                //       context,
-                //       MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                //     );
-                //   },
-                // ),
+               
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.brightness_6),
@@ -93,18 +83,18 @@ class CustomDrawer extends StatelessWidget {
                         themeProvider.setThemeMode(newThemeMode);
                       }
                     },
-                    items: [
+                    items: const [
                       DropdownMenuItem(
                         value: ThemeMode.system,
-                        child: const Text('System Theme'),
+                        child: Text('System Theme'),
                       ),
                       DropdownMenuItem(
                         value: ThemeMode.light,
-                        child: const Text('Light Theme'),
+                        child: Text('Light Theme'),
                       ),
                       DropdownMenuItem(
                         value: ThemeMode.dark,
-                        child: const Text('Dark Theme'),
+                        child: Text('Dark Theme'),
                       ),
                     ],
                   ),

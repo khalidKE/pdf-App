@@ -49,11 +49,11 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
       final result = await platform.invokeMethod('saveImageToGallery', image);
       if (result == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('QR Saved')),
+          const SnackBar(content: Text('QR Saved')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save image')),
+          const SnackBar(content: Text('Failed to save image')),
         );
       }
     } catch (e) {
@@ -77,10 +77,10 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('QR & Barcodes'),
+        title: const Text('QR & Barcodes'),
         bottom: TabBar(
           controller: _tabController,
-          tabs: [
+          tabs: const [
             Tab(text: 'Generate'),
             Tab(text: 'Scan'),
           ],
@@ -105,7 +105,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
             child: IntrinsicHeight(
               child: Column(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 24,
                   ),
                   TextField(
@@ -148,7 +148,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
                                 }
                               : null,
                           icon: const Icon(Icons.qr_code),
-                          label: Text('QR'),
+                          label: const Text('QR'),
                         ),
                       ),
                       SizedBox(
@@ -162,7 +162,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
                                 }
                               : null,
                           icon: const Icon(Icons.view_week),
-                          label: Text('Barcode'),
+                          label: const Text('Barcode'),
                         ),
                       ),
                     ],
@@ -210,7 +210,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
                           ElevatedButton.icon(
                             onPressed: _saveImage,
                             icon: const Icon(Icons.save),
-                            label: Text('Save'),
+                            label: const Text('Save'),
                           ),
                         ],
                       ),
@@ -254,14 +254,4 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
     );
   }
 
-  void _addToHistory(String editedFilePath) {
-    Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
-      HistoryItem(
-        title: p.basename(editedFilePath),
-        filePath: editedFilePath,
-        operation: 'QR & Barcodes',
-        timestamp: DateTime.now(),
-      ),
-    );
-  }
 }

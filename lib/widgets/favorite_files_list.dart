@@ -4,7 +4,6 @@ import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:share_plus/share_plus.dart';
-import 'dart:io';
 import 'package:intl/intl.dart';
 
 class FavoriteFilesList extends StatelessWidget {
@@ -27,7 +26,7 @@ class FavoriteFilesList extends StatelessWidget {
   
   Widget _buildFileCard(BuildContext context, FileItem file, FileProvider fileProvider) {
     final dateFormat = DateFormat('MMM d, yyyy • h:mm a');
-    final isFavorite = fileProvider.isFavorite(file.path);
+    fileProvider.isFavorite(file.path);
     
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -122,7 +121,7 @@ class FavoriteFilesList extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.open_in_new),
-              title: Text('open'),
+              title: const Text('open'),
               onTap: () {
                 Navigator.pop(context);
                 if (file.type == FileType.pdf) {
@@ -137,7 +136,7 @@ class FavoriteFilesList extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.share),
-              title: Text('share'),
+              title: const Text('share'),
               onTap: () {
                 Navigator.pop(context);
                 Share.shareXFiles([XFile(file.path)], text: file.name);
@@ -145,7 +144,7 @@ class FavoriteFilesList extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.favorite_border),
-              title: Text('remove_from_favorites'),
+              title: const Text('remove from favorites'),
               onTap: () {
                 Navigator.pop(context);
                 fileProvider.toggleFavorite(file);
@@ -153,7 +152,7 @@ class FavoriteFilesList extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.info_outline),
-              title: Text('details'),
+              title: const Text('details'),
               onTap: () {
                 Navigator.pop(context);
                 _showFileDetails(context, file);
@@ -171,7 +170,7 @@ class FavoriteFilesList extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('file_details'),
+        title: const Text('file details'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,7 +185,7 @@ class FavoriteFilesList extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('close'),
+            child: const Text('close'),
           ),
         ],
       ),

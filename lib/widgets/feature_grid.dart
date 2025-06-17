@@ -22,109 +22,109 @@ class FeatureGrid extends StatelessWidget {
   List<Feature> _getFeatures(BuildContext context) {
 
     return [
-      Feature(
+      const Feature(
         title: 'Image to PDF',
         description: 'Convert images to PDF',
         icon: Icons.image,
         color: AppConstants.primaryColor,
-        screen: const ImageToPdfScreen(),
+        screen:  ImageToPdfScreen(),
         category: 'convert',
       ),
-      Feature(
+      const Feature(
         title: 'Text to PDF',
         description: 'Convert text to PDF',
         icon: Icons.text_fields,
         color: AppConstants.secondaryColor,
-        screen: const TextToPdfScreen(),
+        screen:  TextToPdfScreen(),
         category: 'convert',
       ),
-      Feature(
+      const Feature(
         title: 'QR & Barcodes',
         description: 'Create and scan codes',
         icon: Icons.qr_code,
         color: AppConstants.accentColor,
-        screen: const QrBarcodeScreen(),
+        screen:  QrBarcodeScreen(),
         category: 'generate',
       ),
-      Feature(
+      const Feature(
         title: 'Excel to PDF',
         description: 'Convert Excel files to PDF',
         icon: Icons.table_chart,
         color: AppConstants.infoColor,
-        screen: const ExcelToPdfScreen(),
+        screen:  ExcelToPdfScreen(),
         category: 'convert',
       ),
-      Feature(
+      const Feature(
         title: 'Word to PDF',
         description: 'Convert Word files to PDF',
         icon: Icons.description,
         color: AppConstants.primaryColor,
-        screen: const WordToPdfScreen(),
+        screen:  WordToPdfScreen(),
         category: 'convert',
       ),
-      Feature(
+      const Feature(
         title: 'Merge PDF',
         description: 'Combine multiple PDF files',
         icon: Icons.merge_type,
         color: AppConstants.secondaryColor,
-        screen: const MergePdfScreen(),
+        screen:  MergePdfScreen(),
         category: 'organize',
       ),
-      Feature(
+      const Feature(
         title: 'Split PDF',
         description: 'Divide PDF into parts',
         icon: Icons.call_split,
         color: AppConstants.accentColor,
-        screen: const SplitPdfScreen(),
+        screen:  SplitPdfScreen(),
         category: 'organize',
       ),
-      Feature(
+      const Feature(
         title: 'Add Watermark',
         description: 'Add watermark to PDF',
         icon: Icons.water_drop,
         color: AppConstants.primaryColor,
-        screen: const AddWatermarkScreen(),
+        screen:  AddWatermarkScreen(),
         category: 'edit',
       ),
-      Feature(
+      const Feature(
         title: 'Add Signature',
         description: 'Sign PDF with drawing',
         icon: Icons.draw,
         color: AppConstants.secondaryColor,
-        screen: const AddSignatureScreen(),
+        screen:  AddSignatureScreen(),
         category: 'edit',
       ),
-      Feature(
+      const Feature(
         title: 'Extract Text',
         description: 'Extract text from PDF or image',
         icon: Icons.text_snippet,
         color: AppConstants.infoColor,
-        screen: const ExtractTextScreen(),
+        screen:  ExtractTextScreen(),
         category: 'extract',
       ),
-      Feature(
+      const Feature(
         title: 'View Files',
         description: 'Browse files on device',
         icon: Icons.folder_open,
         color: AppConstants.secondaryColor,
-        screen: const ViewFilesScreen(),
+        screen:  ViewFilesScreen(),
         category: 'view',
       ),
-      Feature(
+      const Feature(
         title: 'Protect PDF',
         description: 'Add password to PDF',
         icon: Icons.lock,
         color: AppConstants.errorColor,
-        screen: const ProtectPdfScreen(),
+        screen:  ProtectPdfScreen(),
         category: 'security',
         isNew: true,
       ),
-      Feature(
+      const Feature(
         title: 'Compress PDF',
         description: 'Reduce PDF file size',
         icon: Icons.compress,
         color: AppConstants.successColor,
-        screen: const CompressPdfScreen(),
+        screen:  CompressPdfScreen(),
         category: 'utility',
         isNew: true,
       ),
