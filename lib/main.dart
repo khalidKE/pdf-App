@@ -8,6 +8,7 @@ import 'package:pdf_utility_pro/screens/splash_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pdf_utility_pro/utils/permission_handler.dart';
 import 'package:pdf_utility_pro/utils/constants.dart';
+import 'package:pdf_utility_pro/services/ads_service.dart';
 import 'dart:async';
 
 void main() async {
@@ -22,6 +23,9 @@ void main() async {
   
   // Initialize services
   await AppPermissionHandler.initializePermissions();
+  
+  // Initialize AdMob
+  await AdsService().initialize();
   
   // Catch Flutter errors
   FlutterError.onError = (FlutterErrorDetails details) {

@@ -77,6 +77,9 @@ dependencies:
   package_info_plus: ^8.3.0
   connectivity_plus: ^5.0.2
 
+  # Ads
+  google_mobile_ads: ^6.0.0
+
   # Storage
   hive: ^2.2.3
   hive_flutter: ^1.1.0

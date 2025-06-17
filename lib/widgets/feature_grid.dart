@@ -14,6 +14,7 @@ import 'package:pdf_utility_pro/screens/feature_screens/view_files_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/compress_pdf_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/protect_pdf_screen.dart';
 import 'package:pdf_utility_pro/utils/constants.dart';
+import 'package:pdf_utility_pro/services/ads_service.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class FeatureGrid extends StatelessWidget {
@@ -214,11 +215,16 @@ class FeatureCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
       ),
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => feature.screen),
-          );
+        onTap: () async {
+          // Show interstitial ad before navigating
+          await AdsService().showInterstitialAd();
+          
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => feature.screen),
+            );
+          }
         },
         borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
         child: Tooltip(

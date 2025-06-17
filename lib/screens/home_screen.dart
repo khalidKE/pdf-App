@@ -3,10 +3,13 @@ import 'package:pdf_utility_pro/widgets/feature_grid.dart';
 import 'package:pdf_utility_pro/widgets/custom_drawer.dart';
 import 'package:pdf_utility_pro/widgets/recent_files_list.dart';
 import 'package:pdf_utility_pro/widgets/favorite_files_list.dart';
+import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
+import 'package:pdf_utility_pro/widgets/native_ad_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:pdf_utility_pro/utils/pdf_intent_handler.dart';
+import 'package:pdf_utility_pro/services/app_open_ads_manager.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -44,17 +47,20 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     // Check for PDF files when app becomes active
     if (state == AppLifecycleState.resumed) {
       _checkForPdfFile();
+
+      // Show app open ad if available
+      AppOpenAdsManager().showAdIfAvailable();
     }
   }
 
   Future<void> _checkForPdfFile() async {
     try {
       final hasPdfFile = await PdfIntentHandler.hasPdfFile();
-      
+
       if (hasPdfFile) {
         final pdfFilePath = await PdfIntentHandler.getPdfFilePath();
         if (pdfFilePath != null && mounted) {
@@ -95,7 +101,6 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     try {
-
       return Directionality(
         textDirection: TextDirection.ltr,
         child: WillPopScope(
@@ -135,9 +140,25 @@ class _HomeScreenState extends State<HomeScreen>
             body: TabBarView(
               controller: _tabController,
               children: const [
-                FeatureGrid(),
-                RecentFilesTab(),
-                FavoritesTab(),
+                Column(
+                  children: [
+                    Expanded(child: FeatureGrid()),
+                    NativeAdWidget(height: 50),
+                    BannerAdWidget(),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Expanded(child: RecentFilesTab()),
+                    BannerAdWidget(),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Expanded(child: FavoritesTab()),
+                    BannerAdWidget(),
+                  ],
+                ),
               ],
             ),
           ),

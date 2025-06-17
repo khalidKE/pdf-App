@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
+import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
@@ -231,6 +232,7 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
                 ),
               ),
             ),
+            const BannerAdWidget(),
           ],
         ),
       ),

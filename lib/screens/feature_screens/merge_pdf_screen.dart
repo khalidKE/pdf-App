@@ -12,6 +12,7 @@ import 'package:pdf_utility_pro/models/file_item.dart' as myfile;
 import 'package:pdf_merger/pdf_merger.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
 
 class MergePdfScreen extends StatefulWidget {
   const MergePdfScreen({Key? key}) : super(key: key);
@@ -305,6 +306,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
                     ),
                   ),
           ),
+          const BannerAdWidget(),
         ],
       ),
     );
