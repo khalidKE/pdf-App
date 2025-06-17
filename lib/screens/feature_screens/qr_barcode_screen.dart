@@ -5,10 +5,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:pdf_utility_pro/providers/history_provider.dart';
-import 'package:pdf_utility_pro/models/history_item.dart';
-import 'package:path/path.dart' as p;
+
 import 'package:url_launcher/url_launcher.dart';
 
 class QrBarcodeScreen extends StatefulWidget {

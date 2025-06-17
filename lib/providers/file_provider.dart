@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdf_utility_pro/utils/permission_handler.dart';
