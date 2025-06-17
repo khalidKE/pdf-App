@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'package:pdf/pdf.dart' as pdf;
@@ -133,11 +132,10 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text(AppLocalizations.of(context).translate('pdf_split_success')),
+          content: const Text('PDF split successfully'),
           backgroundColor: AppConstants.successColor,
           action: SnackBarAction(
-            label: AppLocalizations.of(context).translate('open'),
+            label: 'Open',
             textColor: Colors.white,
             onPressed: () {
               Navigator.push(
@@ -176,14 +174,11 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     return FeatureScreenTemplate(
-      title: loc.translate('Split PDF'),
+      title: 'Split PDF',
       icon: Icons.call_split,
-      actionButtonLabel: loc.translate('split'),
-      isActionButtonEnabled: _selectedFile != null &&
-          _pagesController.text.trim().isNotEmpty &&
-          !_isProcessing,
+      actionButtonLabel: 'Split',
+      isActionButtonEnabled: _selectedFile != null && !_isProcessing,
       isProcessing: _isProcessing,
       onActionButtonPressed: _splitPdf,
       body: Padding(
@@ -191,10 +186,10 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              loc.translate(
-                  'Select a PDF file and specify the pages to split into a single PDF document.'),
+            const Text(
+              'Select a PDF file and specify the page range to split',
               textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 24),
             if (_selectedFile == null)
@@ -203,7 +198,7 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _selectFile,
                     icon: const Icon(Icons.upload_file),
-                    label: Text(loc.translate('Select pdf file')),
+                    label: const Text('Select pdf file'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12),
@@ -238,14 +233,14 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        loc.translate('split pages'),
+                        'split pages',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 16),
                       TextField(
                         controller: _pagesController,
                         decoration: InputDecoration(
-                          labelText: loc.translate('pages to split'),
+                          labelText: 'pages to split',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -254,9 +249,9 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
                         onChanged: (_) => setState(() {}),
                       ),
                       const SizedBox(height: 8),
-                      Text(
+                      const Text(
                         'Enter single pages (e.g., "2") or ranges (e.g., "2-4" or "2:4").',
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: TextStyle(fontSize: 12),
                       ),
                     ],
                   ),

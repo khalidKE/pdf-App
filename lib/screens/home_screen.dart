@@ -3,7 +3,6 @@ import 'package:pdf_utility_pro/widgets/feature_grid.dart';
 import 'package:pdf_utility_pro/widgets/custom_drawer.dart';
 import 'package:pdf_utility_pro/widgets/recent_files_list.dart';
 import 'package:pdf_utility_pro/widgets/favorite_files_list.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 
@@ -38,20 +37,20 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
-  Future<bool> _onWillPop(AppLocalizations loc) async {
+  Future<bool> _onWillPop() async {
     return (await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('Exit App'),
-            content: Text('Are you sure you want to exit?'),
+            title: const Text('Exit App'),
+            content: const Text('Are you sure you want to exit?'),
             actions: <Widget>[
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text('Stay'),
+                child: const Text('Stay'),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text('Exit'),
+                child: const Text('Exit'),
               ),
             ],
           ),
@@ -66,11 +65,11 @@ class _HomeScreenState extends State<HomeScreen>
       return Directionality(
         textDirection: TextDirection.ltr,
         child: WillPopScope(
-          onWillPop: () => _onWillPop(AppLocalizations.of(context)),
+          onWillPop: _onWillPop,
           child: Scaffold(
             appBar: AppBar(
               title: const Text(
-                ' Pdf Utility Pro',
+                'PDF Utility Pro',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               centerTitle: true,
@@ -157,7 +156,7 @@ class RecentFilesTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  AppLocalizations.of(context).translate('No recent files'),
+                  'No recent files',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ],
@@ -186,7 +185,7 @@ class FavoritesTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  AppLocalizations.of(context).translate('No favorites'),
+                  'No favorites',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ],
@@ -231,7 +230,6 @@ class AppSearchDelegate extends SearchDelegate {
 
   Widget _buildSearchResults(BuildContext context) {
     final fileProvider = Provider.of<FileProvider>(context);
-    final loc = AppLocalizations.of(context);
 
     if (query.isEmpty) {
       return Center(

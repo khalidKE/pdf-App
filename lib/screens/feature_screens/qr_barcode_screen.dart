@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:barcode_widget/barcode_widget.dart' as bw;
 import 'package:screenshot/screenshot.dart';
-import 'dart:typed_data';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:path/path.dart' as p;
-import 'package:url_launcher/url_launcher.dart'; // Add this import
-import 'package:flutter/animation.dart';
-
-
+import 'package:url_launcher/url_launcher.dart';
 
 class QrBarcodeScreen extends StatefulWidget {
   const QrBarcodeScreen({Key? key}) : super(key: key);
@@ -55,9 +49,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
       final result = await platform.invokeMethod('saveImageToGallery', image);
       if (result == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text(AppLocalizations.of(context).translate('QR Saved'))),
+          SnackBar(content: Text('QR Saved')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,16 +75,14 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(loc.translate('QR & Barcodes')),
+        title: Text('QR & Barcodes'),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(text: loc.translate('generate')),
-            Tab(text: loc.translate('scan')),
+            Tab(text: 'Generate'),
+            Tab(text: 'Scan'),
           ],
         ),
       ),
@@ -107,7 +97,6 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
   }
 
   Widget _buildGenerateTab(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         return SingleChildScrollView(
@@ -116,10 +105,13 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
             child: IntrinsicHeight(
               child: Column(
                 children: [
+                  SizedBox(
+                    height: 24,
+                  ),
                   TextField(
                     controller: _textController,
                     decoration: InputDecoration(
-                      labelText: loc.translate('Enter data'),
+                      labelText: 'Enter data',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -156,7 +148,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
                                 }
                               : null,
                           icon: const Icon(Icons.qr_code),
-                          label: Text(loc.translate('Generate qr')),
+                          label: Text('QR'),
                         ),
                       ),
                       SizedBox(
@@ -170,7 +162,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
                                 }
                               : null,
                           icon: const Icon(Icons.view_week),
-                          label: Text(loc.translate('Generate barcode')),
+                          label: Text('Barcode'),
                         ),
                       ),
                     ],
@@ -179,7 +171,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
                   if (_qrData.isEmpty)
                     Center(
                       child: Text(
-                        loc.translate('Enter data to generate'),
+                        'Enter data to generate',
                         style: TextStyle(
                           color: Theme.of(context).textTheme.bodySmall?.color,
                         ),
@@ -218,7 +210,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
                           ElevatedButton.icon(
                             onPressed: _saveImage,
                             icon: const Icon(Icons.save),
-                            label: Text(loc.translate('save')),
+                            label: Text('Save'),
                           ),
                         ],
                       ),
@@ -233,8 +225,6 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
   }
 
   Widget _buildScanTab(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-
     return Column(
       children: [
         Expanded(
@@ -255,7 +245,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
             child: TextButton(
               onPressed: () => _launchURL(_scanResult!),
               child: Text(
-                '${loc.translate('Scan result')}: $_scanResult',
+                'Scan result: $_scanResult',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),

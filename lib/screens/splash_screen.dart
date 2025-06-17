@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:pdf_utility_pro/screens/home_screen.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
+import 'package:pdf_utility_pro/utils/constants.dart';
 import 'package:shimmer/shimmer.dart';
 
 class SplashScreen extends StatefulWidget {

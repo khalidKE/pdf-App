@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdf/pdf.dart';
@@ -81,8 +80,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
       if (e.code == 'camera_access_denied') {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)
-                    .translate('camera_access_denied')),
+            content: const Text('Camera access denied'),
             backgroundColor: AppConstants.errorColor,
           ),
         );
@@ -171,11 +169,10 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)
-              .translate('pdf created successfully')),
+          content: const Text('PDF created successfully'),
           backgroundColor: AppConstants.successColor,
           action: SnackBarAction(
-            label: AppLocalizations.of(context).translate('open'),
+            label: 'Open',
             textColor: Colors.white,
             onPressed: () {
               Navigator.push(

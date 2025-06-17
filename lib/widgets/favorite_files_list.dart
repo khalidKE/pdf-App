@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
@@ -28,6 +27,7 @@ class FavoriteFilesList extends StatelessWidget {
   
   Widget _buildFileCard(BuildContext context, FileItem file, FileProvider fileProvider) {
     final dateFormat = DateFormat('MMM d, yyyy • h:mm a');
+    final isFavorite = fileProvider.isFavorite(file.path);
     
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -166,7 +166,6 @@ class FavoriteFilesList extends StatelessWidget {
   }
   
   void _showFileDetails(BuildContext context, FileItem file) {
-    final loc = AppLocalizations.of(context);
     final dateFormat = DateFormat('MMM d, yyyy h:mm a');
     
     showDialog(
@@ -178,7 +177,7 @@ class FavoriteFilesList extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildDetailRow(context, 'name', file.name),
-            _buildDetailRow(context, 'type', _getFileTypeString(file.type, loc)),
+            _buildDetailRow(context, 'type', _getFileTypeString(file.type)),
             _buildDetailRow(context, 'size', file.formattedSize),
             _buildDetailRow(context, 'location', file.path),
             _buildDetailRow(context, 'modified', dateFormat.format(file.dateModified)),
@@ -217,20 +216,20 @@ class FavoriteFilesList extends StatelessWidget {
     );
   }
   
-  String _getFileTypeString(FileType type, AppLocalizations loc) {
+  String _getFileTypeString(FileType type) {
     switch (type) {
       case FileType.pdf:
         return 'PDF';
       case FileType.image:
-        return 'image_file';
+        return 'Image File';
       case FileType.excel:
         return 'Excel';
       case FileType.word:
         return 'Word';
       case FileType.text:
-        return 'text_file';
+        return 'Text File';
       case FileType.other:
-        return 'file';
+        return 'File';
     }
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
@@ -27,7 +26,6 @@ class RecentFilesList extends StatelessWidget {
   }
   
   Widget _buildFileCard(BuildContext context, FileItem file, FileProvider fileProvider) {
-    final loc = AppLocalizations.of(context);
     final dateFormat = DateFormat('MMM d, yyyy • h:mm a');
     final isFavorite = fileProvider.isFavorite(file.path);
     
@@ -120,8 +118,6 @@ class RecentFilesList extends StatelessWidget {
   }
   
   void _showFileOptions(BuildContext context, FileItem file, FileProvider fileProvider) {
-    final loc = AppLocalizations.of(context);
-    
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -133,7 +129,7 @@ class RecentFilesList extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.open_in_new),
-              title: Text(loc.translate('open')),
+              title: const Text('Open'),
               onTap: () {
                 Navigator.pop(context);
                 if (file.type == FileType.pdf) {
@@ -148,7 +144,7 @@ class RecentFilesList extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.share),
-              title: Text(loc.translate('share')),
+              title: const Text('Share'),
               onTap: () {
                 Navigator.pop(context);
                 Share.shareXFiles([XFile(file.path)], text: file.name);
@@ -156,7 +152,7 @@ class RecentFilesList extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.delete),
-              title: Text(loc.translate('delete')),
+              title: const Text('Delete'),
               onTap: () {
                 Navigator.pop(context);
                 _confirmDelete(context, file, fileProvider);
@@ -164,7 +160,7 @@ class RecentFilesList extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.info_outline),
-              title: Text(loc.translate('details')),
+              title: const Text('Details'),
               onTap: () {
                 Navigator.pop(context);
                 _showFileDetails(context, file);
@@ -177,17 +173,15 @@ class RecentFilesList extends StatelessWidget {
   }
   
   void _confirmDelete(BuildContext context, FileItem file, FileProvider fileProvider) {
-    final loc = AppLocalizations.of(context);
-    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(loc.translate('confirm_delete')),
-        content: Text(loc.translate('delete_file_confirm').replaceAll('{0}', file.name)),
+        title: const Text('Confirm Delete'),
+        content: Text('Are you sure you want to delete "${file.name}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(loc.translate('cancel')),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
@@ -202,14 +196,14 @@ class RecentFilesList extends StatelessWidget {
               
               // Show success message
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(loc.translate('file_deleted')),
+                const SnackBar(
+                  content: Text('File deleted successfully'),
                 ),
               );
             },
-            child: Text(
-              loc.translate('delete'),
-              style: const TextStyle(color: Colors.red),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.red),
             ),
           ),
         ],
@@ -218,28 +212,27 @@ class RecentFilesList extends StatelessWidget {
   }
   
   void _showFileDetails(BuildContext context, FileItem file) {
-    final loc = AppLocalizations.of(context);
     final dateFormat = DateFormat('MMM d, yyyy h:mm a');
     
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(loc.translate('file_details')),
+        title: const Text('File Details'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow(context, loc.translate('name'), file.name),
-            _buildDetailRow(context, loc.translate('type'), _getFileTypeString(file.type, loc)),
-            _buildDetailRow(context, loc.translate('size'), file.formattedSize),
-            _buildDetailRow(context, loc.translate('location'), file.path),
-            _buildDetailRow(context, loc.translate('modified'), dateFormat.format(file.dateModified)),
+            _buildDetailRow(context, 'Name', file.name),
+            _buildDetailRow(context, 'Type', _getFileTypeString(file.type)),
+            _buildDetailRow(context, 'Size', file.formattedSize),
+            _buildDetailRow(context, 'Location', file.path),
+            _buildDetailRow(context, 'Modified', dateFormat.format(file.dateModified)),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(loc.translate('close')),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -269,20 +262,20 @@ class RecentFilesList extends StatelessWidget {
     );
   }
   
-  String _getFileTypeString(FileType type, AppLocalizations loc) {
+  String _getFileTypeString(FileType type) {
     switch (type) {
       case FileType.pdf:
         return 'PDF';
       case FileType.image:
-        return loc.translate('image_file');
+        return 'Image File';
       case FileType.excel:
         return 'Excel';
       case FileType.word:
         return 'Word';
       case FileType.text:
-        return loc.translate('text_file');
+        return 'Text File';
       case FileType.other:
-        return loc.translate('file');
+        return 'File';
     }
   }
 }

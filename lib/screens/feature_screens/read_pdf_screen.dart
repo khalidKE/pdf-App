@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
@@ -75,7 +74,6 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     final fileName = path.basename(widget.filePath);
 
     return Scaffold(
@@ -250,7 +248,7 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> with SingleTickerProvider
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-            AppLocalizations.of(context).translate('printing_not_implemented')),
+            'Printing functionality is not implemented yet'),
       ),
     );
   }

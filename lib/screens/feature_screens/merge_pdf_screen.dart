@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'package:path_provider/path_provider.dart';
@@ -124,12 +123,10 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              AppLocalizations.of(context).translate('pdf_merged_success'),
-            ),
+            content: const Text('PDF merged successfully'),
             backgroundColor: AppConstants.successColor,
             action: SnackBarAction(
-              label: AppLocalizations.of(context).translate('open'),
+              label: 'Open',
               textColor: Colors.white,
               onPressed: () {
                 Navigator.push(
@@ -199,7 +196,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
             child: ElevatedButton.icon(
               onPressed: _selectFiles,
               icon: const Icon(Icons.add_circle_outline),
-              label: const Text('Select pdf files'),
+              label: const Text('Select PDF Files'),
             ),
           ),
           const SizedBox(height: 16),

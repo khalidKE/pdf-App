@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/screens/privacy_policy_screen.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/theme_provider.dart';
 import 'package:pdf_utility_pro/screens/history_screen.dart';
@@ -13,7 +12,6 @@ class CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final loc = AppLocalizations.of(context);
 
     return Drawer(
       child: Column(
@@ -33,7 +31,7 @@ class CustomDrawer extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    ' Pdf Utility Pro',
+                    'PDF Utility Pro',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 20,
@@ -50,7 +48,7 @@ class CustomDrawer extends StatelessWidget {
               children: [
                 ListTile(
                   leading: const Icon(Icons.home),
-                  title: Text('home'),
+                  title: const Text('Home'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushReplacement(
@@ -62,7 +60,7 @@ class CustomDrawer extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.history),
-                  title: Text('history'),
+                  title: const Text('History'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -86,7 +84,7 @@ class CustomDrawer extends StatelessWidget {
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.brightness_6),
-                  title: Text('theme'),
+                  title: const Text('Theme'),
                   trailing: DropdownButton<ThemeMode>(
                     value: themeProvider.themeMode,
                     underline: Container(),
@@ -98,15 +96,15 @@ class CustomDrawer extends StatelessWidget {
                     items: [
                       DropdownMenuItem(
                         value: ThemeMode.system,
-                        child: Text('system theme'),
+                        child: const Text('System Theme'),
                       ),
                       DropdownMenuItem(
                         value: ThemeMode.light,
-                        child: Text('light theme'),
+                        child: const Text('Light Theme'),
                       ),
                       DropdownMenuItem(
                         value: ThemeMode.dark,
-                        child: Text('dark theme'),
+                        child: const Text('Dark Theme'),
                       ),
                     ],
                   ),
@@ -114,7 +112,7 @@ class CustomDrawer extends StatelessWidget {
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.privacy_tip),
-                  title: Text('Privacy Policy'),
+                  title: const Text('Privacy Policy'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -126,7 +124,7 @@ class CustomDrawer extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.info),
-                  title: Text('About Us'),
+                  title: const Text('About Us'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(

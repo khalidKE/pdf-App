@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'package:pdf/pdf.dart';
@@ -105,11 +104,10 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              AppLocalizations.of(context).translate('pdf_created_success')),
+          content: const Text('PDF created successfully'),
           backgroundColor: AppConstants.successColor,
           action: SnackBarAction(
-            label: AppLocalizations.of(context).translate('open'),
+            label: 'Open',
             textColor: Colors.white,
             onPressed: () {
               Navigator.push(
@@ -142,60 +140,56 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     return FeatureScreenTemplate(
       title: 'Word to PDF',
       icon: Icons.description,
-      actionButtonLabel: 'convert',
+      actionButtonLabel: 'Convert',
       isActionButtonEnabled: _selectedFile != null && !_isProcessing,
       isProcessing: _isProcessing,
       onActionButtonPressed: _convertToPdf,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                
-                    'Select a Word document from your device to convert it into a PDF document.',
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              Icon(
-                Icons.description,
-                size: 80,
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-              ),
-              const SizedBox(height: 32),
-              if (_selectedFile != null)
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.insert_drive_file),
-                    title: Text(_fileName ?? ''),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        setState(() {
-                          _selectedFile = null;
-                          _fileName = null;
-                        });
-                      },
-                    ),
-                  ),
-                )
-              else
-                ElevatedButton.icon(
-                  onPressed: _selectFile,
-                  icon: const Icon(Icons.upload_file),
-                  label: Text('Select word file'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            const Text(
+              'Select a Word document to convert it into a PDF',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 24),
+            Icon(
+              Icons.description,
+              size: 80,
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+            ),
+            const SizedBox(height: 32),
+            if (_selectedFile != null)
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.insert_drive_file),
+                  title: Text(_fileName ?? ''),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        _selectedFile = null;
+                        _fileName = null;
+                      });
+                    },
                   ),
                 ),
-            ],
-          ),
+              )
+            else
+              ElevatedButton.icon(
+                onPressed: _selectFile,
+                icon: const Icon(Icons.upload_file),
+                label: Text('Select word file'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24, vertical: 12),
+                ),
+              ),
+          ],
         ),
       ),
     );

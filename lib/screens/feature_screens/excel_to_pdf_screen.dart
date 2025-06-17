@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'package:excel/excel.dart';
@@ -139,11 +138,10 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> with SingleTickerPr
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              AppLocalizations.of(context).translate('pdf_created_success')),
+          content: const Text('PDF created successfully'),
           backgroundColor: AppConstants.successColor,
           action: SnackBarAction(
-            label: AppLocalizations.of(context).translate('open'),
+            label: 'Open',
             textColor: Colors.white,
             onPressed: () {
               Navigator.push(
@@ -196,8 +194,7 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> with SingleTickerPr
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                
-                    'Select an Excel file from your device to convert it into a PDF document.',
+                'Select an Excel file from your device to convert it into a PDF document.',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -233,7 +230,7 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> with SingleTickerPr
                   child: ElevatedButton.icon(
                     onPressed: _selectFile,
                     icon: const Icon(Icons.upload_file),
-                    label: const Text('Select excel file'),
+                    label: const Text('Select Excel File'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12),

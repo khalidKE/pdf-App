@@ -1,98 +1,101 @@
 import 'package:flutter/material.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Privacy Policy'),
+        title: const Text('Privacy Policy'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Privacy Policy_title',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+            const Text(
+              'Privacy Policy',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
-            Text(
-              'last_updated'.replaceAll('{0}', '01/01/2023'),
-              style: Theme.of(context).textTheme.bodySmall,
+            const Text(
+              'Last updated: December 2024',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 24),
-            Text(
-              'privacy_intro',
-              style: Theme.of(context).textTheme.bodyMedium,
+            const Text(
+              'Your Privacy',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information when you use our PDF Utility Pro application.',
             ),
             const SizedBox(height: 16),
-            _buildSection(
-              context,
-              'information_collection_title',
-              'information_collection_content',
+            const Text(
+              'Information We Collect',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            _buildSection(
-              context,
-              'information_usage_title',
-              'information_usage_content',
+            const SizedBox(height: 8),
+            const Text(
+              '• Files you process through our app\n'
+              '• App usage statistics\n'
+              '• Device information for app optimization',
             ),
-            _buildSection(
-              context,
-              'data_security_title',
-              'data_security_content',
+            const SizedBox(height: 16),
+            const Text(
+              'How We Use Your Information',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            _buildSection(
-              context,
-              'third_party_title',
-              'third_party_content',
+            const SizedBox(height: 8),
+            const Text(
+              '• To provide PDF processing services\n'
+              '• To improve app functionality\n'
+              '• To provide customer support\n'
+              '• To ensure app security',
             ),
-            _buildSection(
-              context,
-              'childrens_privacy_title',
-              'childrens_privacy_content',
+            const SizedBox(height: 16),
+            const Text(
+              'Data Security',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            _buildSection(
-              context,
-              'changes_to_policy_title',
-              'changes_to_policy_content',
+            const SizedBox(height: 8),
+            const Text(
+              'We implement appropriate security measures to protect your data. Your files are processed locally on your device and are not stored on our servers.',
             ),
-            _buildSection(
-              context,
-              'contact_us_title',
-              'contact_us_content',
+            const SizedBox(height: 16),
+            const Text(
+              'Contact Us',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'If you have any questions about this privacy policy, please contact us at support@pdfutilitypro.com',
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSection(BuildContext context, String title, String content) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            content,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ],
       ),
     );
   }

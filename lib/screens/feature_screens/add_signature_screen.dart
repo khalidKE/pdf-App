@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'package:pdf/pdf.dart' as pdf;
@@ -72,10 +71,9 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              Text(AppLocalizations.of(context).translate('error_opening_pdf')),
-          backgroundColor: AppConstants.errorColor,
+        const SnackBar(
+          content: Text('Error opening PDF file'),
+          backgroundColor: Colors.red,
         ),
       );
       setState(() {
@@ -188,11 +186,10 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)
-                .translate('signature_added_success')),
+            content: const Text('Signature added successfully'),
             backgroundColor: AppConstants.successColor,
             action: SnackBarAction(
-              label: AppLocalizations.of(context).translate('open'),
+              label: 'Open',
               textColor: Colors.white,
               onPressed: () {
                 Navigator.push(
@@ -218,9 +215,8 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                '${AppLocalizations.of(context).translate('error_adding_signature')}: $e'),
-            backgroundColor: AppConstants.errorColor,
+            content: Text('Error adding signature: $e'),
+            backgroundColor: Colors.red,
           ),
         );
       }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'dart:io';
@@ -68,8 +67,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              AppLocalizations.of(context).translate('error_selecting_file')),
+          content: const Text('Error selecting file'),
           backgroundColor: Colors.red,
         ),
       );
@@ -111,8 +109,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              AppLocalizations.of(context).translate('text_extracted_success')),
+          content: const Text('Text extracted successfully'),
           backgroundColor: Colors.green,
         ),
       );
@@ -123,8 +120,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              '${AppLocalizations.of(context).translate('error extracting text')}: $e'),
+          content: Text('Error extracting text: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -139,7 +135,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context).translate('Text Copied')),
+          content: const Text('Text copied'),
           backgroundColor: Colors.green,
         ),
       );
@@ -147,8 +143,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              '${AppLocalizations.of(context).translate('error copying text')}: $e'),
+          content: Text('Error copying text: $e'),
           backgroundColor: Colors.red,
         ),
       );

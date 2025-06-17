@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -96,11 +95,10 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              AppLocalizations.of(context).translate('pdf_created_success')),
+          content: const Text('PDF created successfully'),
           backgroundColor: AppConstants.successColor,
           action: SnackBarAction(
-            label: AppLocalizations.of(context).translate('open'),
+            label: 'Open',
             textColor: Colors.white,
             onPressed: () {
               Navigator.push(
@@ -139,12 +137,10 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-
     return FeatureScreenTemplate(
       title: 'Text to PDF',
       icon: Icons.text_fields,
-      actionButtonLabel: 'Create Pdf',
+      actionButtonLabel: 'Create PDF',
       isActionButtonEnabled:
           _textController.text.trim().isNotEmpty && !_isProcessing,
       isProcessing: _isProcessing,
@@ -153,9 +149,8 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text(
-              
-                  'Enter or paste text to convert it into a PDF document.',
+            const Text(
+              'Enter or paste text to convert it into a PDF document.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -172,10 +167,10 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
                     maxLines: null,
                     expands: true,
                     textAlignVertical: TextAlignVertical.top,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Enter text here',
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.all(16),
+                      contentPadding: EdgeInsets.all(16),
                     ),
                     onChanged: (_) => setState(() {}),
                   ),

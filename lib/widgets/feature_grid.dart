@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/models/feature.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/image_to_pdf_screen.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/text_to_pdf_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/qr_barcode_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/excel_to_pdf_screen.dart';

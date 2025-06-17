@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'package:pdf/pdf.dart' as pdf;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:pdf_utility_pro/utils/constants.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +14,7 @@ import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
-import 'package:pdfx/pdfx.dart';
+import 'package:pdfx/pdfx.dart' as pdfx;
 
 class AddWatermarkScreen extends StatefulWidget {
   const AddWatermarkScreen({Key? key}) : super(key: key);
@@ -77,7 +77,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTick
       _isProcessing = true;
     });
     try {
-      final doc = await PdfDocument.openFile(_selectedFile!.path);
+      final doc = await pdfx.PdfDocument.openFile(_selectedFile!.path);
       final dir = await getApplicationDocumentsDirectory();
       final pdfDoc = pw.Document();
       for (int i = 1; i <= doc.pagesCount; i++) {
@@ -85,7 +85,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTick
         final pageImage = await page.render(
           width: page.width,
           height: page.height,
-          format: PdfPageImageFormat.png,
+          format: pdfx.PdfPageImageFormat.png,
         );
         final bytes = pageImage?.bytes;
         if (bytes == null) {
@@ -153,11 +153,10 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTick
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)
-              .translate('watermark_added_success')),
+          content: const Text('Watermark added successfully'),
           backgroundColor: AppConstants.successColor,
           action: SnackBarAction(
-            label: AppLocalizations.of(context).translate('open'),
+            label: 'Open',
             textColor: Colors.white,
             onPressed: () {
               Navigator.push(

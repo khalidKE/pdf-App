@@ -6,7 +6,6 @@ import 'package:pdf_utility_pro/providers/theme_provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/providers/settings_provider.dart';
 import 'package:pdf_utility_pro/screens/splash_screen.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pdf_utility_pro/utils/permission_handler.dart';
 import 'package:pdf_utility_pro/utils/constants.dart';
@@ -239,15 +238,14 @@ class MyApp extends StatelessWidget {
                 fillColor: Colors.grey.withOpacity(0.1),
               ),
             ),
-            locale: const Locale('en', ''),
-            supportedLocales: const [
-              Locale('en', ''),
-            ],
             localizationsDelegates: const [
-              AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en', 'US'),
+              Locale('ar', 'SA'),
             ],
             home: const SplashScreen(),
           );

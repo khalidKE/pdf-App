@@ -1,11 +1,15 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart' as fp;
-import 'package:share_plus/share_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:pdf_utility_pro/utils/constants.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:pdf_utility_pro/providers/file_provider.dart';
+import 'package:pdf_utility_pro/models/file_item.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ViewFilesScreen extends StatefulWidget {
   const ViewFilesScreen({super.key});
@@ -40,9 +44,8 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
     if (!await _requestPermissions()) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)
-              .translate('storage_permission_denied')),
+        const SnackBar(
+          content: Text('Storage permission denied'),
           backgroundColor: Colors.red,
         ),
       );
@@ -62,8 +65,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              '${AppLocalizations.of(context).translate('error_loading_directory')}: $e'),
+          content: Text('Error loading directory: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -103,8 +105,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              '${AppLocalizations.of(context).translate('error_loading_files')}: $e'),
+          content: Text('Error loading files: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -166,21 +167,21 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context).translate('new_folder')),
+        title: const Text('New Folder'),
         content: TextField(
           controller: controller,
-          decoration: InputDecoration(
-            labelText: AppLocalizations.of(context).translate('folder_name'),
+          decoration: const InputDecoration(
+            labelText: 'Folder Name',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context).translate('cancel')),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text),
-            child: Text(AppLocalizations.of(context).translate('create')),
+            child: const Text('Create'),
           ),
         ],
       ),
@@ -193,18 +194,15 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
         _loadFiles();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text(AppLocalizations.of(context).translate('folder_created')),
-            backgroundColor: Colors.green,
+          const SnackBar(
+            content: Text('Folder created successfully'),
           ),
         );
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                '${AppLocalizations.of(context).translate('error_creating_folder')}: $e'),
+            content: Text('Error creating folder: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -224,10 +222,8 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
         _loadFiles();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text(AppLocalizations.of(context).translate('file_uploaded')),
-            backgroundColor: Colors.green,
+          const SnackBar(
+            content: Text('File uploaded successfully'),
           ),
         );
       }
@@ -235,8 +231,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              '${AppLocalizations.of(context).translate('error_uploading_file')}: $e'),
+          content: Text('Error uploading file: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -244,7 +239,6 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
   }
 
   void _showFileOptions(BuildContext context, File file) {
-    final loc = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       builder: (context) => Column(
@@ -252,7 +246,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
         children: [
           ListTile(
             leading: const Icon(Icons.open_in_new),
-            title: Text(loc.translate('open')),
+            title: const Text('Open'),
             onTap: () {
               Navigator.pop(context);
               if (file.path.endsWith('.pdf')) {
@@ -265,7 +259,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(loc.translate('unsupported_file_type')),
+                    content: const Text('Unsupported file type'),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -274,7 +268,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.share),
-            title: Text(loc.translate('share')),
+            title: const Text('Share'),
             onTap: () {
               Navigator.pop(context);
               Share.shareXFiles([XFile(file.path)]);
@@ -282,7 +276,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.edit),
-            title: Text(loc.translate('rename')),
+            title: const Text('Rename'),
             onTap: () {
               Navigator.pop(context);
               _renameFile(file);
@@ -290,7 +284,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.delete),
-            title: Text(loc.translate('delete')),
+            title: const Text('Delete'),
             onTap: () {
               Navigator.pop(context);
               _deleteFile(file);
@@ -306,21 +300,21 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context).translate('rename')),
+        title: const Text('Rename'),
         content: TextField(
           controller: controller,
-          decoration: InputDecoration(
-            labelText: AppLocalizations.of(context).translate('file_name'),
+          decoration: const InputDecoration(
+            labelText: 'File Name',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context).translate('cancel')),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text),
-            child: Text(AppLocalizations.of(context).translate('rename')),
+            child: const Text('Rename'),
           ),
         ],
       ),
@@ -333,18 +327,15 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
         _loadFiles();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text(AppLocalizations.of(context).translate('file_renamed')),
-            backgroundColor: Colors.green,
+          const SnackBar(
+            content: Text('File renamed successfully'),
           ),
         );
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                '${AppLocalizations.of(context).translate('error_renaming_file')}: $e'),
+            content: Text('Error renaming file: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -356,16 +347,16 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context).translate('delete_file')),
-        content: Text(AppLocalizations.of(context).translate('confirm_delete')),
+        title: const Text('Delete File'),
+        content: const Text('Are you sure you want to delete this file?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(AppLocalizations.of(context).translate('cancel')),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(AppLocalizations.of(context).translate('delete')),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -377,18 +368,15 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
         _loadFiles();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text(AppLocalizations.of(context).translate('file_deleted')),
-            backgroundColor: Colors.green,
+          const SnackBar(
+            content: Text('File deleted successfully'),
           ),
         );
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                '${AppLocalizations.of(context).translate('error_deleting_file')}: $e'),
+            content: Text('Error deleting file: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -410,33 +398,46 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
     return Icons.insert_drive_file;
   }
 
-  String _getFileTypeString(FileSystemEntity entity, AppLocalizations loc) {
-    if (entity is Directory) return loc.translate('folder');
-    final name = entity.path.toLowerCase();
-    if (name.endsWith('.pdf')) return 'PDF';
-    if (name.endsWith('.jpg') ||
-        name.endsWith('.jpeg') ||
-        name.endsWith('.png')) return loc.translate('image_file');
-    if (name.endsWith('.xlsx') || name.endsWith('.xls')) return 'Excel';
-    if (name.endsWith('.ppt') || name.endsWith('.pptx')) return 'PowerPoint';
-    if (name.endsWith('.txt')) return loc.translate('text_file');
-    return loc.translate('file');
+  String _getFileTypeString(FileSystemEntity entity) {
+    if (entity is Directory) {
+      return 'Folder';
+    }
+    
+    final extension = entity.path.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return 'PDF Document';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'bmp':
+        return 'Image File';
+      case 'doc':
+      case 'docx':
+        return 'Word Document';
+      case 'xls':
+      case 'xlsx':
+        return 'Excel File';
+      case 'txt':
+        return 'Text File';
+      default:
+        return 'File';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(loc.translate('View Files')),
+        title: const Text('View Files'),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
               showSearch(
                 context: context,
-                delegate: FileSearchDelegate(_files, loc),
+                delegate: FileSearchDelegate(_files),
               );
             },
           ),
@@ -455,15 +456,15 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
             itemBuilder: (context) => [
               PopupMenuItem(
                 value: 'name',
-                child: Text(loc.translate('sort_by_name')),
+                child: const Text('Sort by Name'),
               ),
               PopupMenuItem(
                 value: 'date',
-                child: Text(loc.translate('sort_by_date')),
+                child: const Text('Sort by Date'),
               ),
               PopupMenuItem(
                 value: 'size',
-                child: Text(loc.translate('sort_by_size')),
+                child: const Text('Sort by Size'),
               ),
             ],
           ),
@@ -480,7 +481,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    _currentPath ?? loc.translate('loading'),
+                    _currentPath ?? 'Loading',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -502,8 +503,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
                           if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(loc
-                                  .translate('cannot_access_parent_directory')),
+                              content: Text('Cannot access parent directory'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -518,7 +518,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredFiles.isEmpty
-                    ? Center(child: Text(loc.translate('no_files_found')))
+                    ? Center(child: Text('No files found'))
                     : ListView.builder(
                         itemCount: _filteredFiles.length,
                         itemBuilder: (context, index) {
@@ -526,7 +526,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
                           return ListTile(
                             leading: Icon(_getIconForFile(file)),
                             title: Text(file.path.split('/').last),
-                            subtitle: Text(_getFileTypeString(file, loc)),
+                            subtitle: Text(_getFileTypeString(file)),
                             trailing: file is Directory
                                 ? const Icon(Icons.arrow_forward_ios, size: 16)
                                 : IconButton(
@@ -551,8 +551,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(
-                                        loc.translate('unsupported_file_type')),
+                                    content: Text('Unsupported file type'),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -573,7 +572,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
               children: [
                 ListTile(
                   leading: const Icon(Icons.create_new_folder),
-                  title: Text(loc.translate('new_folder')),
+                  title: const Text('New Folder'),
                   onTap: () {
                     Navigator.pop(context);
                     _createFolder();
@@ -581,7 +580,7 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.upload_file),
-                  title: Text(loc.translate('upload_file')),
+                  title: const Text('Upload File'),
                   onTap: () {
                     Navigator.pop(context);
                     _uploadFile();
@@ -599,9 +598,8 @@ class _ViewFilesScreenState extends State<ViewFilesScreen> {
 
 class FileSearchDelegate extends SearchDelegate<String> {
   final List<FileSystemEntity> files;
-  final AppLocalizations loc;
 
-  FileSearchDelegate(this.files, this.loc);
+  FileSearchDelegate(this.files);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -639,7 +637,7 @@ class FileSearchDelegate extends SearchDelegate<String> {
         return ListTile(
           leading: Icon(_getIconForFile(file)),
           title: Text(file.path.split('/').last),
-          subtitle: Text(_getFileTypeString(file, loc)),
+          subtitle: Text(_getFileTypeString(file)),
           onTap: () {
             close(context, file.path);
             if (file is Directory) {
@@ -685,16 +683,31 @@ class FileSearchDelegate extends SearchDelegate<String> {
     return Icons.insert_drive_file;
   }
 
-  String _getFileTypeString(FileSystemEntity entity, AppLocalizations loc) {
-    if (entity is Directory) return loc.translate('folder');
-    final name = entity.path.toLowerCase();
-    if (name.endsWith('.pdf')) return 'PDF';
-    if (name.endsWith('.jpg') ||
-        name.endsWith('.jpeg') ||
-        name.endsWith('.png')) return loc.translate('image_file');
-    if (name.endsWith('.xlsx') || name.endsWith('.xls')) return 'Excel';
-    if (name.endsWith('.ppt') || name.endsWith('.pptx')) return 'PowerPoint';
-    if (name.endsWith('.txt')) return loc.translate('text_file');
-    return loc.translate('file');
+  String _getFileTypeString(FileSystemEntity entity) {
+    if (entity is Directory) {
+      return 'Folder';
+    }
+    
+    final extension = entity.path.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return 'PDF Document';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'bmp':
+        return 'Image File';
+      case 'doc':
+      case 'docx':
+        return 'Word Document';
+      case 'xls':
+      case 'xlsx':
+        return 'Excel File';
+      case 'txt':
+        return 'Text File';
+      default:
+        return 'File';
+    }
   }
 }
