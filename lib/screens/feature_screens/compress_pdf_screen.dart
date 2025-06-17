@@ -1,12 +1,18 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/file_picker.dart' as fp;
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as p;
 import 'package:intl/intl.dart';
+import 'package:pdf_utility_pro/utils/constants.dart';
+import 'package:pdf_utility_pro/providers/file_provider.dart';
+import 'package:pdf_utility_pro/models/file_item.dart';
+import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
 
 enum CompressionLevel {
   low(0.9, 'Low Compression', 'Minimal size reduction, best quality'),
@@ -40,6 +46,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
   int _originalSize = 0;
   int _compressedSize = 0;
   File? _compressedFile;
+  final TextEditingController _filenameController = TextEditingController();
 
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
@@ -87,8 +94,8 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
 
   Future<void> _selectFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
+      final result = await fp.FilePicker.platform.pickFiles(
+        type: fp.FileType.custom,
         allowedExtensions: ['pdf'],
         allowMultiple: false,
       );
@@ -103,7 +110,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
           // Check file size limit (100MB)
           if (fileSize > 100 * 1024 * 1024) {
             _showSnackBar('File too large. Please select a PDF under 100MB.',
-                Colors.orange);
+                AppConstants.warningColor);
             return;
           }
 
@@ -115,17 +122,29 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
             _compressedSize = 0;
           });
         } else {
-          _showSnackBar('Selected file does not exist', Colors.red);
+          _showSnackBar('Selected file does not exist', AppConstants.errorColor);
         }
       }
     } catch (e) {
-      _showSnackBar('Error selecting file: ${e.toString()}', Colors.red);
+      _showSnackBar('Error selecting file: ${e.toString()}', AppConstants.errorColor);
     }
   }
 
   Future<void> _compressPdf() async {
     if (_selectedFile == null) {
-      _showSnackBar('Please select a PDF file first', Colors.orange);
+      _showSnackBar('Please select a PDF file first', AppConstants.warningColor);
+      return;
+    }
+
+    // Show dialog to get filename
+    final String? fileName = await _showFileNameDialog();
+    if (fileName == null || fileName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('PDF compression cancelled. File name cannot be empty.'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
       return;
     }
 
@@ -146,7 +165,17 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
 
       // Step 3: Apply compression settings
       _updateProgress(0.4, 'Applying compression settings...');
-      await _applyCompressionSettings(document);
+      // Actual compression logic for Syncfusion PDF is more involved. This is a simplification.
+      // For real compression, you'd iterate through pages, optimize images, remove unused objects, etc.
+      // For demonstration, we'll just simulate the quality setting by re-saving.
+
+      // This is a placeholder for proper image compression. Syncfusion_flutter_pdf doesn't expose a direct quality setting for saving.
+      // A real implementation would involve: iterating through pages, extracting images, re-encoding them with desired quality, and then replacing them.
+      // document.setCompressionLevel(_selectedCompressionLevel.quality);
+
+      _optimizeImages(document, _selectedCompressionLevel.quality);
+      _removeUnusedObjects(document);
+      _compressStreams(document);
 
       // Step 4: Optimize document
       _updateProgress(0.6, 'Optimizing document structure...');
@@ -161,10 +190,8 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
       // Step 6: Write to file
       _updateProgress(0.9, 'Writing to storage...');
       final outputDir = await getApplicationDocumentsDirectory();
-      final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-      final baseName = p.basenameWithoutExtension(_fileName!);
-      final outputPath =
-          '${outputDir.path}/${baseName}_compressed_$timestamp.pdf';
+      final fullFileName = fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
+      final outputPath = '${outputDir.path}/$fullFileName';
 
       final File compressedFile = File(outputPath);
       await compressedFile.writeAsBytes(compressedBytes);
@@ -175,6 +202,9 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
       setState(() {
         _compressedFile = compressedFile;
         _compressedSize = compressedFileSize;
+        _selectedFile = null;
+        _fileName = null;
+        _filenameController.clear(); // Clear filename after creation
       });
 
       _updateProgress(1.0, 'Compression completed!');
@@ -182,10 +212,10 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
       await Future.delayed(const Duration(milliseconds: 500));
 
       if (!mounted) return;
-      _showCompressionResults();
+      _showCompressionResults(outputPath); // Pass the path to show results
     } catch (e) {
       if (!mounted) return;
-      _showSnackBar('Error compressing PDF: ${e.toString()}', Colors.red);
+      _showSnackBar('Error compressing PDF: ${e.toString()}', AppConstants.errorColor);
     } finally {
       if (mounted) {
         setState(() {
@@ -194,34 +224,6 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
           _progressText = '';
         });
       }
-    }
-  }
-
-  Future<void> _applyCompressionSettings(PdfDocument document) async {
-    try {
-      // Apply compression based on selected level
-      switch (_selectedCompressionLevel) {
-        case CompressionLevel.low:
-          // Minimal compression - preserve quality
-          break;
-        case CompressionLevel.medium:
-          // Balanced compression
-          _optimizeImages(document, 0.8);
-          break;
-        case CompressionLevel.high:
-          // High compression
-          _optimizeImages(document, 0.6);
-          _removeUnusedObjects(document);
-          break;
-        case CompressionLevel.maximum:
-          // Maximum compression
-          _optimizeImages(document, 0.4);
-          _removeUnusedObjects(document);
-          _compressStreams(document);
-          break;
-      }
-    } catch (e) {
-      debugPrint('Error applying compression settings: $e');
     }
   }
 
@@ -250,10 +252,17 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
     }
   }
 
-  void _showCompressionResults() {
-    final compressionRatio =
-        ((_originalSize - _compressedSize) / _originalSize * 100);
+  void _showSnackBar(String message, Color color) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+      ),
+    );
+  }
 
+  void _showCompressionResults(String filePath) {
     showDialog(
       context: context,
       builder: (context) {
@@ -274,18 +283,28 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
                       Flexible(
                         child: Text(
                           'Compression Complete',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                           softWrap: true,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _buildInfoRow('Original Size', '$_originalSize K'),
-                  _buildInfoRow('Compressed Size', '$_compressedSize K'),
-                  _buildInfoRow('Size Reduction',
-                      '${compressionRatio.toStringAsFixed(1)}%'),
+                  _buildInfoRow('File Name', p.basename(filePath)),
+                  _buildInfoRow(
+                      'Original Size',
+                      '${(_originalSize / 1024).toStringAsFixed(2)} KB ('
+                      '${(_originalSize / (1024 * 1024)).toStringAsFixed(2)} MB)'),
+                  _buildInfoRow(
+                      'Compressed Size',
+                      '${(_compressedSize / 1024).toStringAsFixed(2)} KB ('
+                      '${(_compressedSize / (1024 * 1024)).toStringAsFixed(2)} MB)'),
+                  _buildInfoRow(
+                    'Reduction',
+                    _originalSize > 0
+                        ? '${((_originalSize - _compressedSize) / _originalSize * 100).toStringAsFixed(2)}%'
+                        : '0%',
+                  ),
                   _buildInfoRow(
                       'Compression Level', _selectedCompressionLevel.label),
                   const SizedBox(height: 16),
@@ -297,11 +316,11 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.info, color: Colors.green),
+                        Icon(Icons.info_outline, color: Colors.green),
                         SizedBox(width: 8),
                         Flexible(
                           child: Text(
-                            'PDF compressed successfully and saved to your documents folder.',
+                            'Your PDF has been successfully compressed and saved to your documents folder.',
                             style: TextStyle(color: Colors.green),
                             softWrap: true,
                           ),
@@ -319,9 +338,26 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton.icon(
-                        onPressed: _shareCompressedFile,
+                        onPressed: () async {
+                          Navigator.pop(context); // Close dialog first
+                          await _shareCompressedFile();
+                        },
                         icon: const Icon(Icons.share),
                         label: const Text('Share'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          Navigator.pop(context); // Close dialog first
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReadPdfScreen(filePath: filePath),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.picture_as_pdf),
+                        label: const Text('View'),
                       ),
                     ],
                   ),
@@ -363,183 +399,51 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
   }
 
   Future<void> _shareCompressedFile() async {
-    if (_compressedFile != null) {
-      try {
-        await Share.shareXFiles(
-          [XFile(_compressedFile!.path)],
-          text: 'Compressed PDF file',
-          subject: 'PDF Compression Result',
-        );
-      } catch (e) {
-        _showSnackBar('Error sharing file: ${e.toString()}', Colors.red);
-      }
+    if (_compressedFile == null || !await _compressedFile!.exists()) {
+      _showSnackBar('No compressed file to share', AppConstants.warningColor);
+      return;
+    }
+    try {
+      await Share.shareXFiles([XFile(_compressedFile!.path)],
+          text: 'Check out my compressed PDF!');
+    } catch (e) {
+      _showSnackBar('Error sharing file: ${e.toString()}', AppConstants.errorColor);
     }
   }
 
-  void _clearSelection() {
-    setState(() {
-      _selectedFile = null;
-      _fileName = null;
-      _originalSize = 0;
-      _compressedFile = null;
-      _compressedSize = 0;
-    });
-  }
-
-  String _formatFileSize(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024)
-      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
-  }
-
-  void _showSnackBar(String message, Color color) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: color,
-        duration: const Duration(seconds: 3),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+  Future<String?> _showFileNameDialog() async {
+    _filenameController.text = _fileName?.replaceAll('.pdf', '') ?? 'Compressed_PDF_'; // Default name suggestion
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Enter File Name'),
+        content: TextField(
+          controller: _filenameController,
+          decoration: const InputDecoration(
+            hintText: 'e.g., MyCompressedDocument.pdf',
+            labelText: 'File Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: (value) {
+            Navigator.of(context).pop(value);
+          },
         ),
-      ),
-    );
-  }
-
-  Widget _buildCompressionLevelSelector() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Compression Level',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 12),
-            ...CompressionLevel.values.map((level) {
-              return RadioListTile<CompressionLevel>(
-                title: Text(level.label),
-                subtitle: Text(
-                  level.description,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                value: level,
-                groupValue: _selectedCompressionLevel,
-                onChanged: (CompressionLevel? value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedCompressionLevel = value;
-                    });
-                  }
-                },
-                contentPadding: EdgeInsets.zero,
-              );
-            }).toList(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFileInfoCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: const Icon(Icons.picture_as_pdf_outlined, size: 32),
-        title: Text(
-          _fileName ?? p.basename(_selectedFile!.path),
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Size: ${_formatFileSize(_originalSize)}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            if (_compressedFile != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                'Compressed: ${_formatFileSize(_compressedSize)}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.green,
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-            ],
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (_compressedFile != null)
-              IconButton(
-                icon: const Icon(Icons.share),
-                tooltip: 'Share Compressed File',
-                onPressed: _shareCompressedFile,
-              ),
-            IconButton(
-              icon: const Icon(Icons.close),
-              tooltip: 'Clear Selection',
-              onPressed: _clearSelection,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProgressIndicator() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Compressing PDF...',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                Text(
-                  '${(_compressionProgress * 100).toInt()}%',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            LinearProgressIndicator(
-              value: _compressionProgress,
-              backgroundColor: Colors.grey[300],
-              valueColor: AlwaysStoppedAnimation<Color>(
-                Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _progressText,
-              style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null); // Return null on cancel
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(_filenameController.text.trim());
+            },
+            child: const Text('Compress'),
+          ),
+        ],
       ),
     );
   }
@@ -547,6 +451,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
   @override
   void dispose() {
     _animationController.dispose();
+    _filenameController.dispose(); // Dispose the controller
     super.dispose();
   }
 
@@ -555,48 +460,34 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
     return FeatureScreenTemplate(
       title: 'Compress PDF',
       icon: Icons.compress,
-      actionButtonLabel:
-          _compressedFile != null ? 'Share Compressed PDF' : 'Compress PDF',
+      actionButtonLabel: 'Compress PDF',
       isActionButtonEnabled: _selectedFile != null && !_isProcessing,
       isProcessing: _isProcessing,
-      onActionButtonPressed:
-          _compressedFile != null ? _shareCompressedFile : _compressPdf,
+      onActionButtonPressed: _compressPdf,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Select a PDF file and choose compression level to reduce file size while maintaining quality.',
+            const Text(
+              'Select a PDF file and choose a compression level to reduce its size.',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
             ),
             const SizedBox(height: 24),
             if (_selectedFile == null)
               Center(
-                child: AnimatedBuilder(
-                  animation: _scaleAnimation,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _scaleAnimation.value,
-                      child: ElevatedButton.icon(
-                        onPressed: _selectFile,
-                        icon: const Icon(Icons.upload_file_outlined),
-                        label: const Text('Select PDF File'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 16,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                child: AnimatedScale(
+                  scale: _scaleAnimation.value,
+                  duration: const Duration(milliseconds: 600),
+                  child: ElevatedButton.icon(
+                    onPressed: _selectFile,
+                    icon: const Icon(Icons.upload_file),
+                    label: const Text('Select PDF File'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                    ),
+                  ),
                 ),
               )
             else
@@ -607,50 +498,141 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildFileInfoCard(),
-                      const SizedBox(height: 16),
-                      if (_isProcessing)
-                        _buildProgressIndicator()
-                      else
-                        _buildCompressionLevelSelector(),
-                      if (_compressedFile != null) ...[
-                        const SizedBox(height: 16),
-                        Card(
-                          elevation: 2,
-                          color: Colors.green.withOpacity(0.1),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                                color: Colors.green.withOpacity(0.3)),
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.picture_as_pdf),
+                          title: Text(
+                            _fileName ?? _selectedFile!.path,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              children: [
-                                Row(
+                          subtitle: FutureBuilder<int>(
+                            future: _selectedFile!.length(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                final sizeKB = snapshot.data! / 1024;
+                                return Text(
+                                  'Size: ${sizeKB.toStringAsFixed(2)} KB ('
+                                  '${(snapshot.data! / (1024 * 1024)).toStringAsFixed(2)} MB)',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                );
+                              }
+                              return const Text('Calculating size...');
+                            },
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              setState(() {
+                                _selectedFile = null;
+                                _fileName = null;
+                                _compressedFile = null;
+                                _compressedSize = 0;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Compression Level',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 16),
+                      ...CompressionLevel.values.map((level) {
+                        return RadioListTile<CompressionLevel>(
+                          title: Text(level.label),
+                          subtitle: Text(level.description),
+                          value: level,
+                          groupValue: _selectedCompressionLevel,
+                          onChanged: (CompressionLevel? value) {
+                            setState(() {
+                              _selectedCompressionLevel = value!;
+                            });
+                          },
+                        );
+                      }).toList(),
+                      const SizedBox(height: 24),
+                      if (_isProcessing)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          child: Column(
+                            children: [
+                              LinearProgressIndicator(
+                                value: _compressionProgress,
+                                backgroundColor: Colors.grey.shade300,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _progressText,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (_compressedFile != null && !_isProcessing)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Compression Results',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 16),
+                            Card(
+                              color: Theme.of(context).colorScheme.surface,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Icon(Icons.check_circle,
-                                        color: Colors.green[700]),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Compression Successful!',
-                                      style: TextStyle(
-                                        color: Colors.green[700],
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    _buildInfoRow(
+                                      'Original Size',
+                                      '${(_originalSize / 1024).toStringAsFixed(2)} KB ('
+                                      '${(_originalSize / (1024 * 1024)).toStringAsFixed(2)} MB)',
+                                    ),
+                                    _buildInfoRow(
+                                      'Compressed Size',
+                                      '${(_compressedSize / 1024).toStringAsFixed(2)} KB ('
+                                      '${(_compressedSize / (1024 * 1024)).toStringAsFixed(2)} MB)',
+                                    ),
+                                    _buildInfoRow(
+                                      'Reduction',
+                                      _originalSize > 0
+                                          ? '${((_originalSize - _compressedSize) / _originalSize * 100).toStringAsFixed(2)}%'
+                                          : '0%',
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'File size reduced by ${((_originalSize - _compressedSize) / _originalSize * 100).toStringAsFixed(1)}%',
-                                  style: TextStyle(color: Colors.green[600]),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: _shareCompressedFile,
+                                  icon: const Icon(Icons.share),
+                                  label: const Text('Share'),
+                                ),
+                                const SizedBox(width: 8),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ReadPdfScreen(filePath: _compressedFile!.path),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.picture_as_pdf),
+                                  label: const Text('View'),
                                 ),
                               ],
                             ),
-                          ),
+                            const SizedBox(height: 24),
+                          ],
                         ),
-                      ],
                     ],
                   ),
                 ),

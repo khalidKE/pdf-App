@@ -27,6 +27,7 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
   String? _fileName;
   final TextEditingController _pagesController = TextEditingController();
   bool _isProcessing = false;
+  final TextEditingController _filenameController = TextEditingController();
 
   Future<void> _selectFile() async {
     final result = await fp.FilePicker.platform.pickFiles(
@@ -66,7 +67,37 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
   }
 
   Future<void> _splitPdf() async {
-    if (_selectedFile == null || _pagesController.text.trim().isEmpty) return;
+    if (_selectedFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a PDF file first.'),
+          backgroundColor: AppConstants.warningColor,
+        ),
+      );
+      return;
+    }
+
+    if (_pagesController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter pages to split.'),
+          backgroundColor: AppConstants.warningColor,
+        ),
+      );
+      return;
+    }
+
+    final String? fileName = await _showFileNameDialog();
+    if (fileName == null || fileName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('PDF split cancelled. File name cannot be empty.'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isProcessing = true);
 
     try {
@@ -75,7 +106,7 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
 
       final doc = await PdfDocument.openFile(_selectedFile!);
       final outputPdf = pw.Document();
-      final dir = await getApplicationDocumentsDirectory();
+      final appDir = await getApplicationDocumentsDirectory();
 
       for (final pageNum in pages) {
         if (pageNum < 1 || pageNum > doc.pagesCount) continue;
@@ -102,8 +133,8 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
         }
       }
 
-      final outputPath =
-          '${dir.path}/Split_Pages_${pages.first}-${pages.last}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final fullFileName = fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
+      final outputPath = '${appDir.path}/$fullFileName';
       final outputFile = File(outputPath);
       await outputFile.writeAsBytes(await outputPdf.save());
 
@@ -111,7 +142,7 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
 
       final fileProvider = Provider.of<FileProvider>(context, listen: false);
       final fileItem = FileItem(
-        name: p.basename(outputPath),
+        name: fullFileName,
         path: outputPath,
         size: outputFile.lengthSync(),
         dateModified: outputFile.lastModifiedSync(),
@@ -152,6 +183,7 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
         _selectedFile = null;
         _fileName = null;
         _pagesController.clear();
+        _filenameController.clear();
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -165,9 +197,47 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
     }
   }
 
+  Future<String?> _showFileNameDialog() async {
+    _filenameController.text = _fileName?.replaceAll('.pdf', '') ?? 'Split_PDF_';
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Enter File Name'),
+        content: TextField(
+          controller: _filenameController,
+          decoration: const InputDecoration(
+            hintText: 'e.g., MySplitDocument.pdf',
+            labelText: 'File Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: (value) {
+            Navigator.of(context).pop(value);
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null);
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(_filenameController.text.trim());
+            },
+            child: const Text('Split'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _pagesController.dispose();
+    _filenameController.dispose();
     super.dispose();
   }
 
@@ -248,10 +318,13 @@ class _SplitPdfScreenState extends State<SplitPdfScreen> {
                         onChanged: (_) => setState(() {}),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Enter single pages (e.g., "2") or ranges (e.g., "2-4" or "2:4").',
-                        style: TextStyle(fontSize: 12),
+                      Text(
+                        'Enter page numbers or ranges (e.g., 1,3-5,7)',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                       ),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),

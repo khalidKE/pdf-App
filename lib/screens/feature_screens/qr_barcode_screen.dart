@@ -7,6 +7,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter/services.dart';
 
 import 'package:url_launcher/url_launcher.dart';
+import 'package:pdf_utility_pro/utils/constants.dart'; // Import AppConstants for snackbar colors
 
 class QrBarcodeScreen extends StatefulWidget {
   const QrBarcodeScreen({Key? key}) : super(key: key);
@@ -23,6 +24,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
   bool _showQr = true;
   final ScreenshotController _screenshotController = ScreenshotController();
   String? _scanResult;
+  final TextEditingController _filenameController = TextEditingController(); // Added controller
 
   @override
   void initState() {
@@ -34,6 +36,7 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
   void dispose() {
     _tabController.dispose();
     _textController.dispose();
+    _filenameController.dispose(); // Dispose the controller
     super.dispose();
   }
 
@@ -41,13 +44,31 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
     final image = await _screenshotController.capture();
     if (image == null) return;
 
+    // Show dialog to get filename
+    final String? fileName = await _showFileNameDialog();
+    if (fileName == null || fileName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Image saving cancelled. File name cannot be empty.'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
+      return;
+    }
+
     try {
       const platform = MethodChannel('com.pdfutilitypro/media_store');
-      final result = await platform.invokeMethod('saveImageToGallery', image);
+      // Pass the filename to the platform method
+      final result = await platform.invokeMethod('saveImageToGallery', {
+        'imageBytes': image,
+        'fileName': fileName + ('${_showQr ? '_qr' : '_barcode'}.png'), // Add type suffix and extension
+      });
+
       if (result == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('QR Saved')),
+          const SnackBar(content: Text('Image saved successfully!')),
         );
+        _filenameController.clear(); // Clear filename after saving
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to save image')),
@@ -68,6 +89,43 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
         SnackBar(content: Text('Could not launch $url')),
       );
     }
+  }
+
+  Future<String?> _showFileNameDialog() async {
+    _filenameController.text = _showQr ? 'QR_Code_' : 'Barcode_'; // Default name suggestion
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Enter File Name'),
+        content: TextField(
+          controller: _filenameController,
+          decoration: const InputDecoration(
+            hintText: 'e.g., MyCode.png',
+            labelText: 'File Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: (value) {
+            Navigator.of(context).pop(value);
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null); // Return null on cancel
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(_filenameController.text.trim());
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -250,5 +308,4 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
       ],
     );
   }
-
 }

@@ -27,6 +27,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _scaleAnimation;
+  final TextEditingController _filenameController = TextEditingController();
 
   @override
   void initState() {
@@ -66,17 +67,35 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
   }
 
   Future<void> _mergePdfs() async {
-    if (_selectedFiles.length < 2) return;
+    if (_selectedFiles.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select at least two PDF files to merge.'),
+          backgroundColor: AppConstants.warningColor,
+        ),
+      );
+      return;
+    }
+
+    final String? fileName = await _showFileNameDialog();
+    if (fileName == null || fileName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('PDF merge cancelled. File name cannot be empty.'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
+      return;
+    }
 
     setState(() {
       _isProcessing = true;
     });
 
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final fileName =
-          'Merged_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
-      final outputPath = '${dir.path}/$fileName';
+      final appDir = await getApplicationDocumentsDirectory();
+      final fullFileName = fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
+      final outputPath = '${appDir.path}/$fullFileName';
 
       final response = await PdfMerger.mergeMultiplePDF(
         paths: _selectedFiles.map((f) => f.path).toList(),
@@ -102,7 +121,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
 
         final fileProvider = Provider.of<FileProvider>(context, listen: false);
         final fileItem = myfile.FileItem(
-          name: fileName,
+          name: fullFileName,
           path: mergedPath,
           size: file.lengthSync(),
           dateModified: file.lastModifiedSync(),
@@ -114,7 +133,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
           HistoryItem(
             title: p.basename(outputPath),
             filePath: outputPath,
-            operation: 'Merge PDF', // أو 'Split PDF'
+            operation: 'Merge PDF',
             timestamp: DateTime.now(),
           ),
         );
@@ -142,6 +161,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
         setState(() {
           _selectedFiles = [];
           _fileNames = [];
+          _filenameController.clear();
         });
       } else {
         throw Exception('Merge failed: ${response.message}');
@@ -160,9 +180,47 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
     }
   }
 
+  Future<String?> _showFileNameDialog() async {
+    _filenameController.text = 'Merged_PDF_';
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Enter File Name'),
+        content: TextField(
+          controller: _filenameController,
+          decoration: const InputDecoration(
+            hintText: 'e.g., CombinedDocument.pdf',
+            labelText: 'File Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: (value) {
+            Navigator.of(context).pop(value);
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null);
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(_filenameController.text.trim());
+            },
+            child: const Text('Merge'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
+    _filenameController.dispose();
     super.dispose();
   }
 

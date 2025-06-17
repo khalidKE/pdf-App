@@ -29,6 +29,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
   bool _isProcessing = false;
   final TextEditingController _watermarkTextController =
       TextEditingController();
+  final TextEditingController _filenameController = TextEditingController();
 
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
@@ -72,14 +73,44 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
   }
 
   Future<void> _addWatermark() async {
-    if (_selectedFile == null || _watermarkTextController.text.trim().isEmpty)
+    if (_selectedFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a PDF file first.'),
+          backgroundColor: AppConstants.warningColor,
+        ),
+      );
       return;
+    }
+
+    if (_watermarkTextController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter watermark text.'),
+          backgroundColor: AppConstants.warningColor,
+        ),
+      );
+      return;
+    }
+
+    // Show dialog to get filename
+    final String? fileName = await _showFileNameDialog();
+    if (fileName == null || fileName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Watermark creation cancelled. File name cannot be empty.'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isProcessing = true;
     });
     try {
       final doc = await pdfx.PdfDocument.openFile(_selectedFile!.path);
-      final dir = await getApplicationDocumentsDirectory();
+      final appDir = await getApplicationDocumentsDirectory();
       final pdfDoc = pw.Document();
       for (int i = 1; i <= doc.pagesCount; i++) {
         final page = await doc.getPage(i);
@@ -128,15 +159,14 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
         await page.close();
       }
       await doc.close();
-      final fileName =
-          'Watermarked_${DateTime.now().millisecondsSinceEpoch}.pdf';
-      final filePath = '${dir.path}/$fileName';
+      final fullFileName = fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
+      final filePath = '${appDir.path}/$fullFileName';
       final file = File(filePath);
       await file.writeAsBytes(await pdfDoc.save());
       // Add to recent files
       final fileProvider = Provider.of<FileProvider>(context, listen: false);
       final fileItem = FileItem(
-        name: fileName,
+        name: fullFileName,
         path: filePath,
         size: file.lengthSync(),
         dateModified: file.lastModifiedSync(),
@@ -174,6 +204,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
         _selectedFile = null;
         _fileName = null;
         _watermarkTextController.clear();
+        _filenameController.clear();
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -189,10 +220,48 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
     }
   }
 
+  Future<String?> _showFileNameDialog() async {
+    _filenameController.text = _fileName?.replaceAll('.pdf', '') ?? 'Watermarked_PDF_';
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Enter File Name'),
+        content: TextField(
+          controller: _filenameController,
+          decoration: const InputDecoration(
+            hintText: 'e.g., MyWatermarkedDoc.pdf',
+            labelText: 'File Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: (value) {
+            Navigator.of(context).pop(value);
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null);
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(_filenameController.text.trim());
+            },
+            child: const Text('Add Watermark'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _watermarkTextController.dispose();
     _animationController.dispose();
+    _filenameController.dispose();
     super.dispose();
   }
 
@@ -248,7 +317,6 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
                             leading: const Icon(Icons.picture_as_pdf),
                             title: Text(
                               _fileName ?? _selectedFile!.path,
-                              overflow: TextOverflow.ellipsis,
                             ),
                             trailing: IconButton(
                               icon: const Icon(Icons.close),
@@ -276,7 +344,15 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
+                          maxLines: 2,
                           onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'The watermark will be placed diagonally across each page.',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                         ),
                         const SizedBox(height: 24),
                       ],

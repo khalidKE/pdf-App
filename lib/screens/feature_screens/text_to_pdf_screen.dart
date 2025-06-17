@@ -25,6 +25,7 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
   bool _isProcessing = false;
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
+  final TextEditingController _filenameController = TextEditingController();
 
   @override
   void initState() {
@@ -46,7 +47,27 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
   }
 
   Future<void> _createPdf() async {
-    if (_textController.text.trim().isEmpty) return;
+    if (_textController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter some text to create a PDF'),
+          backgroundColor: AppConstants.warningColor,
+        ),
+      );
+      return;
+    }
+
+    final String? fileName = await _showFileNameDialog();
+    if (fileName == null || fileName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('PDF creation cancelled. File name cannot be empty.'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isProcessing = true;
     });
@@ -63,16 +84,15 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
           },
         ),
       );
-      final dir = await getApplicationDocumentsDirectory();
-      final fileName =
-          'Text to PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
-      final filePath = '${dir.path}/$fileName';
+      final appDir = await getApplicationDocumentsDirectory();
+      final fullFileName = fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
+      final filePath = '${appDir.path}/$fullFileName';
       final file = File(filePath);
       await file.writeAsBytes(await pdf.save());
       // Add to recent files
       final fileProvider = Provider.of<FileProvider>(context, listen: false);
       final fileItem = FileItem(
-        name: fileName,
+        name: fullFileName,
         path: filePath,
         size: file.lengthSync(),
         dateModified: file.lastModifiedSync(),
@@ -108,11 +128,12 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
       );
       setState(() {
         _textController.clear();
+        _filenameController.clear();
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: \\${e.toString()}'),
+          content: Text('Error: ${e.toString()}'),
           backgroundColor: AppConstants.errorColor,
         ),
       );
@@ -123,10 +144,48 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
     }
   }
 
+  Future<String?> _showFileNameDialog() async {
+    _filenameController.text = 'Text_to_PDF_';
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Enter File Name'),
+        content: TextField(
+          controller: _filenameController,
+          decoration: const InputDecoration(
+            hintText: 'e.g., MyDocument.pdf',
+            labelText: 'File Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: (value) {
+            Navigator.of(context).pop(value);
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null);
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(_filenameController.text.trim());
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _textController.dispose();
     _animationController.dispose();
+    _filenameController.dispose();
     super.dispose();
   }
 

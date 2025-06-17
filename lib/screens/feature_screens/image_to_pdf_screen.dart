@@ -28,6 +28,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
   List<String> _imageNames = [];
   bool _isProcessing = false;
   final ImagePicker _picker = ImagePicker();
+  final TextEditingController _filenameController = TextEditingController();
 
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
@@ -105,15 +106,24 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
   Future<void> _createPdf() async {
     if (_selectedImages.isEmpty) return;
 
+    final String? fileName = await _showFileNameDialog();
+    if (fileName == null || fileName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('PDF creation cancelled. File name cannot be empty.'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isProcessing = true;
     });
 
     try {
-      // Create PDF document
       final pdf = pw.Document();
 
-      // Add each image as a page
       for (var imageFile in _selectedImages) {
         final image = pw.MemoryImage(
           imageFile.readAsBytesSync(),
@@ -131,22 +141,17 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
         );
       }
 
-      // Get the app directory
       final appDir = await AppPermissionHandler.getAppDirectory();
 
-      // Generate a unique filename
-      final fileName =
-          'Image to PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
-      final filePath = '$appDir/$fileName';
+      final fullFileName = fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
+      final filePath = '$appDir/$fullFileName';
 
-      // Save the PDF
       final file = File(filePath);
       await file.writeAsBytes(await pdf.save());
 
-      // Add to recent files
       final fileProvider = Provider.of<FileProvider>(context, listen: false);
       final fileItem = FileItem(
-        name: fileName,
+        name: fullFileName,
         path: filePath,
         size: file.lengthSync(),
         dateModified: file.lastModifiedSync(),
@@ -154,7 +159,6 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
       );
       fileProvider.addRecentFile(fileItem);
 
-      // Add to history
       Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
         HistoryItem(
           title: p.basename(filePath),
@@ -166,7 +170,6 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
 
       if (!mounted) return;
 
-      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('PDF created successfully'),
@@ -186,13 +189,12 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
         ),
       );
 
-      // Clear selected images
       setState(() {
         _selectedImages.clear();
         _imageNames.clear();
+        _filenameController.clear();
       });
     } catch (e) {
-      // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: ${e.toString()}'),
@@ -206,16 +208,52 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
     }
   }
 
+  Future<String?> _showFileNameDialog() async {
+    _filenameController.text = 'Image_to_PDF_';
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Enter File Name'),
+        content: TextField(
+          controller: _filenameController,
+          decoration: const InputDecoration(
+            hintText: 'e.g., MyDocument.pdf',
+            labelText: 'File Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: (value) {
+            Navigator.of(context).pop(value);
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null);
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(_filenameController.text.trim());
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _filenameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return FeatureScreenTemplate(
       title: 'Image to PDF',
       icon: Icons.image,
@@ -235,8 +273,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                
-                    'Select images from your device or take photos with your camera to convert them into a PDF document.',
+                'Select images from your device or take photos with your camera to convert them into a PDF document.',
                 textAlign: TextAlign.center,
               ),
             ),
@@ -251,57 +288,122 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
                   onPressed: _selectImages,
                   icon: const Icon(Icons.photo_library),
                   label: const Text('Select Images'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton.icon(
                   onPressed: _takePhoto,
                   icon: const Icon(Icons.camera_alt),
                   label: const Text('Take Photo'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: _selectedImages.isEmpty
-                ? Center(
+          const SizedBox(height: 24),
+          if (_selectedImages.isNotEmpty)
+            Expanded(
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.image,
-                          size: 64,
-                          color: Theme.of(context).disabledColor,
-                        ),
-                        const SizedBox(height: 16),
                         Text(
-                          'No images selected',
-                          style: TextStyle(
-                            color: Theme.of(context).textTheme.bodySmall?.color,
+                          'Selected Images',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: GridView.builder(
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
+                            itemCount: _selectedImages.length,
+                            itemBuilder: (context, index) {
+                              final imageFile = _selectedImages[index];
+                              final imageName = _imageNames[index];
+                              return Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(
+                                      imageFile,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 4,
+                                    right: 4,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedImages.removeAt(index);
+                                          _imageNames.removeAt(index);
+                                        });
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.6),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        padding: const EdgeInsets.all(4),
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 4,
+                                    left: 4,
+                                    right: 4,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.6),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        imageName,
+                                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ),
                       ],
                     ),
-                  )
-                : SlideTransition(
-                    position: _slideAnimation,
-                    child: GridView.builder(
-                      padding: const EdgeInsets.all(16),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
-                      itemCount: _selectedImages.length,
-                      itemBuilder: (context, index) {
-                        return Image.file(
-                          _selectedImages[index],
-                          fit: BoxFit.cover,
-                        );
-                      },
-                    ),
                   ),
-          ),
+                ),
+              ),
+            ),
         ],
       ),
     );

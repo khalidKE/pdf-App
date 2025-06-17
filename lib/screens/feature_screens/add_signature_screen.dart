@@ -34,6 +34,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
     penColor: Colors.black,
     exportBackgroundColor: Colors.transparent,
   );
+  final TextEditingController _filenameController = TextEditingController();
 
   @override
   void initState() {
@@ -50,6 +51,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
   void dispose() {
     _signatureController.dispose();
     _pdfDoc?.close();
+    _filenameController.dispose();
     super.dispose();
   }
 
@@ -92,7 +94,34 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
   }
 
   Future<void> _addSignature() async {
-    if (_selectedFile == null || _pdfDoc == null || !_hasSignature) {
+    if (_selectedFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a PDF file first.'),
+          backgroundColor: AppConstants.warningColor,
+        ),
+      );
+      return;
+    }
+    if (_pdfDoc == null || !_hasSignature) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please draw a signature.'),
+          backgroundColor: AppConstants.warningColor,
+        ),
+      );
+      return;
+    }
+
+    // Show dialog to get filename
+    final String? fileName = await _showFileNameDialog();
+    if (fileName == null || fileName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Signature adding cancelled. File name cannot be empty.'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
       return;
     }
 
@@ -111,7 +140,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
       }
 
       final signaturePdfImage = pw.MemoryImage(signatureImageBytes);
-      final dir = await getApplicationDocumentsDirectory();
+      final appDir = await getApplicationDocumentsDirectory();
       final pdfDoc = pw.Document();
 
       for (int i = 1; i <= _pdfDoc!.pagesCount; i++) {
@@ -158,8 +187,8 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
         }
       }
 
-      final fileName = 'Signed_${DateTime.now().millisecondsSinceEpoch}.pdf';
-      final filePath = '${dir.path}/$fileName';
+      final fullFileName = fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
+      final filePath = '${appDir.path}/$fullFileName';
       final file = File(filePath);
       await file.writeAsBytes(await pdfDoc.save());
 
@@ -167,7 +196,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
       if (mounted) {
         final fileProvider = Provider.of<FileProvider>(context, listen: false);
         final fileItem = FileItem(
-          name: fileName,
+          name: fullFileName,
           path: filePath,
           size: file.lengthSync(),
           dateModified: file.lastModifiedSync(),
@@ -179,7 +208,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
           HistoryItem(
             title: p.basename(filePath),
             filePath: filePath,
-            operation: 'add signature',
+            operation: 'Add Signature',
             timestamp: DateTime.now(),
           ),
         );
@@ -210,6 +239,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
         _signatureController.clear();
         _hasSignature = false;
         _pdfDoc = null;
+        _filenameController.clear();
       });
     } catch (e) {
       if (mounted) {
@@ -229,6 +259,43 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
       await _pdfDoc?.close();
       _pdfDoc = null;
     }
+  }
+
+  Future<String?> _showFileNameDialog() async {
+    _filenameController.text = _fileName?.replaceAll('.pdf', '') ?? 'Signed_PDF_';
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Enter File Name'),
+        content: TextField(
+          controller: _filenameController,
+          decoration: const InputDecoration(
+            hintText: 'e.g., MySignedDocument.pdf',
+            labelText: 'File Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: (value) {
+            Navigator.of(context).pop(value);
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null);
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(_filenameController.text.trim());
+            },
+            child: const Text('Add Signature'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -251,79 +318,79 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
-          Expanded(
-            child: _selectedFile == null
-                ? Center(
-                    child: ElevatedButton.icon(
-                      onPressed: _selectFile,
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text('Select pdf file'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
+          const SizedBox(height: 24),
+          if (_selectedFile == null)
+            Expanded(
+              child: Center(
+                child: ElevatedButton.icon(
+                  onPressed: _selectFile,
+                  icon: const Icon(Icons.upload_file),
+                  label: const Text('Select pdf file'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                  ),
+                ),
+              ),
+            )
+          else
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.picture_as_pdf),
+                        title: Text(
+                          _fileName ?? _selectedFile!,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            setState(() {
+                              _selectedFile = null;
+                              _fileName = null;
+                              _signatureController.clear();
+                              _hasSignature = false;
+                            });
+                          },
+                        ),
                       ),
                     ),
-                  )
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Card(
-                          elevation: 4,
-                          child: ListTile(
-                            leading: const Icon(Icons.picture_as_pdf),
-                            title: Text(
-                              _fileName ?? '',
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () {
-                                setState(() {
-                                  _selectedFile = null;
-                                  _fileName = null;
-                                  _signatureController.clear();
-                                  _hasSignature = false;
-                                  _pdfDoc?.close();
-                                  _pdfDoc = null;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Draw signature',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          height: 200,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.white,
-                          ),
-                          child: Signature(
-                            controller: _signatureController,
-                            backgroundColor: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
+                    const SizedBox(height: 24),
+                    Text(
+                      'Draw your signature below',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  ),
-          ),
-          if (_selectedFile != null)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton.icon(
-                onPressed: _clearSignature,
-                icon: const Icon(Icons.clear),
-                label: const Text('Clear signature'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 176, 68, 56),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Signature(controller: _signatureController, height: 200, width: 300),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: ElevatedButton.icon(
+                        onPressed: _clearSignature,
+                        icon: const Icon(Icons.clear),
+                        label: const Text('Clear Signature'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
             ),

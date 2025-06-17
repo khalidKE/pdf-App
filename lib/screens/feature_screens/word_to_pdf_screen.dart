@@ -42,6 +42,7 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
   String? _selectedFile;
   String? _fileName;
   bool _isProcessing = false;
+  final TextEditingController _filenameController = TextEditingController();
 
   Future<void> _selectFile() async {
     final result = await fp.FilePicker.platform.pickFiles(
@@ -57,7 +58,28 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
   }
 
   Future<void> _convertToPdf() async {
-    if (_selectedFile == null) return;
+    if (_selectedFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a Word file first'),
+          backgroundColor: AppConstants.warningColor,
+        ),
+      );
+      return;
+    }
+
+    // Show dialog to get filename
+    final String? fileName = await _showFileNameDialog();
+    if (fileName == null || fileName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('PDF creation cancelled. File name cannot be empty.'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isProcessing = true;
     });
@@ -78,16 +100,15 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
           },
         ),
       );
-      final dir = await getApplicationDocumentsDirectory();
-      final fileName =
-          'Word to PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
-      final filePath = '${dir.path}/$fileName';
+      final appDir = await getApplicationDocumentsDirectory();
+      final fullFileName = fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
+      final filePath = '${appDir.path}/$fullFileName';
       final file = File(filePath);
       await file.writeAsBytes(await pdf.save());
       // Add to recent files
       final fileProvider = Provider.of<FileProvider>(context, listen: false);
       final fileItem = FileItem(
-        name: fileName,
+        name: fullFileName,
         path: filePath,
         size: file.lengthSync(),
         dateModified: file.lastModifiedSync(),
@@ -124,11 +145,12 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
       setState(() {
         _selectedFile = null;
         _fileName = null;
+        _filenameController.clear();
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: \\${e.toString()}'),
+          content: Text('Error: ${e.toString()}'),
           backgroundColor: AppConstants.errorColor,
         ),
       );
@@ -137,6 +159,49 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
         _isProcessing = false;
       });
     }
+  }
+
+  Future<String?> _showFileNameDialog() async {
+    _filenameController.text = _fileName?.replaceAll('.docx', '').replaceAll('.doc', '') ?? 'Word_to_PDF_';
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Enter File Name'),
+        content: TextField(
+          controller: _filenameController,
+          decoration: const InputDecoration(
+            hintText: 'e.g., MyDocument.pdf',
+            labelText: 'File Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: (value) {
+            Navigator.of(context).pop(value);
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null);
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(_filenameController.text.trim());
+            },
+            child: const Text('Convert'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _filenameController.dispose();
+    super.dispose();
   }
 
   @override
