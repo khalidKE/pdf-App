@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
@@ -43,7 +42,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
     // Add listener to detect signature changes
     _signatureController.addListener(() {
       setState(() {
-        _hasSignature = !_signatureController.isEmpty;
+        _hasSignature = _signatureController.isNotEmpty;
       });
     });
   }
@@ -238,12 +237,11 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
-      title: loc.translate('Add Signature'),
+      title: 'Add Signature',
       icon: Icons.draw,
-      actionButtonLabel: loc.translate('Add Signature'),
+      actionButtonLabel: 'Add Signature',
       isActionButtonEnabled:
           _selectedFile != null && _hasSignature && !_isProcessing,
       isProcessing: _isProcessing,
@@ -253,8 +251,8 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              loc.translate(
-                  'Select a PDF file and draw your signature to add to it'),
+              
+                  'Select a PDF file and draw your signature to add to it',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -265,7 +263,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _selectFile,
                       icon: const Icon(Icons.upload_file),
-                      label: Text(loc.translate('Select pdf file')),
+                      label: const Text('Select pdf file'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
@@ -302,7 +300,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          loc.translate('draw_signature'),
+                          'draw_signature',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 8),
@@ -329,7 +327,7 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
               child: ElevatedButton.icon(
                 onPressed: _clearSignature,
                 icon: const Icon(Icons.clear),
-                label: Text(loc.translate('clear_signature')),
+                label: const Text('clear_signature'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 176, 68, 56),
                 ),

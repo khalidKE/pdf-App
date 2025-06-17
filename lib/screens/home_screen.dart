@@ -5,9 +5,7 @@ import 'package:pdf_utility_pro/widgets/recent_files_list.dart';
 import 'package:pdf_utility_pro/widgets/favorite_files_list.dart';
 import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:pdf_utility_pro/providers/language_provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
-import 'package:pdf_utility_pro/utils/constants.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -44,16 +42,16 @@ class _HomeScreenState extends State<HomeScreen>
     return (await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text(loc.translate('Exit App')),
-            content: Text(loc.translate('Are you sure you want to exit?')),
+            title: Text('Exit App'),
+            content: Text('Are you sure you want to exit?'),
             actions: <Widget>[
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text(loc.translate('Stay')),
+                child: Text('Stay'),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text(loc.translate('Exit')),
+                child: Text('Exit'),
               ),
             ],
           ),
@@ -64,19 +62,16 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     try {
-      final languageProvider = Provider.of<LanguageProvider>(context);
-      final isRtl = languageProvider.isRTL;
-      final loc = AppLocalizations.of(context);
 
       return Directionality(
-        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+        textDirection: TextDirection.ltr,
         child: WillPopScope(
-          onWillPop: () => _onWillPop(loc),
+          onWillPop: () => _onWillPop(AppLocalizations.of(context)),
           child: Scaffold(
             appBar: AppBar(
-              title: Text(
-                loc.translate(' Pdf Utility Pro'),
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              title: const Text(
+                ' Pdf Utility Pro',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
               centerTitle: true,
               elevation: 0,
@@ -94,10 +89,10 @@ class _HomeScreenState extends State<HomeScreen>
               ],
               bottom: TabBar(
                 controller: _tabController,
-                tabs: [
-                  Tab(text: loc.translate('Tools')),
-                  Tab(text: loc.translate('Recent')),
-                  Tab(text: loc.translate('Favorites')),
+                tabs: const [
+                  Tab(text: 'Tools'),
+                  Tab(text: 'Recent'),
+                  Tab(text: 'Favorites'),
                 ],
                 indicatorSize: TabBarIndicatorSize.label,
                 indicatorWeight: 3,
@@ -240,7 +235,7 @@ class AppSearchDelegate extends SearchDelegate {
 
     if (query.isEmpty) {
       return Center(
-        child: Text(loc.translate('search_hint')),
+        child: Text('search_hint'),
       );
     }
 
@@ -254,7 +249,7 @@ class AppSearchDelegate extends SearchDelegate {
 
     if (recentResults.isEmpty && favoriteResults.isEmpty) {
       return Center(
-        child: Text(loc.translate('no_search_results')),
+        child: Text('no_search_results'),
       );
     }
 
@@ -264,7 +259,7 @@ class AppSearchDelegate extends SearchDelegate {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              loc.translate('recent_files'),
+              'recent_files',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -285,7 +280,7 @@ class AppSearchDelegate extends SearchDelegate {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              loc.translate('favorites'),
+              'favorites',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,

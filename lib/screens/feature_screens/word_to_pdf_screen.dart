@@ -144,9 +144,9 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return FeatureScreenTemplate(
-      title: loc.translate('Word to PDF'),
+      title: 'Word to PDF',
       icon: Icons.description,
-      actionButtonLabel: loc.translate('convert'),
+      actionButtonLabel: 'convert',
       isActionButtonEnabled: _selectedFile != null && !_isProcessing,
       isProcessing: _isProcessing,
       onActionButtonPressed: _convertToPdf,
@@ -157,8 +157,8 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                loc.translate(
-                    'Select a Word document from your device to convert it into a PDF document.'),
+                
+                    'Select a Word document from your device to convert it into a PDF document.',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -188,7 +188,7 @@ class _WordToPdfScreenState extends State<WordToPdfScreen> {
                 ElevatedButton.icon(
                   onPressed: _selectFile,
                   icon: const Icon(Icons.upload_file),
-                  label: Text(loc.translate('Select word file')),
+                  label: Text('Select word file'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 12),

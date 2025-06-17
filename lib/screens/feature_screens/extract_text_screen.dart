@@ -124,7 +124,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              '${AppLocalizations.of(context).translate('error_extracting_text')}: $e'),
+              '${AppLocalizations.of(context).translate('error extracting text')}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -139,7 +139,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context).translate('text_copied')),
+          content: Text(AppLocalizations.of(context).translate('Text Copied')),
           backgroundColor: Colors.green,
         ),
       );
@@ -148,7 +148,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              '${AppLocalizations.of(context).translate('error_copying_text')}: $e'),
+              '${AppLocalizations.of(context).translate('error copying text')}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -163,14 +163,13 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
-      title: loc.translate('Extract Text'),
+      title: 'Extract Text',
       icon: Icons.text_snippet,
       actionButtonLabel: _extractedText.isEmpty
-          ? loc.translate('Extract Text')
-          : loc.translate('copy_text'),
+          ? 'Extract Text'
+          : 'Copy Text',
       isActionButtonEnabled: _selectedFile != null && !_isProcessing,
       isProcessing: _isProcessing,
       onActionButtonPressed: _extractedText.isEmpty ? _extractText : _copyText,
@@ -180,8 +179,8 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              loc.translate(
-                  'Select a PDF file or image to extract text from it.'),
+              
+                  'Select a PDF file or image to extract text from it.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -194,7 +193,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
                   child: ElevatedButton.icon(
                     onPressed: _selectFile,
                     icon: const Icon(Icons.upload_file),
-                    label: Text(loc.translate('Select File')),
+                    label: const Text('Select File'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12),
@@ -232,7 +231,7 @@ class _ExtractTextScreenState extends State<ExtractTextScreen> with SingleTicker
                       const SizedBox(height: 24),
                       if (_extractedText.isNotEmpty) ...[
                         Text(
-                          loc.translate('extracted_text'),
+                          'Extracted Text',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 8),

@@ -61,7 +61,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
     if (result != null && result.files.isNotEmpty) {
       setState(() {
         _selectedFiles = result.files.map((f) => File(f.path!)).toList();
-        _fileNames = result.files.map((f) => f.name!).toList();
+        _fileNames = result.files.map((f) => f.name).toList();
       });
     }
   }
@@ -79,9 +79,8 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
           'Merged_PDF_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final outputPath = '${dir.path}/$fileName';
 
-      // بعض نسخ pdf_merger تتوقع outputDirPath هو المسار الكامل للملف وليس فقط المجلد
       final response = await PdfMerger.mergeMultiplePDF(
-        paths: _selectedFiles.map((f) => f.path!).toList(),
+        paths: _selectedFiles.map((f) => f.path).toList(),
         outputDirPath: outputPath,
       );
 
@@ -173,25 +172,23 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
-      title: loc.translate('Merge PDF'),
+      title: 'Merge PDF',
       icon: Icons.merge_type,
-      actionButtonLabel: loc.translate('merge'),
+      actionButtonLabel: 'Merge',
       isActionButtonEnabled: _selectedFiles.length >= 2 && !_isProcessing,
       isProcessing: _isProcessing,
       onActionButtonPressed: _mergePdfs,
       body: Column(
         children: [
-          AnimatedOpacity(
+          const AnimatedOpacity(
             opacity: 1.0,
-            duration: const Duration(milliseconds: 500),
+            duration: Duration(milliseconds: 500),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               child: Text(
-                loc.translate(
-                    'Select multiple PDF files to merge them into a single PDF document. You can reorder the files by dragging them.'),
+                'Select multiple PDF files to merge them into a single PDF document. You can reorder the files by dragging them.',
                 textAlign: TextAlign.center,
               ),
             ),
@@ -202,7 +199,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
             child: ElevatedButton.icon(
               onPressed: _selectFiles,
               icon: const Icon(Icons.add_circle_outline),
-              label: Text(loc.translate('Select pdf files')),
+              label: const Text('Select pdf files'),
             ),
           ),
           const SizedBox(height: 16),
@@ -210,7 +207,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
             child: _selectedFiles.isEmpty
                 ? Center(
                     child: Text(
-                      loc.translate('No pdf files selected'),
+                      'No pdf files selected',
                       style: TextStyle(
                         color: Theme.of(context).textTheme.bodySmall?.color,
                       ),

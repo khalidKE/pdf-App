@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'package:path_provider/path_provider.dart';
@@ -109,12 +108,11 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
-      title: loc.translate('Protect PDF'),
+      title: 'Protect PDF',
       icon: Icons.lock,
-      actionButtonLabel: loc.translate('Protect PDF'),
+      actionButtonLabel: 'Protect PDF',
       isActionButtonEnabled: _selectedFile != null &&
           _password.isNotEmpty &&
           !_isProcessing,
@@ -125,9 +123,9 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen> with SingleTickerPr
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              loc.translate(
-                  'Select a PDF file and set a password to protect it.'),
+            const Text(
+              
+                  'Select a PDF file and set a password to protect it.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -140,7 +138,7 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen> with SingleTickerPr
                     child: ElevatedButton.icon(
                       onPressed: _selectFile,
                       icon: const Icon(Icons.upload_file),
-                      label: Text(loc.translate('Select pdf file')),
+                      label: const Text('Select pdf file'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
@@ -182,7 +180,7 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen> with SingleTickerPr
                             _password = value;
                           }),
                           decoration: InputDecoration(
-                            labelText: loc.translate('Enter password'),
+                            labelText: 'Enter password',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),

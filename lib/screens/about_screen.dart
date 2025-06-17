@@ -10,7 +10,7 @@ class AboutScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(loc.translate('about us')),
+        title: Text('about us'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -31,7 +31,7 @@ class AboutScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              loc.translate(' Pdf Utility Pro'),
+              ' Pdf Utility Pro',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -51,15 +51,14 @@ class AboutScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      loc.translate('about app'),
+                      'about app',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      loc.translate(
-                          'PDF Utility Pro is a professional application that provides a comprehensive set of smart tools for handling PDF files easily and efficiently. With this app, you can convert images and text to PDF, merge and split files, add signatures or watermarks, extract text, read and edit PDFs, and much more. Designed with a simple and user-friendly interface.'),
+                      'PDF Utility Pro is a professional application that provides a comprehensive set of smart tools for handling PDF files easily and efficiently. With this app, you can convert images and text to PDF, merge and split files, add signatures or watermarks, extract text, read and edit PDFs, and much more. Designed with a simple and user-friendly interface.',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -74,25 +73,25 @@ class AboutScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      loc.translate('features'),
+                      'features',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                     ),
                     const SizedBox(height: 8),
-                    buildFeatureItem(context, loc.translate('image to pdf')),
-                    buildFeatureItem(context, loc.translate('text to pdf')),
-                    buildFeatureItem(context, loc.translate('qr barcode')),
-                    buildFeatureItem(context, loc.translate('excel to pdf')),
-                    buildFeatureItem(context, loc.translate('word to pdf')),
-                    buildFeatureItem(context, loc.translate('merge pdf')),
-                    buildFeatureItem(context, loc.translate('split pdf')),
-                    buildFeatureItem(context, loc.translate('edit pdf')),
-                    buildFeatureItem(context, loc.translate('add watermark')),
-                    buildFeatureItem(context, loc.translate('add signature')),
-                    buildFeatureItem(context, loc.translate('pdf scanner')),
-                    buildFeatureItem(context, loc.translate('extract text')),
-                    buildFeatureItem(context, loc.translate('read pdf')),
+                    buildFeatureItem(context, 'image to pdf'),
+                    buildFeatureItem(context, 'text to pdf'),
+                    buildFeatureItem(context, 'qr barcode'),
+                    buildFeatureItem(context, 'excel to pdf'),
+                    buildFeatureItem(context, 'word to pdf'),
+                    buildFeatureItem(context, 'merge pdf'),
+                    buildFeatureItem(context, 'split pdf'),
+                    buildFeatureItem(context, 'edit pdf'),
+                    buildFeatureItem(context, 'add watermark'),
+                    buildFeatureItem(context, 'add signature'),
+                    buildFeatureItem(context, 'pdf scanner'),
+                    buildFeatureItem(context, 'extract text'),
+                    buildFeatureItem(context, 'read pdf'),
                   ],
                 ),
               ),
@@ -105,7 +104,7 @@ class AboutScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      loc.translate('contact us'),
+                      'contact us',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -113,7 +112,7 @@ class AboutScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     ListTile(
                       leading: const Icon(Icons.email),
-                      title: Text(loc.translate('email')),
+                      title: Text('email'),
                       subtitle: const Text('support@pdfutilitypro.com'),
                     ),
                   ],
@@ -122,7 +121,7 @@ class AboutScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              loc.translate('copyright'),
+              'copyright',
               style: Theme.of(context).textTheme.bodySmall,
               textAlign: TextAlign.center,
             ),

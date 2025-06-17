@@ -182,11 +182,10 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     return FeatureScreenTemplate(
-      title: loc.translate('Excel to PDF'),
+      title: 'Excel to PDF',
       icon: Icons.table_chart,
-      actionButtonLabel: loc.translate('convert'),
+      actionButtonLabel: 'Convert',
       isActionButtonEnabled: _selectedFile != null && !_isProcessing,
       isProcessing: _isProcessing,
       onActionButtonPressed: _convertToPdf,
@@ -196,9 +195,9 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> with SingleTickerPr
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                loc.translate(
-                    'Select an Excel file from your device to convert it into a PDF document.'),
+              const Text(
+                
+                    'Select an Excel file from your device to convert it into a PDF document.',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -234,7 +233,7 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen> with SingleTickerPr
                   child: ElevatedButton.icon(
                     onPressed: _selectFile,
                     icon: const Icon(Icons.upload_file),
-                    label: Text(loc.translate('Select excel file')),
+                    label: const Text('Select excel file'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12),

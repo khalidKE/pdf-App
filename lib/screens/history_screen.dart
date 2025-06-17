@@ -28,12 +28,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     final historyProvider = Provider.of<HistoryProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(loc.translate('History')),
+        title: const Text('History'),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
@@ -43,12 +42,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: Text(loc.translate('clear_history')),
-                        content: Text(loc.translate('clear_history_confirm')),
+                        title: const Text('Clear history'),
+                        content: const Text('Clear history confirm'),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: Text(loc.translate('cancel')),
+                            child: const Text('Cancel'),
                           ),
                           TextButton(
                             onPressed: () {
@@ -58,14 +57,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               historyProvider.clearHistory();
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
+                                const SnackBar(
                                   content:
-                                      Text(loc.translate('history_cleared')),
+                                      Text('History cleared'),
                                   backgroundColor: Colors.green,
                                 ),
                               );
                             },
-                            child: Text(loc.translate('clear')),
+                            child: const Text('Clear'),
                           ),
                         ],
                       ),
@@ -86,7 +85,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    loc.translate('No history'),
+                    'No history',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],
@@ -112,7 +111,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           children: [
                             ListTile(
                               leading: const Icon(Icons.open_in_new),
-                              title: Text(loc.translate('open')),
+                              title: const Text('open'),
                               onTap: () {
                                 Navigator.pop(context);
                                 _openFile(item.filePath);
@@ -120,7 +119,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ),
                             ListTile(
                               leading: const Icon(Icons.share),
-                              title: Text(loc.translate('share')),
+                              title: const Text('share'),
                               onTap: () {
                                 Navigator.pop(context);
                                 _shareFile(item.filePath, item.title);
@@ -128,7 +127,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ),
                             ListTile(
                               leading: const Icon(Icons.delete),
-                              title: Text(loc.translate('delete')),
+                              title: const Text('delete'),
                               onTap: () {
                                 Navigator.pop(context);
                                 _deleteHistoryItem(index);
@@ -202,7 +201,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final difference = now.difference(timestamp);
 
     if (difference.inMinutes < 1) {
-      return loc.translate('just_now');
+      return 'just_now';
     } else if (difference.inHours < 1) {
       return loc
           .translate('minutes_ago')

@@ -111,7 +111,7 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> with SingleTickerProvider
                   children: [
                     const Icon(Icons.print, size: 20),
                     const SizedBox(width: 8),
-                    Text(loc.translate('print')),
+                    Text('print'),
                   ],
                 ),
               ),
@@ -126,8 +126,8 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> with SingleTickerProvider
                     ),
                     const SizedBox(width: 8),
                     Text(_isFavorite()
-                        ? loc.translate('remove_from_favorites')
-                        : loc.translate('add_to_favorites')),
+                        ? 'remove_from_favorites'
+                        : 'add_to_favorites'),
                   ],
                 ),
               ),

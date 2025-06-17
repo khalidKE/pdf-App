@@ -6,7 +6,6 @@ import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
@@ -83,8 +82,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)
-                    .translate('camera_access_denied') ??
-                'Camera access denied.'),
+                    .translate('camera_access_denied')),
             backgroundColor: AppConstants.errorColor,
           ),
         );
@@ -211,12 +209,6 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
     }
   }
 
-  void _removeImage(int index) {
-    setState(() {
-      _selectedImages.removeAt(index);
-      _imageNames.removeAt(index);
-    });
-  }
 
   @override
   void dispose() {
@@ -226,12 +218,11 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
-      title: loc.translate('Image to PDF'),
+      title: 'Image to PDF',
       icon: Icons.image,
-      actionButtonLabel: loc.translate('Create Pdf'),
+      actionButtonLabel: 'Create Pdf',
       isActionButtonEnabled: _selectedImages.isNotEmpty && !_isProcessing,
       isProcessing: _isProcessing,
       onActionButtonPressed: _createPdf,
@@ -241,14 +232,14 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
       ),
       body: Column(
         children: [
-          AnimatedOpacity(
+          const AnimatedOpacity(
             opacity: 1.0,
-            duration: const Duration(milliseconds: 500),
+            duration: Duration(milliseconds: 500),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               child: Text(
-                loc.translate(
-                    'Select images from your device or take photos with your camera to convert them into a PDF document.'),
+                
+                    'Select images from your device or take photos with your camera to convert them into a PDF document.',
                 textAlign: TextAlign.center,
               ),
             ),
@@ -262,13 +253,13 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
                 ElevatedButton.icon(
                   onPressed: _selectImages,
                   icon: const Icon(Icons.photo_library),
-                  label: Text(loc.translate('Select Images')),
+                  label: const Text('Select Images'),
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton.icon(
                   onPressed: _takePhoto,
                   icon: const Icon(Icons.camera_alt),
-                  label: Text(loc.translate('Take Photo')),
+                  label: const Text('Take Photo'),
                 ),
               ],
             ),
@@ -287,7 +278,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          loc.translate('No images selected'),
+                          'No images selected',
                           style: TextStyle(
                             color: Theme.of(context).textTheme.bodySmall?.color,
                           ),

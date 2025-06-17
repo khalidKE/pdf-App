@@ -28,10 +28,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTick
   String? _fileName;
   bool _isProcessing = false;
   final TextEditingController _watermarkTextController = TextEditingController();
-  final TextEditingController _positionXController = TextEditingController();
-  final TextEditingController _positionYController = TextEditingController();
-  final TextEditingController _fontSizeController = TextEditingController();
-  final TextEditingController _colorController = TextEditingController();
+ 
 
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
@@ -201,11 +198,10 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTick
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     return FeatureScreenTemplate(
-      title: loc.translate('Add Watermark'),
+      title: 'Add Watermark',
       icon: Icons.water_drop,
-      actionButtonLabel: loc.translate('Add Watermark'),
+      actionButtonLabel: 'Add Watermark',
       isActionButtonEnabled: _selectedFile != null &&
           _watermarkTextController.text.trim().isNotEmpty &&
           !_isProcessing,
@@ -216,9 +212,9 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTick
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              loc.translate(
-                  'Select a PDF file and add a text watermark to it.'),
+            const Text(
+              
+                  'Select a PDF file and add a text watermark to it.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -231,7 +227,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTick
                     child: ElevatedButton.icon(
                       onPressed: _selectFile,
                       icon: const Icon(Icons.upload_file),
-                      label: Text(loc.translate('Select pdf file')),
+                      label: const Text('Select pdf file'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
@@ -269,14 +265,14 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen> with SingleTick
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          loc.translate('watermark_text'),
+                          'watermark_text',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 16),
                         TextField(
                           controller: _watermarkTextController,
                           decoration: InputDecoration(
-                            labelText: loc.translate('enter_watermark_text'),
+                            labelText: 'enter_watermark_text',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),

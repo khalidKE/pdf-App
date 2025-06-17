@@ -142,9 +142,9 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
     final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
-      title: loc.translate('Text to PDF'),
+      title: 'Text to PDF',
       icon: Icons.text_fields,
-      actionButtonLabel: loc.translate('Create Pdf'),
+      actionButtonLabel: 'Create Pdf',
       isActionButtonEnabled:
           _textController.text.trim().isNotEmpty && !_isProcessing,
       isProcessing: _isProcessing,
@@ -154,8 +154,8 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
         child: Column(
           children: [
             Text(
-              loc.translate(
-                  'Enter or paste text to convert it into a PDF document.'),
+              
+                  'Enter or paste text to convert it into a PDF document.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -173,7 +173,7 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
                     expands: true,
                     textAlignVertical: TextAlignVertical.top,
                     decoration: InputDecoration(
-                      hintText: loc.translate('Enter text here'),
+                      hintText: 'Enter text here',
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.all(16),
                     ),

@@ -27,7 +27,6 @@ class FavoriteFilesList extends StatelessWidget {
   }
   
   Widget _buildFileCard(BuildContext context, FileItem file, FileProvider fileProvider) {
-    final loc = AppLocalizations.of(context);
     final dateFormat = DateFormat('MMM d, yyyy • h:mm a');
     
     return Card(
@@ -111,7 +110,6 @@ class FavoriteFilesList extends StatelessWidget {
   }
   
   void _showFileOptions(BuildContext context, FileItem file, FileProvider fileProvider) {
-    final loc = AppLocalizations.of(context);
     
     showModalBottomSheet(
       context: context,
@@ -124,7 +122,7 @@ class FavoriteFilesList extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.open_in_new),
-              title: Text(loc.translate('open')),
+              title: Text('open'),
               onTap: () {
                 Navigator.pop(context);
                 if (file.type == FileType.pdf) {
@@ -139,7 +137,7 @@ class FavoriteFilesList extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.share),
-              title: Text(loc.translate('share')),
+              title: Text('share'),
               onTap: () {
                 Navigator.pop(context);
                 Share.shareXFiles([XFile(file.path)], text: file.name);
@@ -147,7 +145,7 @@ class FavoriteFilesList extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.favorite_border),
-              title: Text(loc.translate('remove_from_favorites')),
+              title: Text('remove_from_favorites'),
               onTap: () {
                 Navigator.pop(context);
                 fileProvider.toggleFavorite(file);
@@ -155,7 +153,7 @@ class FavoriteFilesList extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.info_outline),
-              title: Text(loc.translate('details')),
+              title: Text('details'),
               onTap: () {
                 Navigator.pop(context);
                 _showFileDetails(context, file);
@@ -174,22 +172,22 @@ class FavoriteFilesList extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(loc.translate('file_details')),
+        title: Text('file_details'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow(context, loc.translate('name'), file.name),
-            _buildDetailRow(context, loc.translate('type'), _getFileTypeString(file.type, loc)),
-            _buildDetailRow(context, loc.translate('size'), file.formattedSize),
-            _buildDetailRow(context, loc.translate('location'), file.path),
-            _buildDetailRow(context, loc.translate('modified'), dateFormat.format(file.dateModified)),
+            _buildDetailRow(context, 'name', file.name),
+            _buildDetailRow(context, 'type', _getFileTypeString(file.type, loc)),
+            _buildDetailRow(context, 'size', file.formattedSize),
+            _buildDetailRow(context, 'location', file.path),
+            _buildDetailRow(context, 'modified', dateFormat.format(file.dateModified)),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(loc.translate('close')),
+            child: Text('close'),
           ),
         ],
       ),
@@ -224,15 +222,15 @@ class FavoriteFilesList extends StatelessWidget {
       case FileType.pdf:
         return 'PDF';
       case FileType.image:
-        return loc.translate('image_file');
+        return 'image_file';
       case FileType.excel:
         return 'Excel';
       case FileType.word:
         return 'Word';
       case FileType.text:
-        return loc.translate('text_file');
+        return 'text_file';
       case FileType.other:
-        return loc.translate('file');
+        return 'file';
     }
   }
 }

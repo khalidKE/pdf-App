@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/theme_provider.dart';
-import 'package:pdf_utility_pro/providers/language_provider.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/providers/settings_provider.dart';
 import 'package:pdf_utility_pro/screens/splash_screen.dart';
@@ -41,7 +40,6 @@ void main() async {
         providers: [
                   ChangeNotifierProvider(create: (_) => HistoryProvider()),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
-          ChangeNotifierProvider(create: (_) => LanguageProvider()),
           ChangeNotifierProvider(create: (_) => FileProvider()),
           ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ],

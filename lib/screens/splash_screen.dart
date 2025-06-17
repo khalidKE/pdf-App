@@ -78,7 +78,6 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -168,7 +167,7 @@ class _SplashScreenState extends State<SplashScreen>
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: Text(
-                    loc.translate('pdf tools for everyone'),
+                    'pdf tools for everyone',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white.withOpacity(0.8),

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:pdf_utility_pro/utils/app_localizations.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 
 class CompressPdfScreen extends StatefulWidget {
@@ -111,12 +110,11 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
 
     return FeatureScreenTemplate(
-      title: loc.translate('Compress PDF'),
+      title: 'Compress PDF',
       icon: Icons.compress,
-      actionButtonLabel: loc.translate('Compress PDF'),
+      actionButtonLabel: 'Compress PDF',
       isActionButtonEnabled: _selectedFile != null && !_isProcessing,
       isProcessing: _isProcessing,
       onActionButtonPressed: _compressPdf,
@@ -124,8 +122,8 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> with SingleTicker
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text(
-              loc.translate('Select a PDF file to compress it.'),
+            const Text(
+              'Select a PDF file to compress it.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -138,7 +136,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> with SingleTicker
                     child: ElevatedButton.icon(
                       onPressed: _selectFile,
                       icon: const Icon(Icons.upload_file),
-                      label: Text(loc.translate('Select pdf file')),
+                      label: const Text('Select pdf file'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
