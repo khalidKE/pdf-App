@@ -21,24 +21,33 @@ class BannerAdWidget extends StatefulWidget {
 class _BannerAdWidgetState extends State<BannerAdWidget> {
   BannerAd? _bannerAd;
   bool _isLoaded = false;
+  bool _isFailed = false;
 
   @override
   void initState() {
     super.initState();
-    _loadBannerAd();
-  }
-
-  void _loadBannerAd() {
-    _bannerAd = AdsService().createBannerAd()
-      ..load().then((_) {
-        if (mounted) {
-          setState(() {
-            _isLoaded = true;
-          });
-        }
-      }).catchError((error) {
-        debugPrint('Banner ad failed to load: $error');
-      });
+    _bannerAd = BannerAd(
+      adUnitId: AdsService().bannerAdUnitId,
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          if (mounted) {
+            setState(() {
+              _isLoaded = true;
+            });
+          }
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          if (mounted) {
+            setState(() {
+              _isFailed = true;
+            });
+          }
+        },
+      ),
+    )..load();
   }
 
   @override
@@ -49,24 +58,11 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isFailed) return const SizedBox.shrink(); // Hide everything if failed
+
     if (!_isLoaded || _bannerAd == null) {
-      return Container(
-        height: widget.height ?? 50,
-        margin: widget.margin ?? const EdgeInsets.symmetric(vertical: 8),
-        decoration: widget.showBorder
-            ? BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(8),
-              )
-            : null,
-        child: const Center(
-          child: SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-        ),
-      );
+      // Show nothing while loading
+      return const SizedBox.shrink();
     }
 
     return Container(

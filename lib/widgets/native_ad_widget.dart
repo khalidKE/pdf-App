@@ -21,14 +21,11 @@ class NativeAdWidget extends StatefulWidget {
 class _NativeAdWidgetState extends State<NativeAdWidget> {
   NativeAd? _nativeAd;
   bool _isLoaded = false;
+  bool _isFailed = false;
 
   @override
   void initState() {
     super.initState();
-    _loadNativeAd();
-  }
-
-  void _loadNativeAd() {
     _nativeAd = AdsService().createNativeAd(
       listener: NativeAdListener(
         onAdLoaded: (ad) {
@@ -42,6 +39,11 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
         onAdFailedToLoad: (ad, error) {
           debugPrint('Native ad failed to load: $error');
           ad.dispose();
+          if (mounted) {
+            setState(() {
+              _isFailed = true;
+            });
+          }
         },
         onAdOpened: (ad) {
           debugPrint('Native ad opened');
@@ -51,7 +53,6 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
         },
       ),
     );
-
     _nativeAd!.load();
   }
 
@@ -63,25 +64,8 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isLoaded || _nativeAd == null) {
-      return Container(
-        height: widget.height ?? 120,
-        margin: widget.margin ?? const EdgeInsets.symmetric(vertical: 8),
-        decoration: widget.showBorder
-            ? BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(8),
-              )
-            : null,
-        child: const Center(
-          child: SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-        ),
-      );
-    }
+    if (_isFailed) return const SizedBox.shrink();
+    if (!_isLoaded || _nativeAd == null) return const SizedBox.shrink();
 
     return Container(
       height: widget.height ?? 120,
