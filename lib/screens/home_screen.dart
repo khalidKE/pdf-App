@@ -80,6 +80,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<bool> _onWillPop() async {
+    // Show interstitial ad immediately when dialog appears
+    await AdsService().showInterstitialAd();
+    // Wait a moment to ensure ad is closed or started
+    await Future.delayed(const Duration(milliseconds: 300));
+
     final shouldExit = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -97,15 +102,7 @@ class _HomeScreenState extends State<HomeScreen>
         ],
       ),
     );
-
-    if (shouldExit == true) {
-      // Show interstitial ad before exit
-      final adShown = await AdsService().showInterstitialAd();
-      // Wait a moment to ensure ad is closed
-      await Future.delayed(const Duration(milliseconds: 300));
-      return true; // Allow exit
-    }
-    return false;
+    return shouldExit == true;
   }
 
   @override

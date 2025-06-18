@@ -10,6 +10,7 @@ import 'package:pdf_utility_pro/utils/permission_handler.dart';
 import 'package:pdf_utility_pro/utils/constants.dart';
 import 'package:pdf_utility_pro/services/ads_service.dart';
 import 'dart:async';
+import 'package:pdf_utility_pro/widgets/global_exit_handler.dart';
 
 void main() async {
   // Ensure Flutter is initialized
@@ -244,7 +245,7 @@ class MyApp extends StatelessWidget {
               Locale('en', 'US'),
              
             ],
-            home: const SplashScreen(),
+            home: GlobalExitHandler(child: const SplashScreen()),
           );
         },
       
