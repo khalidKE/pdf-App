@@ -151,4 +151,18 @@ class FileProvider extends ChangeNotifier {
         return FileType.other;
     }
   }
+
+  void renameRecentFile(String oldPath, String newPath, String newName) {
+    final index = _recentFiles.indexWhere((file) => file.path == oldPath);
+    if (index != -1) {
+      final oldFile = _recentFiles[index];
+      _recentFiles[index] = oldFile.copyWith(
+        path: newPath,
+        name: newName,
+        dateModified: DateTime.now(),
+      );
+      _saveFiles();
+      notifyListeners();
+    }
+  }
 }

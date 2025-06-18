@@ -72,4 +72,20 @@ class FileItem {
         return Icons.insert_drive_file;
     }
   }
+
+  FileItem copyWith({
+    String? name,
+    String? path,
+    int? size,
+    DateTime? dateModified,
+    FileType? type,
+  }) {
+    return FileItem(
+      name: name ?? this.name,
+      path: path ?? this.path,
+      size: size ?? this.size,
+      dateModified: dateModified ?? this.dateModified,
+      type: type ?? this.type,
+    );
+  }
 }

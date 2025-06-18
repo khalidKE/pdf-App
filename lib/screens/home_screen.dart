@@ -10,6 +10,7 @@ import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:pdf_utility_pro/utils/pdf_intent_handler.dart';
 import 'package:pdf_utility_pro/services/app_open_ads_manager.dart';
+import 'package:pdf_utility_pro/services/ads_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -28,8 +29,9 @@ class _HomeScreenState extends State<HomeScreen>
     _tabController = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addObserver(this);
 
-    // Load files when the screen is first shown
+    // Check for PDF file intent and load files when the screen is first shown
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForPdfFile();
       Provider.of<FileProvider>(
         context,
         listen: false,
@@ -78,24 +80,32 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<bool> _onWillPop() async {
-    return (await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Exit App'),
-            content: const Text('Are you sure you want to exit?'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Stay'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Exit'),
-              ),
-            ],
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Exit App'),
+        content: const Text('Are you sure you want to exit?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Stay'),
           ),
-        )) ??
-        false;
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Exit'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldExit == true) {
+      // Show interstitial ad before exit
+      final adShown = await AdsService().showInterstitialAd();
+      // Wait a moment to ensure ad is closed
+      await Future.delayed(const Duration(milliseconds: 300));
+      return true; // Allow exit
+    }
+    return false;
   }
 
   @override

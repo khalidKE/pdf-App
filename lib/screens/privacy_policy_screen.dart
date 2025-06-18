@@ -83,17 +83,17 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'We implement appropriate security measures to protect your data. Your files are processed locally on your device and are not stored on our servers.',
             ),
             SizedBox(height: 16),
-            Text(
-              'Contact Us',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'If you have any questions about this privacy policy, please contact us at support@pdfutilitypro.com',
-            ),
+            // Text(
+            //   'Contact Us',
+            //   style: TextStyle(
+            //     fontSize: 18,
+            //     fontWeight: FontWeight.bold,
+            //   ),
+            // ),
+            // SizedBox(height: 8),
+            // Text(
+            //   'If you have any questions about this privacy policy, please contact us at abuelhassan179@gmail.com',
+            // ),
           ],
         ),
       ),

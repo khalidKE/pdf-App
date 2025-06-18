@@ -151,6 +151,14 @@ class RecentFilesList extends StatelessWidget {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.drive_file_rename_outline),
+              title: const Text('Rename'),
+              onTap: () async {
+                Navigator.pop(context);
+                await _showRenameDialog(context, file, fileProvider);
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.delete),
               title: const Text('Delete'),
               onTap: () {
@@ -170,6 +178,51 @@ class RecentFilesList extends StatelessWidget {
         ),
       ),
     );
+  }
+  
+  Future<void> _showRenameDialog(BuildContext context, FileItem file, FileProvider fileProvider) async {
+    final TextEditingController _renameController = TextEditingController(text: file.name.replaceAll('.pdf', ''));
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rename File'),
+        content: TextField(
+          controller: _renameController,
+          decoration: const InputDecoration(
+            labelText: 'New File Name',
+            hintText: 'Enter new file name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, _renameController.text.trim()),
+            child: const Text('Rename'),
+          ),
+        ],
+      ),
+    );
+    if (result != null && result.isNotEmpty && result != file.name) {
+      final newName = result.endsWith('.pdf') ? result : result + '.pdf';
+      final newPath = file.path.replaceAll(file.name, newName);
+      final fileObj = File(file.path);
+      try {
+        await fileObj.rename(newPath);
+        fileProvider.renameRecentFile(file.path, newPath, newName);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('File renamed to $newName')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to rename file: $e')),
+        );
+      }
+    }
   }
   
   void _confirmDelete(BuildContext context, FileItem file, FileProvider fileProvider) {

@@ -59,6 +59,7 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
       TextEditingController();
   final TextEditingController _ownerPasswordController =
       TextEditingController();
+  final TextEditingController _protectedFileNameController = TextEditingController();
 
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
@@ -227,6 +228,43 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
     }
   }
 
+  Future<String?> _showFileNameDialog() async {
+    _protectedFileNameController.text = _fileName != null ? p.basenameWithoutExtension(_fileName!) + '_protected' : 'Protected_PDF';
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Enter File Name'),
+        content: TextField(
+          controller: _protectedFileNameController,
+          decoration: const InputDecoration(
+            hintText: 'e.g., MyProtectedDocument.pdf',
+            labelText: 'File Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: (value) {
+            Navigator.of(context).pop(value);
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null);
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(_protectedFileNameController.text.trim());
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _protectPdf() async {
     if (_selectedFile == null) {
       _showSnackBar('Please select a PDF file first', Colors.orange);
@@ -234,6 +272,13 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
     }
 
     if (!_validatePasswords()) return;
+
+    // Ask for file name before creating
+    final fileName = await _showFileNameDialog();
+    if (fileName == null || fileName.isEmpty) {
+      _showSnackBar('File name cannot be empty.', Colors.orange);
+      return;
+    }
 
     setState(() {
       _isProcessing = true;
@@ -266,10 +311,7 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
       // Step 6: Write to file
       _updateProgress(0.9, 'Writing to storage...');
       final outputDir = await getApplicationDocumentsDirectory();
-      final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-      final baseName = p.basenameWithoutExtension(_fileName!);
-      final outputPath =
-          '${outputDir.path}/${baseName}_protected_$timestamp.pdf';
+      final outputPath = '${outputDir.path}/$fileName.pdf';
 
       final File protectedFile = File(outputPath);
       await protectedFile.writeAsBytes(protectedBytes);
@@ -872,6 +914,7 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
     _userPasswordController.dispose();
     _confirmPasswordController.dispose();
     _ownerPasswordController.dispose();
+    _protectedFileNameController.dispose();
     super.dispose();
   }
 
