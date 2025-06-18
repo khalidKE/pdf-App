@@ -63,20 +63,54 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
         'imageBytes': image,
         'fileName': fileName + ('${_showQr ? '_qr' : '_barcode'}.png'), // Add type suffix and extension
       });
+      debugPrint('Save image result: $result');
 
       if (result == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image saved successfully!')),
+        debugPrint('Showing success dialog');
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Success'),
+            content: const Text('Image saved successfully!'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
         );
         _filenameController.clear(); // Clear filename after saving
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to save image')),
+        debugPrint('Showing failure dialog');
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Failed'),
+            content: const Text('Failed to save image.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+      debugPrint('Exception when saving image: $e');
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: Text('Error: $e'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
       );
     }
   }

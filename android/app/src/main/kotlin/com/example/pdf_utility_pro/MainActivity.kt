@@ -28,8 +28,10 @@ class MainActivity : FlutterActivity() {
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             if (call.method == "saveImageToGallery") {
-                val imageBytes = call.arguments as ByteArray
-                val success = saveImageToGallery(this, imageBytes)
+                val args = call.arguments as HashMap<*, *>
+                val imageBytes = args["imageBytes"] as ByteArray
+                val fileName = args["fileName"] as String
+                val success = saveImageToGallery(this, imageBytes, fileName)
                 result.success(success)
             } else {
                 result.notImplemented()
@@ -159,10 +161,10 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    private fun saveImageToGallery(context: Context, imageBytes: ByteArray): Boolean {
+    private fun saveImageToGallery(context: Context, imageBytes: ByteArray, fileName: String): Boolean {
         return try {
             val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-            val displayName = "qr_${System.currentTimeMillis()}.png"
+            val displayName = fileName
             val fos: OutputStream?
             val imageUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val values = ContentValues().apply {
