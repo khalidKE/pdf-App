@@ -9,7 +9,6 @@ import 'package:pdf_utility_pro/screens/feature_screens/merge_pdf_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/split_pdf_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/add_watermark_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/add_signature_screen.dart';
-import 'package:pdf_utility_pro/screens/feature_screens/extract_text_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/view_files_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/compress_pdf_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/protect_pdf_screen.dart';
@@ -95,14 +94,7 @@ class FeatureGrid extends StatelessWidget {
         screen:  AddSignatureScreen(),
         category: 'edit',
       ),
-      const Feature(
-        title: 'Extract Text',
-        description: 'Extract text from PDF or image',
-        icon: Icons.text_snippet,
-        color: AppConstants.infoColor,
-        screen:  ExtractTextScreen(),
-        category: 'extract',
-      ),
+    
       const Feature(
         title: 'View Files',
         description: 'Browse files on device',

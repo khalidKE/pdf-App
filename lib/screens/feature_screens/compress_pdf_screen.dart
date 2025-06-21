@@ -217,6 +217,19 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
      
       });
 
+      // Add to FileProvider
+      final fileItem = FileItem(
+        name: p.basename(compressedFile.path),
+        path: compressedFile.path,
+        size: await compressedFile.length(),
+        dateModified: await compressedFile.lastModified(),
+        type: FileType.pdf,
+      );
+      if (mounted) {
+        Provider.of<FileProvider>(context, listen: false)
+            .addRecentFile(fileItem);
+      }
+
       _updateProgress(1.0, 'Compression completed!');
 
       await Future.delayed(const Duration(milliseconds: 500));

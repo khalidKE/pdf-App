@@ -53,6 +53,7 @@ class FileProvider extends ChangeNotifier {
   }
 
   void addRecentFile(FileItem file) {
+    // Remove if exists to avoid duplicates and update its position
     _recentFiles.removeWhere((item) => item.path == file.path);
     _recentFiles.insert(0, file);
     if (_recentFiles.length > AppConstants.maxRecentFiles) {
@@ -153,16 +154,29 @@ class FileProvider extends ChangeNotifier {
   }
 
   void renameRecentFile(String oldPath, String newPath, String newName) {
-    final index = _recentFiles.indexWhere((file) => file.path == oldPath);
-    if (index != -1) {
-      final oldFile = _recentFiles[index];
-      _recentFiles[index] = oldFile.copyWith(
+    // Rename in recent files
+    final recentIndex = _recentFiles.indexWhere((file) => file.path == oldPath);
+    if (recentIndex != -1) {
+      final oldFile = _recentFiles[recentIndex];
+      _recentFiles[recentIndex] = oldFile.copyWith(
         path: newPath,
         name: newName,
         dateModified: DateTime.now(),
       );
-      _saveFiles();
-      notifyListeners();
     }
+
+    // Rename in favorite files
+    final favoriteIndex = _favoriteFiles.indexWhere((file) => file.path == oldPath);
+    if (favoriteIndex != -1) {
+      final oldFile = _favoriteFiles[favoriteIndex];
+      _favoriteFiles[favoriteIndex] = oldFile.copyWith(
+        path: newPath,
+        name: newName,
+        dateModified: DateTime.now(),
+      );
+    }
+
+    _saveFiles();
+    notifyListeners();
   }
 }

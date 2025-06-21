@@ -12,6 +12,8 @@ import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:media_store_plus/media_store_plus.dart';
+import 'package:pdf_utility_pro/providers/file_provider.dart';
+import 'package:pdf_utility_pro/models/file_item.dart';
 
 
 class ProtectPdfScreen extends StatefulWidget {
@@ -339,6 +341,19 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
       setState(() {
         _protectedFile = protectedFile;
       });
+
+      // Add to file provider
+      if (mounted) {
+        final fileItem = FileItem(
+          name: p.basename(protectedFile.path),
+          path: protectedFile.path,
+          size: await protectedFile.length(),
+          dateModified: await protectedFile.lastModified(),
+          type: FileType.pdf,
+        );
+        Provider.of<FileProvider>(context, listen: false)
+            .addRecentFile(fileItem);
+      }
 
       // Add to history
       if (mounted) {

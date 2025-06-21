@@ -6,6 +6,8 @@ import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:pdf_utility_pro/models/history_item.dart';
 
 class RecentFilesList extends StatelessWidget {
   const RecentFilesList({Key? key}) : super(key: key);
@@ -214,6 +216,18 @@ class RecentFilesList extends StatelessWidget {
       try {
         await fileObj.rename(newPath);
         fileProvider.renameRecentFile(file.path, newPath, newName);
+
+        // Add to history
+        final historyProvider = Provider.of<HistoryProvider>(context, listen: false);
+        historyProvider.addHistoryItem(
+          HistoryItem(
+            title: 'Renamed "${file.name}" to "$newName"',
+            filePath: newPath,
+            operation: 'Rename File',
+            timestamp: DateTime.now(),
+          ),
+        );
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('File renamed to $newName')),
         );
