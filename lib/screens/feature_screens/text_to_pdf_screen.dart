@@ -13,6 +13,7 @@ import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:pdf_utility_pro/utils/font_loader.dart';
 
 class TextToPdfScreen extends StatefulWidget {
   const TextToPdfScreen({Key? key}) : super(key: key);
@@ -73,14 +74,28 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
       _isProcessing = true;
     });
     try {
+      final font = await FontLoader.getFont();
       final pdf = pw.Document();
+
+      bool isRtl(String text) {
+        return RegExp(r'[\u0600-\u06FF]').hasMatch(text);
+      }
+
+      final textDirection =
+          isRtl(_textController.text) ? pw.TextDirection.rtl : pw.TextDirection.ltr;
+
       pdf.addPage(
         pw.Page(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
             return pw.Padding(
               padding: const pw.EdgeInsets.all(32),
-              child: pw.Text(_textController.text),
+              child: pw.Text(
+                _textController.text,
+                style: pw.TextStyle(font: font),
+                textAlign: textDirection == pw.TextDirection.rtl ? pw.TextAlign.right : pw.TextAlign.left,
+                textDirection: textDirection,
+              ),
             );
           },
         ),

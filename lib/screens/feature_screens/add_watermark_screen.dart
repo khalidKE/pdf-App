@@ -15,6 +15,8 @@ import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdfx/pdfx.dart' as pdfx;
 import 'package:pdf_utility_pro/utils/permission_handler.dart';
+import 'package:pdf_utility_pro/utils/font_loader.dart';
+
 class AddWatermarkScreen extends StatefulWidget {
   const AddWatermarkScreen({Key? key}) : super(key: key);
 
@@ -122,9 +124,19 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
       _isProcessing = true;
     });
     try {
+      final font = await FontLoader.getFont();
       final doc = await pdfx.PdfDocument.openFile(_selectedFile!.path);
       final appDir = await getApplicationDocumentsDirectory();
       final pdfDoc = pw.Document();
+
+      bool isRtl(String text) {
+        return RegExp(r'[\u0600-\u06FF]').hasMatch(text);
+      }
+
+      final textDirection = isRtl(_watermarkTextController.text)
+          ? pw.TextDirection.rtl
+          : pw.TextDirection.ltr;
+
       for (int i = 1; i <= doc.pagesCount; i++) {
         final page = await doc.getPage(i);
         final pageImage = await page.render(
@@ -155,7 +167,9 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
                         opacity: 0.3,
                         child: pw.Text(
                           _watermarkTextController.text,
+                          textDirection: textDirection,
                           style: pw.TextStyle(
+                            font: font,
                             fontSize: 36,
                             color: pdf.PdfColors.red,
                             fontWeight: pw.FontWeight.bold,
