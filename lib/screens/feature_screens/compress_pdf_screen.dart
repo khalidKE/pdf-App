@@ -458,39 +458,10 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
 
                   const SizedBox(height: 20),
 
-                  // File size comparison
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildSizeCard(
-                          'Original',
-                          _formatFileSize(originalSize),
-                          Colors.red,
-                          Icons.file_present,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildSizeCard(
-                          'Compressed',
-                          _formatFileSize(compressedSize),
-                          Colors.green,
-                          Icons.compress,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
                   // File details
                   _buildDetailCard('File Details', [
                     _buildInfoRow('File Name', p.basename(filePath)),
                     _buildInfoRow('Compression Level', 'Maximum (Best)'),
-                    _buildInfoRow(
-                        'Original Size', _formatFileSize(originalSize)),
-                    _buildInfoRow(
-                        'Compressed Size', _formatFileSize(compressedSize)),
                     _buildInfoRow('Space Saved',
                         _formatFileSize(originalSize - compressedSize)),
                   ]),
@@ -994,7 +965,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
                                       color: Colors.green),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Maximum Compression Successful!',
+                                    'Successful!',
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium
@@ -1006,33 +977,6 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
                                 ],
                               ),
                               const SizedBox(height: 12),
-
-                              // Size comparison
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildSizeCard(
-                                      'Original',
-                                      _formatFileSize(
-                                          _selectedFile!.lengthSync()),
-                                      Colors.red,
-                                      Icons.file_present,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _buildSizeCard(
-                                      'Compressed',
-                                      _formatFileSize(
-                                          _compressedFile!.lengthSync()),
-                                      Colors.green,
-                                      Icons.compress,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 16),
 
                               // Action buttons
                               Row(
