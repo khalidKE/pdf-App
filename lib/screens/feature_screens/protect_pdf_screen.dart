@@ -1,24 +1,18 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as p;
-import 'package:intl/intl.dart';
+import 'package:pdf_utility_pro/utils/permission_handler.dart';
+import 'package:provider/provider.dart';
+import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:pdf_utility_pro/models/history_item.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:media_store_plus/media_store_plus.dart';
 
-enum ProtectionLevel {
-  basic('Basic Protection', 'Password required to open the document'),
-  standard('Standard Protection', 'Password + restrict printing and copying'),
-  advanced('Advanced Protection', 'Password + restrict all modifications'),
-  maximum('Maximum Protection', 'Password + restrict all operations');
-
-  const ProtectionLevel(this.label, this.description);
-  final String label;
-  final String description;
-}
 
 class ProtectPdfScreen extends StatefulWidget {
   const ProtectPdfScreen({super.key});
@@ -37,7 +31,6 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
   bool _isProcessing = false;
   double _protectionProgress = 0.0;
   String _progressText = '';
-  ProtectionLevel _selectedProtectionLevel = ProtectionLevel.standard;
   File? _protectedFile;
 
   // Password visibility toggles
@@ -45,13 +38,6 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
   bool _showConfirmPassword = false;
   bool _showOwnerPassword = false;
 
-  // Permission settings
-  bool _allowPrinting = true;
-  bool _allowCopying = false;
-  bool _allowModification = false;
-  bool _allowAnnotations = false;
-  bool _allowFormFilling = true;
-  bool _allowAccessibility = true;
 
   // Controllers
   final TextEditingController _userPasswordController = TextEditingController();
@@ -59,7 +45,8 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
       TextEditingController();
   final TextEditingController _ownerPasswordController =
       TextEditingController();
-  final TextEditingController _protectedFileNameController = TextEditingController();
+  final TextEditingController _protectedFileNameController =
+      TextEditingController();
 
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
@@ -127,35 +114,49 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
   }
 
   Future<void> _selectFile() async {
+    final hasPermission =
+        await AppPermissionHandler.requestStoragePermission(context: context);
+    if (!hasPermission) {
+      _showSnackBar(
+          'Storage permission is required to access files.', Colors.red);
+      return;
+    }
     try {
       final result = await fp.FilePicker.platform.pickFiles(
         type: fp.FileType.custom,
         allowedExtensions: ['pdf'],
         allowMultiple: false,
+        withData: true,
       );
 
-      if (result != null && result.files.single.path != null) {
-        final file = File(result.files.single.path!);
-
-        if (await file.exists()) {
-          final fileSize = await file.length();
-
-          // Check file size limit (100MB)
-          if (fileSize > 100 * 1024 * 1024) {
-            _showSnackBar('File too large. Please select a PDF under 100MB.',
-                Colors.orange);
+      if (result != null && result.files.isNotEmpty) {
+        final pickedFile = result.files.single;
+        final fileName = pickedFile.name;
+        final tempDir = await getTemporaryDirectory();
+        final tempFile = File('${tempDir.path}/$fileName');
+        if (pickedFile.bytes != null) {
+          await tempFile.writeAsBytes(pickedFile.bytes!);
+        } else if (pickedFile.path != null) {
+          final sourceFile = File(pickedFile.path!);
+          if (await sourceFile.exists()) {
+            final bytes = await sourceFile.readAsBytes();
+            await tempFile.writeAsBytes(bytes);
+          } else {
+            _showSnackBar('Source file does not exist', Colors.red);
             return;
           }
-
-          setState(() {
-            _selectedFile = file;
-            _fileName = result.files.single.name;
-            _protectedFile = null;
-            _clearPasswords();
-          });
         } else {
-          _showSnackBar('Selected file does not exist', Colors.red);
+          _showSnackBar('Invalid file selected', Colors.red);
+          return;
         }
+        setState(() {
+          _selectedFile = tempFile;
+          _fileName = fileName;
+          _protectedFile = null;
+          _clearPasswords();
+        });
+      } else {
+        _showSnackBar('Selected file does not exist', Colors.red);
       }
     } catch (e) {
       _showSnackBar('Error selecting file: ${e.toString()}', Colors.red);
@@ -229,7 +230,9 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
   }
 
   Future<String?> _showFileNameDialog() async {
-    _protectedFileNameController.text = _fileName != null ? p.basenameWithoutExtension(_fileName!) + '_protected' : 'Protected_PDF';
+    _protectedFileNameController.text = _fileName != null
+        ? p.basenameWithoutExtension(_fileName!) + '_protected'
+        : 'Protected_PDF';
     return showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -256,7 +259,8 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop(_protectedFileNameController.text.trim());
+              Navigator.of(context)
+                  .pop(_protectedFileNameController.text.trim());
             },
             child: const Text('Create'),
           ),
@@ -308,24 +312,48 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
       final List<int> protectedBytes = await document.save();
       document.dispose();
 
-      // Step 6: Write to file
-      _updateProgress(0.9, 'Writing to storage...');
+      // Step 6: Write to Documents (app-specific directory)
+      _updateProgress(0.9, 'Writing to Documents...');
       final outputDir = await getApplicationDocumentsDirectory();
       final outputPath = '${outputDir.path}/$fileName.pdf';
-
       final File protectedFile = File(outputPath);
       await protectedFile.writeAsBytes(protectedBytes);
+      debugPrint('Protected PDF saved at: ${protectedFile.path}');
+
+      // Step 7: Copy to Downloads using MediaStore (Android 10+)
+      bool savedToDownloads = false;
+      if (Platform.isAndroid) {
+        try {
+          final mediaStore = MediaStore();
+          final result = await mediaStore.saveFile(
+            tempFilePath: protectedFile.path,
+            dirType: DirType.download,
+            dirName: DirName.download,
+          );
+          savedToDownloads = result != null;
+        } catch (e) {
+          debugPrint('Error saving to downloads: $e');
+        }
+      }
 
       setState(() {
         _protectedFile = protectedFile;
       });
 
-      _updateProgress(1.0, 'Protection completed!');
+      // Add to history
+      if (mounted) {
+        Provider.of<HistoryProvider>(context, listen: false).addHistoryItem(
+          HistoryItem(
+            title: p.basename(outputPath),
+            filePath: outputPath,
+            operation: 'Protect PDF',
+            timestamp: DateTime.now(),
+          ),
+        );
+      }
 
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      if (!mounted) return;
-      _showProtectionResults();
+      // Show result dialog
+      _showProtectionResults(savedToDownloads: savedToDownloads);
     } catch (e) {
       if (!mounted) return;
       _showSnackBar('Error protecting PDF: ${e.toString()}', Colors.red);
@@ -349,8 +377,8 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
       security.ownerPassword =
           _ownerPassword.isNotEmpty ? _ownerPassword : _userPassword;
 
-      // Set encryption algorithm
-      security.algorithm = PdfEncryptionAlgorithm.aesx128Bit;
+      // Set encryption algorithm (AES-256)
+      security.algorithm = PdfEncryptionAlgorithm.aesx256Bit;
     } catch (e) {
       debugPrint('Error applying security settings: $e');
     }
@@ -359,60 +387,8 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
   Future<void> _configurePermissions(PdfDocument document) async {
     try {
       final security = document.security;
-
-      // Configure permissions based on protection level and user settings
-      switch (_selectedProtectionLevel) {
-        case ProtectionLevel.basic:
-          // Only password protection, allow most operations
-          security.permissions.add(PdfPermissionsFlags.print);
-          security.permissions.add(PdfPermissionsFlags.editContent);
-          security.permissions.add(PdfPermissionsFlags.copyContent);
-          security.permissions.add(PdfPermissionsFlags.editAnnotations);
-          security.permissions.add(PdfPermissionsFlags.fillFields);
-          break;
-
-        case ProtectionLevel.standard:
-          // Restrict printing and copying based on user settings
-          if (_allowPrinting) {
-            security.permissions.add(PdfPermissionsFlags.print);
-          }
-          if (_allowCopying) {
-            security.permissions.add(PdfPermissionsFlags.copyContent);
-          }
-          if (_allowModification) {
-            security.permissions.add(PdfPermissionsFlags.editContent);
-          }
-          if (_allowAnnotations) {
-            security.permissions.add(PdfPermissionsFlags.editAnnotations);
-          }
-          if (_allowFormFilling) {
-            security.permissions.add(PdfPermissionsFlags.fillFields);
-          }
-          if (_allowAccessibility) {
-            security.permissions
-                .add(PdfPermissionsFlags.accessibilityCopyContent);
-          }
-          break;
-
-        case ProtectionLevel.advanced:
-          // Restrict most operations, only allow basic viewing
-          if (_allowAccessibility) {
-            security.permissions
-                .add(PdfPermissionsFlags.accessibilityCopyContent);
-          }
-          if (_allowFormFilling) {
-            security.permissions.add(PdfPermissionsFlags.fillFields);
-          }
-          break;
-
-        case ProtectionLevel.maximum:
-          // Minimal permissions, maximum security
-          if (_allowAccessibility) {
-            security.permissions
-                .add(PdfPermissionsFlags.accessibilityCopyContent);
-          }
-          break;
-      }
+      security.permissions.clear();
+   
     } catch (e) {
       debugPrint('Error configuring permissions: $e');
     }
@@ -427,7 +403,7 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
     }
   }
 
-  void _showProtectionResults() {
+  void _showProtectionResults({bool savedToDownloads = false}) {
     showDialog(
       context: context,
       builder: (context) {
@@ -443,40 +419,33 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.verified_user, color: Colors.green),
+                      Icon(Icons.verified, color: Colors.green),
                       SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          'Protection Complete',
+                      Text('Protection Complete',
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                          softWrap: true,
-                        ),
-                      ),
+                              fontWeight: FontWeight.bold, fontSize: 18)),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  _buildInfoRow('File Name', _fileName ?? 'Unknown'),
-                  _buildInfoRow(
-                      'Protection Level', _selectedProtectionLevel.label),
-                  _buildInfoRow('Encryption', 'AES-256'),
-                  _buildInfoRow('Password Protected', 'Yes'),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
+                  _buildProtectionSummary(),
+                  const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Colors.green.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Row(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.verified_user, color: Colors.green),
-                        SizedBox(width: 8),
-                        Flexible(
+                        const Icon(Icons.verified_user, color: Colors.green),
+                        const SizedBox(width: 8),
+                        Expanded(
                           child: Text(
-                            'PDF protected successfully with AES-256 encryption and saved to your documents folder.',
-                            style: TextStyle(color: Colors.green),
-                            softWrap: true,
+                            savedToDownloads
+                                ? 'PDF protected successfully with AES-256 encryption and saved to your Downloads folder. You can share it or open it from your device.'
+                                : 'PDF protected successfully with AES-256 encryption and saved to your app folder. (Could not save to Downloads)',
+                            style: const TextStyle(fontSize: 15),
                           ),
                         ),
                       ],
@@ -506,6 +475,20 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
       },
     );
   }
+
+  Widget _buildProtectionSummary() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildInfoRow('Encryption:', 'AES-256'),
+        _buildInfoRow('Password Protected:', 'Yes'),
+        if (_ownerPassword.isNotEmpty) _buildInfoRow('Owner Password:', 'Set'),
+    
+       
+      ],
+    );
+  }
+
 
   // Helper widget for info rows
   Widget _buildInfoRow(String label, String value) {
@@ -644,182 +627,9 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
     );
   }
 
-  Widget _buildProtectionLevelSelector() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Protection Level',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 12),
-            ...ProtectionLevel.values.map((level) {
-              return RadioListTile<ProtectionLevel>(
-                title: Text(level.label),
-                subtitle: Text(
-                  level.description,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                value: level,
-                groupValue: _selectedProtectionLevel,
-                onChanged: (ProtectionLevel? value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedProtectionLevel = value;
-                      _updatePermissionsForLevel(value);
-                    });
-                  }
-                },
-                contentPadding: EdgeInsets.zero,
-              );
-            }).toList(),
-          ],
-        ),
-      ),
-    );
-  }
 
-  void _updatePermissionsForLevel(ProtectionLevel level) {
-    switch (level) {
-      case ProtectionLevel.basic:
-        setState(() {
-          _allowPrinting = true;
-          _allowCopying = true;
-          _allowModification = true;
-          _allowAnnotations = true;
-          _allowFormFilling = true;
-          _allowAccessibility = true;
-        });
-        break;
-      case ProtectionLevel.standard:
-        setState(() {
-          _allowPrinting = true;
-          _allowCopying = false;
-          _allowModification = false;
-          _allowAnnotations = true;
-          _allowFormFilling = true;
-          _allowAccessibility = true;
-        });
-        break;
-      case ProtectionLevel.advanced:
-        setState(() {
-          _allowPrinting = false;
-          _allowCopying = false;
-          _allowModification = false;
-          _allowAnnotations = false;
-          _allowFormFilling = true;
-          _allowAccessibility = true;
-        });
-        break;
-      case ProtectionLevel.maximum:
-        setState(() {
-          _allowPrinting = false;
-          _allowCopying = false;
-          _allowModification = false;
-          _allowAnnotations = false;
-          _allowFormFilling = false;
-          _allowAccessibility = true;
-        });
-        break;
-    }
-  }
+ 
 
-  Widget _buildPermissionsSettings() {
-    if (_selectedProtectionLevel == ProtectionLevel.basic) {
-      return const SizedBox.shrink();
-    }
-
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Permissions',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 12),
-            _buildPermissionTile(
-              'Allow Printing',
-              'Users can print the document',
-              _allowPrinting,
-              (value) => setState(() => _allowPrinting = value),
-              Icons.print,
-            ),
-            _buildPermissionTile(
-              'Allow Copying',
-              'Users can copy text and images',
-              _allowCopying,
-              (value) => setState(() => _allowCopying = value),
-              Icons.copy,
-            ),
-            _buildPermissionTile(
-              'Allow Modification',
-              'Users can edit document content',
-              _allowModification,
-              (value) => setState(() => _allowModification = value),
-              Icons.edit,
-            ),
-            _buildPermissionTile(
-              'Allow Annotations',
-              'Users can add comments and annotations',
-              _allowAnnotations,
-              (value) => setState(() => _allowAnnotations = value),
-              Icons.comment,
-            ),
-            _buildPermissionTile(
-              'Allow Form Filling',
-              'Users can fill interactive forms',
-              _allowFormFilling,
-              (value) => setState(() => _allowFormFilling = value),
-              Icons.edit_note,
-            ),
-            _buildPermissionTile(
-              'Allow Accessibility',
-              'Screen readers can access content',
-              _allowAccessibility,
-              (value) => setState(() => _allowAccessibility = value),
-              Icons.accessibility,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPermissionTile(
-    String title,
-    String subtitle,
-    bool value,
-    ValueChanged<bool> onChanged,
-    IconData icon,
-  ) {
-    return SwitchListTile(
-      title: Row(
-        children: [
-          Icon(icon, size: 20),
-          const SizedBox(width: 8),
-          Text(title),
-        ],
-      ),
-      subtitle: Text(subtitle),
-      value: value,
-      onChanged: onChanged,
-      contentPadding: EdgeInsets.zero,
-    );
-  }
 
   Widget _buildFileInfoCard() {
     return Card(
@@ -1065,13 +875,10 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
                           ),
                         ),
 
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 10),
 
-                        _buildProtectionLevelSelector(),
 
-                        const SizedBox(height: 16),
-
-                        _buildPermissionsSettings(),
+                        
                       ],
                       if (_protectedFile != null) ...[
                         const SizedBox(height: 16),

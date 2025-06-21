@@ -13,7 +13,7 @@ import 'package:pdf_merger/pdf_merger.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
-
+import 'package:pdf_utility_pro/utils/permission_handler.dart';
 class MergePdfScreen extends StatefulWidget {
   const MergePdfScreen({Key? key}) : super(key: key);
 
@@ -54,14 +54,31 @@ class _MergePdfScreenState extends State<MergePdfScreen> with SingleTickerProvid
   }
 
   Future<void> _selectFiles() async {
+    final hasPermission = await AppPermissionHandler.requestStoragePermission(context: context);
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Storage permission is required.'), backgroundColor: Colors.red),
+      );
+      return;
+    }
     final result = await fp.FilePicker.platform.pickFiles(
       type: fp.FileType.custom,
       allowedExtensions: ['pdf'],
       allowMultiple: true,
+      withData: true,
     );
     if (result != null && result.files.isNotEmpty) {
       setState(() {
-        _selectedFiles = result.files.map((f) => File(f.path!)).toList();
+        _selectedFiles = result.files.map((f) {
+          final bytes = f.bytes;
+          if (bytes != null) {
+            final tempFile = File('${Directory.systemTemp.path}/${f.name}');
+            tempFile.writeAsBytesSync(bytes);
+            return tempFile;
+          } else {
+            return File(f.path!);
+          }
+        }).toList();
         _fileNames = result.files.map((f) => f.name).toList();
       });
     }

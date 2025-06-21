@@ -44,7 +44,6 @@ class MainActivity : FlutterActivity() {
                 "getPdfFilePath" -> {
                     Log.d(TAG, "Flutter requested PDF file path: $pdfFilePath")
                     result.success(pdfFilePath)
-                    pdfFilePath = null // Clear after sending
                 }
                 else -> result.notImplemented()
             }

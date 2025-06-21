@@ -68,13 +68,12 @@ class _SplashScreenState extends State<SplashScreen>
       final hasPdfFile = await PdfIntentHandler.hasPdfFile();
       
       if (hasPdfFile) {
-        final pdfFilePath = await PdfIntentHandler.getPdfFilePath();
-        if (pdfFilePath != null && mounted) {
-          // Navigate to PDF reader with the file
+        final accessiblePath = await PdfIntentHandler.getAccessiblePdfFilePath();
+        if (accessiblePath != null && mounted) {
           Navigator.of(context).pushReplacement(
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
-                  ReadPdfScreen(filePath: pdfFilePath),
+                  ReadPdfScreen(filePath: accessiblePath),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 return FadeTransition(opacity: animation, child: child);

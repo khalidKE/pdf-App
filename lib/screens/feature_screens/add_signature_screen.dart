@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
+import 'package:pdf_utility_pro/utils/permission_handler.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'package:pdf/pdf.dart' as pdf;
@@ -15,6 +16,7 @@ import 'package:pdfx/pdfx.dart';
 import 'package:signature/signature.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
+
 
 class AddSignatureScreen extends StatefulWidget {
   const AddSignatureScreen({super.key});
@@ -56,17 +58,29 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
   }
 
   Future<void> _selectFile() async {
+    final hasPermission = await AppPermissionHandler.requestStoragePermission(context: context);
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Storage permission is required.'), backgroundColor: Colors.red),
+      );
+      return;
+    }
     try {
       final result = await fp.FilePicker.platform.pickFiles(
         type: fp.FileType.custom,
         allowedExtensions: ['pdf'],
+        withData: true,
       );
-
-      if (result != null && result.files.single.path != null) {
-        final doc = await PdfDocument.openFile(result.files.single.path!);
+      if (result != null && result.files.isNotEmpty) {
+        final pickedFile = result.files.single;
+        final fileBytes = pickedFile.bytes ?? await File(pickedFile.path!).readAsBytes();
+        final fileName = pickedFile.name;
+        final tempFile = File('${Directory.systemTemp.path}/$fileName');
+        await tempFile.writeAsBytes(fileBytes);
+        final doc = await PdfDocument.openFile(tempFile.path);
         setState(() {
-          _selectedFile = result.files.single.path;
-          _fileName = result.files.single.name;
+          _selectedFile = tempFile.path;
+          _fileName = fileName;
           _pdfDoc = doc;
         });
       }

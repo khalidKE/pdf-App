@@ -405,7 +405,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
                 ),
               ),
             ),
-          const BannerAdWidget(),
+          //const BannerAdWidget(),
         ],
       ),
     );

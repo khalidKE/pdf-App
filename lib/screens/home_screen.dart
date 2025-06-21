@@ -31,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen>
 
     // Check for PDF file intent and load files when the screen is first shown
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkForPdfFile();
       Provider.of<FileProvider>(
         context,
         listen: false,
@@ -52,30 +51,8 @@ class _HomeScreenState extends State<HomeScreen>
 
     // Check for PDF files when app becomes active
     if (state == AppLifecycleState.resumed) {
-      _checkForPdfFile();
-
       // Show app open ad if available
       AppOpenAdsManager().showAdIfAvailable();
-    }
-  }
-
-  Future<void> _checkForPdfFile() async {
-    try {
-      final hasPdfFile = await PdfIntentHandler.hasPdfFile();
-
-      if (hasPdfFile) {
-        final pdfFilePath = await PdfIntentHandler.getPdfFilePath();
-        if (pdfFilePath != null && mounted) {
-          // Navigate to PDF reader with the file
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ReadPdfScreen(filePath: pdfFilePath),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      debugPrint('Error checking for PDF file: $e');
     }
   }
 

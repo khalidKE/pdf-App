@@ -2,6 +2,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:pdf_utility_pro/utils/constants.dart';
+import 'package:flutter/material.dart';
 
 class AppPermissionHandler {
   static Future<void> initializePermissions() async {
@@ -9,28 +10,80 @@ class AppPermissionHandler {
     await _createAppDirectories();
   }
   
-  static Future<bool> requestStoragePermission() async {
+  static Future<bool> requestStoragePermission({BuildContext? context}) async {
     if (Platform.isAndroid) {
-      if (await Permission.manageExternalStorage.isDenied) {
-        final status = await Permission.manageExternalStorage.request();
-        if (status.isDenied) {
-          // If MANAGE_EXTERNAL_STORAGE is denied again, guide user to app settings
-          await openAppSettings();
-          return false;
-        }
-        return status.isGranted; // Permission granted from initial request
-      } else if (await Permission.manageExternalStorage.isGranted) {
-        return true; // MANAGE_EXTERNAL_STORAGE is already granted
-      } else {
-        // Fallback for older Android versions or if MANAGE_EXTERNAL_STORAGE is not applicable/needed
-        final status = await Permission.storage.request();
-        return status.isGranted;
+      // Android 11+
+      if (await Permission.manageExternalStorage.isGranted) {
+        return true;
       }
-    } else if (Platform.isIOS) {
-      // iOS doesn't need explicit permission for app document directory
-      return true;
+      final status = await Permission.manageExternalStorage.request();
+      if (status.isGranted) {
+        return true;
+      } else if (status.isPermanentlyDenied) {
+        if (context != null) {
+          await showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Storage Permission Required'),
+              content: const Text('Please enable storage permission from app settings to save files to your device.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    openAppSettings();
+                  },
+                  child: const Text('Open Settings'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          await openAppSettings();
+        }
+        return false;
+      }
+      // Fallback for older Android
+      if (await Permission.storage.isGranted) {
+        return true;
+      }
+      final storageStatus = await Permission.storage.request();
+      if (storageStatus.isGranted) {
+        return true;
+      } else if (storageStatus.isPermanentlyDenied) {
+        if (context != null) {
+          await showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Storage Permission Required'),
+              content: const Text('Please enable storage permission from app settings to save files to your device.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    openAppSettings();
+                  },
+                  child: const Text('Open Settings'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          await openAppSettings();
+        }
+        return false;
+      }
+      return false;
     }
-    return false;
+    // iOS: always true (handled by picker)
+    return true;
   }
   
   static Future<bool> requestCameraPermission() async {
@@ -82,3 +135,4 @@ class AppPermissionHandler {
     }
   }
 }
+

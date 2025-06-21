@@ -14,7 +14,7 @@ import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdfx/pdfx.dart' as pdfx;
-
+import 'package:pdf_utility_pro/utils/permission_handler.dart';
 class AddWatermarkScreen extends StatefulWidget {
   const AddWatermarkScreen({Key? key}) : super(key: key);
 
@@ -60,14 +60,27 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
   }
 
   Future<void> _selectFile() async {
+    final hasPermission = await AppPermissionHandler.requestStoragePermission(context: context);
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Storage permission is required.'), backgroundColor: Colors.red),
+      );
+      return;
+    }
     final result = await fp.FilePicker.platform.pickFiles(
       type: fp.FileType.custom,
       allowedExtensions: ['pdf'],
+      withData: true,
     );
-    if (result != null && result.files.single.path != null) {
+    if (result != null && result.files.isNotEmpty) {
+      final pickedFile = result.files.single;
+      final fileBytes = pickedFile.bytes ?? await File(pickedFile.path!).readAsBytes();
+      final fileName = pickedFile.name;
+      final tempFile = File('${Directory.systemTemp.path}/$fileName');
+      await tempFile.writeAsBytes(fileBytes);
       setState(() {
-        _selectedFile = File(result.files.single.path!);
-        _fileName = result.files.single.name;
+        _selectedFile = tempFile;
+        _fileName = fileName;
       });
     }
   }

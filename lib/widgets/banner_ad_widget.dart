@@ -22,10 +22,23 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   BannerAd? _bannerAd;
   bool _isLoaded = false;
   bool _isFailed = false;
+  int _retryCount = 0;
+  static const int _maxRetries = 3; // الحد الأقصى لعدد المحاولات
 
   @override
   void initState() {
     super.initState();
+    _loadAd();
+  }
+
+  void _loadAd() {
+    if (_retryCount >= _maxRetries) {
+      setState(() {
+        _isFailed = true;
+      });
+      return;
+    }
+
     _bannerAd = BannerAd(
       adUnitId: AdsService().bannerAdUnitId,
       size: AdSize.banner,
@@ -35,6 +48,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
           if (mounted) {
             setState(() {
               _isLoaded = true;
+              _retryCount = 0; // إعادة تعيين عداد المحاولات عند النجاح
             });
           }
         },
@@ -42,7 +56,12 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
           ad.dispose();
           if (mounted) {
             setState(() {
-              _isFailed = true;
+              _retryCount++;
+              _isLoaded = false;
+            });
+            // إعادة المحاولة بعد تأخير قصير
+            Future.delayed(const Duration(seconds: 2), () {
+              if (mounted) _loadAd();
             });
           }
         },
@@ -58,10 +77,10 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isFailed) return const SizedBox.shrink(); // Hide everything if failed
+    if (_isFailed) return const SizedBox.shrink(); // إخفاء كل شيء إذا فشل
 
     if (!_isLoaded || _bannerAd == null) {
-      // Show nothing while loading
+      // إظهار مؤشر تحميل أو لا شيء أثناء التحميل
       return const SizedBox.shrink();
     }
 
@@ -75,9 +94,10 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
             )
           : null,
       child: ClipRRect(
-        borderRadius: widget.showBorder ? BorderRadius.circular(8) : BorderRadius.zero,
+        borderRadius:
+            widget.showBorder ? BorderRadius.circular(8) : BorderRadius.zero,
         child: AdWidget(ad: _bannerAd!),
       ),
     );
   }
-} 
+}
