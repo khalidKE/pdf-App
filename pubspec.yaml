@@ -99,6 +99,8 @@ dependencies:
 
   # New dependency
   media_store_plus: ^0.1.3
+  docx_to_text: ^1.0.1
+  open_filex: ^4.7.0
 
 dev_dependencies:
   flutter_test:

@@ -6,6 +6,14 @@ import 'package:intl/intl.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:pdf_utility_pro/utils/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:docx_to_text/docx_to_text.dart';
+import 'package:excel/excel.dart';
+import 'package:archive/archive_io.dart';
+import 'package:xml/xml.dart';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 class ViewFilesScreen extends StatefulWidget {
   const ViewFilesScreen({super.key});
@@ -346,6 +354,20 @@ class _ViewFilesScreenState extends State<ViewFilesScreen>
         context,
         MaterialPageRoute(
           builder: (context) => ReadPdfScreen(filePath: file.path),
+        ),
+      );
+    } else if (file.path.endsWith('.docx')) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WordViewScreen(file: file),
+        ),
+      );
+    } else if (file.path.endsWith('.xls') || file.path.endsWith('.xlsx')) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ExcelViewScreen(file: file),
         ),
       );
     } else {
@@ -949,5 +971,123 @@ class FileSearchDelegate extends SearchDelegate<String> {
       default:
         return 'File';
     }
+  }
+}
+
+class WordViewScreen extends StatelessWidget {
+  final File file;
+  const WordViewScreen({Key? key, required this.file}) : super(key: key);
+
+  Future<String> _extractText() async {
+    return await compute(extractTextFromDocx, file.path);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Word Viewer')),
+      body: FutureBuilder<String>(
+        future: _extractText(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error:  ${snapshot.error}'));
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Text(snapshot.data ?? '', style: const TextStyle(fontSize: 16)),
+          );
+        },
+      ),
+    );
+  }
+}
+
+String extractTextFromDocx(String filePath) {
+  try {
+    final inputStream = InputFileStream(filePath);
+    final archive = ZipDecoder().decodeBuffer(inputStream);
+    inputStream.close();
+
+    final documentFile = archive.files.firstWhere(
+      (file) => file.name == 'word/document.xml',
+      orElse: () => ArchiveFile('', 0, <int>[]),
+    );
+
+    if (documentFile.isFile && documentFile.content.isNotEmpty) {
+      final xmlString =
+          utf8.decode(documentFile.content as List<int>, allowMalformed: true);
+      final document = XmlDocument.parse(xmlString);
+
+      final paragraphs = document.findAllElements('w:p');
+      final buffer = StringBuffer();
+
+      for (final p in paragraphs) {
+        final texts = p.findAllElements('w:t');
+        for (final t in texts) {
+          buffer.write(t.text);
+        }
+        buffer.write('\n');
+      }
+      return buffer.toString().trim();
+    }
+    return '';
+  } catch (e) {
+    return 'Error extracting text from DOCX: $e';
+  }
+}
+
+class ExcelViewScreen extends StatelessWidget {
+  final File file;
+  const ExcelViewScreen({Key? key, required this.file}) : super(key: key);
+
+  Future<List<List<Data?>>> _extractTable() async {
+    try {
+      final bytes = await file.readAsBytes();
+      final excel = Excel.decodeBytes(bytes);
+      final sheet = excel.tables.values.first;
+      return sheet!.rows;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Excel Viewer')),
+      body: FutureBuilder<List<List<Data?>>>(
+        future: _extractTable(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No data or error reading file.'));
+          }
+          final rows = snapshot.data!;
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: [
+                for (int i = 0; i < (rows.isNotEmpty ? rows[0].length : 0); i++)
+                  DataColumn(label: Text('Col ${i + 1}')),
+              ],
+              rows: [
+                for (final row in rows)
+                  DataRow(
+                    cells: [
+                      for (final cell in row)
+                        DataCell(Text(cell?.value?.toString() ?? '')),
+                    ],
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 }
