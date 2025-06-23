@@ -8,7 +8,7 @@ class AppOpenAdsManager {
 
   bool _isShowingAd = false;
   DateTime? _lastAdShowTime;
-  static const int _minimumAdInterval = 4; // Minimum 4 hours between ads
+  static const int _minimumAdInterval = 0; // Minimum 0 hours between ads (show every time)
 
   bool get isShowingAd => _isShowingAd;
 

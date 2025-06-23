@@ -5,6 +5,7 @@ import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf_utility_pro/services/ads_service.dart';
 
 class FavoriteFilesList extends StatelessWidget {
   const FavoriteFilesList({Key? key}) : super(key: key);
@@ -31,8 +32,9 @@ class FavoriteFilesList extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       child: InkWell(
-        onTap: () {
+        onTap: () async {
           if (file.type == FileType.pdf) {
+            await AdsService().showInterstitialAd();
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -122,9 +124,10 @@ class FavoriteFilesList extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.open_in_new),
               title: const Text('open'),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
                 if (file.type == FileType.pdf) {
+                  await AdsService().showInterstitialAd();
                   Navigator.push(
                     context,
                     MaterialPageRoute(

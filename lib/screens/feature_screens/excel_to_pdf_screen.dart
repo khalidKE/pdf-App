@@ -15,6 +15,7 @@ import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdf_utility_pro/utils/font_loader.dart';
+import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
 
 class ExcelToPdfScreen extends StatefulWidget {
   const ExcelToPdfScreen({Key? key}) : super(key: key);
@@ -693,15 +694,7 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen>
                                 textStyle: const TextStyle(fontSize: 16),
                               ),
                             ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Supported formats: .xlsx, .xls\nMax file size: 50MB',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
+                            
                           ],
                         ),
                       );
@@ -833,6 +826,7 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen>
                   ),
                 ),
               ),
+            const BannerAdWidget(),
           ],
         ),
       ),

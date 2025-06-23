@@ -8,8 +8,8 @@ class AdsService {
 
   // Ad Unit IDs
   static const String _bannerAdUnitId = 'ca-app-pub-8639311525630636/8916145992';
-  static const String _interstitialAdUnitId = 'ca-app-pub-8639311525630636/5940281255';
-  static const String _rewardedAdUnitId = 'ca-app-pub-8639311525630636/2582687848';
+  static const String _interstitialAdUnitId = 'ca-app-pub-8639311525630636/6189000173';
+  static const String _rewardedAdUnitId = 'ca-app-pub-8639311525630636/6189000173';
   static const String _nativeAdUnitId = 'ca-app-pub-8639311525630636/1269606176';
   static const String _appOpenAdUnitId = 'ca-app-pub-8639311525630636/7643442836';
 

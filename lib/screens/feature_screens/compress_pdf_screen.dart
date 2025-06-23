@@ -15,6 +15,8 @@ import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
+import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
+import 'package:pdf_utility_pro/services/ads_service.dart';
 
 class CompressPdfScreen extends StatefulWidget {
   const CompressPdfScreen({super.key});
@@ -216,6 +218,32 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
       );
 
       _showCompressionResults(outputPath);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('PDF compressed successfully'),
+            backgroundColor: AppConstants.successColor,
+            action: SnackBarAction(
+              label: 'Open',
+              textColor: Colors.white,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReadPdfScreen(filePath: outputPath),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+        // Show rewarded ad after success
+        await AdsService().showRewardedAd(
+          onRewarded: () {},
+          onFailed: () {},
+        );
+      }
     } catch (e) {
       if (!mounted) return;
       _showSnackBar(
@@ -1019,6 +1047,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
                   ),
                 ),
               ),
+            const BannerAdWidget(),
           ],
         ),
       ),

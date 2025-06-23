@@ -16,6 +16,8 @@ import 'package:pdfx/pdfx.dart';
 import 'package:signature/signature.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
+import 'package:pdf_utility_pro/services/ads_service.dart';
 
 
 class AddSignatureScreen extends StatefulWidget {
@@ -245,6 +247,12 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
             ),
           ),
         );
+
+        // Show rewarded ad after success
+        await AdsService().showRewardedAd(
+          onRewarded: () {},
+          onFailed: () {},
+        );
       }
 
       setState(() {
@@ -314,102 +322,108 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FeatureScreenTemplate(
-      title: 'Add Signature',
-      icon: Icons.draw,
-      actionButtonLabel: 'Add Signature',
-      isActionButtonEnabled:
-          _selectedFile != null && _hasSignature && !_isProcessing,
-      isProcessing: _isProcessing,
-      onActionButtonPressed: _addSignature,
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              'Select a PDF file and draw your signature to add to it',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add Signature'),
+      ),
+      body: FeatureScreenTemplate(
+        title: 'Add Signature',
+        icon: Icons.draw,
+        actionButtonLabel: 'Add Signature',
+        isActionButtonEnabled:
+            _selectedFile != null && _hasSignature && !_isProcessing,
+        isProcessing: _isProcessing,
+        onActionButtonPressed: _addSignature,
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Select a PDF file and draw your signature to add to it',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          if (_selectedFile == null)
-            Expanded(
-              child: Center(
-                child: ElevatedButton.icon(
-                  onPressed: _selectFile,
-                  icon: const Icon(Icons.upload_file),
-                  label: const Text('Select pdf file'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
+            const SizedBox(height: 24),
+            if (_selectedFile == null)
+              Expanded(
+                child: Center(
+                  child: ElevatedButton.icon(
+                    onPressed: _selectFile,
+                    icon: const Icon(Icons.upload_file),
+                    label: const Text('Select pdf file'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.picture_as_pdf),
+                          title: Text(
+                            _fileName ?? _selectedFile!,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              setState(() {
+                                _selectedFile = null;
+                                _fileName = null;
+                                _signatureController.clear();
+                                _hasSignature = false;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Draw your signature below',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Signature(controller: _signatureController, height: 200, width: 300),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: ElevatedButton.icon(
+                          onPressed: _clearSignature,
+                          icon: const Icon(Icons.clear),
+                          label: const Text('Clear Signature'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
                   ),
                 ),
               ),
-            )
-          else
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.picture_as_pdf),
-                        title: Text(
-                          _fileName ?? _selectedFile!,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () {
-                            setState(() {
-                              _selectedFile = null;
-                              _fileName = null;
-                              _signatureController.clear();
-                              _hasSignature = false;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Draw your signature below',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 16),
-                    Center(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Signature(controller: _signatureController, height: 200, width: 300),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Center(
-                      child: ElevatedButton.icon(
-                        onPressed: _clearSignature,
-                        icon: const Icon(Icons.clear),
-                        label: const Text('Clear Signature'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
+      bottomNavigationBar: const BannerAdWidget(),
     );
   }
 }

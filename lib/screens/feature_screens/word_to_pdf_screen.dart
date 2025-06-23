@@ -18,6 +18,7 @@ import 'package:pdf_utility_pro/utils/font_loader.dart';
 import 'package:flutter/services.dart';
 import 'package:xml/xml.dart';
 import 'dart:convert';
+import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
 
 String _extractTextFromDocx(String filePath) {
   try {
@@ -141,7 +142,7 @@ class _WordToPdfScreenState extends State<WordToPdfScreen>
             _animationController.forward();
           } else {
             _showSnackBar(
-              'Please select a valid Word file (.docx or .doc)',
+              'Please select a valid Word file (.docx)',
               AppConstants.errorColor,
             );
           }
@@ -791,15 +792,7 @@ class _WordToPdfScreenState extends State<WordToPdfScreen>
                                 textStyle: const TextStyle(fontSize: 16),
                               ),
                             ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Supported formats: .docx, .doc\nMax file size: 25MB',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
+                           
                           ],
                         ),
                       );
@@ -914,6 +907,7 @@ class _WordToPdfScreenState extends State<WordToPdfScreen>
                   ),
                 ),
               ),
+            const BannerAdWidget(),
           ],
         ),
       ),

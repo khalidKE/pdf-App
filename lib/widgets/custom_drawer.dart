@@ -5,6 +5,7 @@ import 'package:pdf_utility_pro/providers/theme_provider.dart';
 import 'package:pdf_utility_pro/screens/history_screen.dart';
 import 'package:pdf_utility_pro/screens/about_screen.dart';
 import 'package:pdf_utility_pro/screens/home_screen.dart';
+import 'package:pdf_utility_pro/services/ads_service.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({Key? key}) : super(key: key);
@@ -49,8 +50,9 @@ class CustomDrawer extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.home),
                   title: const Text('Home'),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
+                    await AdsService().showInterstitialAd();
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -61,8 +63,9 @@ class CustomDrawer extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.history),
                   title: const Text('History'),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
+                    await AdsService().showInterstitialAd();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -103,8 +106,9 @@ class CustomDrawer extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.privacy_tip),
                   title: const Text('Privacy Policy'),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
+                    await AdsService().showInterstitialAd();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -115,8 +119,9 @@ class CustomDrawer extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.info),
                   title: const Text('About Us'),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
+                    await AdsService().showInterstitialAd();
                     Navigator.push(
                       context,
                       MaterialPageRoute(

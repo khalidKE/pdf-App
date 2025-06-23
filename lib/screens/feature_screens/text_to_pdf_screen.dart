@@ -15,6 +15,7 @@ import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdf_utility_pro/utils/font_loader.dart';
+import 'package:pdf_utility_pro/services/ads_service.dart';
 
 class TextToPdfScreen extends StatefulWidget {
   const TextToPdfScreen({Key? key}) : super(key: key);
@@ -161,6 +162,11 @@ class _TextToPdfScreenState extends State<TextToPdfScreen>
             },
           ),
         ),
+      );
+      // Show rewarded ad after success
+      await AdsService().showRewardedAd(
+        onRewarded: () {},
+        onFailed: () {},
       );
       setState(() {
         _textController.clear();

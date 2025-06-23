@@ -127,7 +127,6 @@ class _HomeScreenState extends State<HomeScreen>
                 Column(
                   children: [
                     Expanded(child: FeatureGrid()),
-                    NativeAdWidget(height: 50),
                     BannerAdWidget(),
                   ],
                 ),

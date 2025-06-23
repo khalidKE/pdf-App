@@ -14,6 +14,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:media_store_plus/media_store_plus.dart';
 import 'package:pdf_utility_pro/providers/file_provider.dart';
 import 'package:pdf_utility_pro/models/file_item.dart';
+import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
+import 'package:pdf_utility_pro/services/ads_service.dart';
 
 
 class ProtectPdfScreen extends StatefulWidget {
@@ -937,6 +939,7 @@ class _ProtectPdfScreenState extends State<ProtectPdfScreen>
                   ),
                 ),
               ),
+            const BannerAdWidget(),
           ],
         ),
       ),

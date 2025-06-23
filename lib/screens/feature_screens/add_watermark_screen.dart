@@ -16,6 +16,8 @@ import 'package:path/path.dart' as p;
 import 'package:pdfx/pdfx.dart' as pdfx;
 import 'package:pdf_utility_pro/utils/permission_handler.dart';
 import 'package:pdf_utility_pro/utils/font_loader.dart';
+import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
+import 'package:pdf_utility_pro/services/ads_service.dart';
 
 class AddWatermarkScreen extends StatefulWidget {
   const AddWatermarkScreen({Key? key}) : super(key: key);
@@ -227,6 +229,11 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
           ),
         ),
       );
+      // Show rewarded ad after success
+      await AdsService().showRewardedAd(
+        onRewarded: () {},
+        onFailed: () {},
+      );
       setState(() {
         _selectedFile = null;
         _fileName = null;
@@ -387,6 +394,7 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
                   ),
                 ),
               ),
+            const BannerAdWidget(),
           ],
         ),
       ),

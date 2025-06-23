@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_utility_pro/services/ads_service.dart';
 import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
+import 'package:pdf_utility_pro/widgets/native_ad_widget.dart';
 
 class GlobalExitHandler extends StatelessWidget {
   final Widget child;
@@ -24,7 +25,7 @@ class GlobalExitHandler extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
               margin: const EdgeInsets.only(top: 4),
-              child: const BannerAdWidget(height: 50),
+              child: const NativeAdWidget(height: 120),
             ),
           ],
         ),

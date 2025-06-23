@@ -16,6 +16,7 @@ import 'package:pdf_utility_pro/utils/constants.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:pdf_utility_pro/services/ads_service.dart';
 
 class ImageToPdfScreen extends StatefulWidget {
   const ImageToPdfScreen({Key? key}) : super(key: key);
@@ -188,6 +189,12 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
             },
           ),
         ),
+      );
+
+      // Show rewarded ad after success
+      await AdsService().showRewardedAd(
+        onRewarded: () {},
+        onFailed: () {},
       );
 
       setState(() {
@@ -405,7 +412,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
                 ),
               ),
             ),
-          //const BannerAdWidget(),
+          const BannerAdWidget(),
         ],
       ),
     );
