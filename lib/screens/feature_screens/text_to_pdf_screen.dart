@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
 import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
@@ -22,7 +23,8 @@ class TextToPdfScreen extends StatefulWidget {
   State<TextToPdfScreen> createState() => _TextToPdfScreenState();
 }
 
-class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProviderStateMixin {
+class _TextToPdfScreenState extends State<TextToPdfScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _textController = TextEditingController();
   bool _isProcessing = false;
   late AnimationController _animationController;
@@ -74,15 +76,21 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
       _isProcessing = true;
     });
     try {
-      final font = await FontLoader.getFont();
-      final pdf = pw.Document();
+      final arabicFont = await FontLoader.getArabicFont();
+      final latinFont = await FontLoader.getLatinFont();
 
-      bool isRtl(String text) {
+      bool isArabic(String text) {
         return RegExp(r'[\u0600-\u06FF]').hasMatch(text);
       }
 
-      final textDirection =
-          isRtl(_textController.text) ? pw.TextDirection.rtl : pw.TextDirection.ltr;
+      pw.TextStyle getTextStyle(String text) {
+        return pw.TextStyle(
+          font: isArabic(text) ? arabicFont : latinFont,
+          fontSize: 12,
+        );
+      }
+
+      final pdf = pw.Document();
 
       pdf.addPage(
         pw.Page(
@@ -90,18 +98,30 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
           build: (pw.Context context) {
             return pw.Padding(
               padding: const pw.EdgeInsets.all(32),
-              child: pw.Text(
-                _textController.text,
-                style: pw.TextStyle(font: font),
-                textAlign: textDirection == pw.TextDirection.rtl ? pw.TextAlign.right : pw.TextAlign.left,
-                textDirection: textDirection,
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+                children: _textController.text
+                    .split('\n')
+                    .where((line) => line.trim().isNotEmpty)
+                    .map((line) => pw.Text(
+                          line.trim(),
+                          style: getTextStyle(line),
+                          textAlign: isArabic(line)
+                              ? pw.TextAlign.right
+                              : pw.TextAlign.left,
+                          textDirection: isArabic(line)
+                              ? pw.TextDirection.rtl
+                              : pw.TextDirection.ltr,
+                        ))
+                    .toList(),
               ),
             );
           },
         ),
       );
       final appDir = await getApplicationDocumentsDirectory();
-      final fullFileName = fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
+      final fullFileName =
+          fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
       final filePath = '${appDir.path}/$fullFileName';
       final file = File(filePath);
       await file.writeAsBytes(await pdf.save());
@@ -252,5 +272,18 @@ class _TextToPdfScreenState extends State<TextToPdfScreen> with SingleTickerProv
         ),
       ),
     );
+  }
+}
+
+class FontLoader {
+  static Future<pw.Font> getArabicFont() async {
+    final fontData =
+        await rootBundle.load('assets/fonts/NotoSansArabic-Regular.ttf');
+    return pw.Font.ttf(fontData);
+  }
+
+  static Future<pw.Font> getLatinFont() async {
+    final fontData = await rootBundle.load('assets/fonts/NotoSans-Regular.ttf');
+    return pw.Font.ttf(fontData);
   }
 }
