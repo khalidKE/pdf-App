@@ -15,6 +15,9 @@ import 'package:archive/archive_io.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdf_utility_pro/utils/font_loader.dart';
+import 'package:flutter/services.dart';
+import 'package:xml/xml.dart';
+import 'dart:convert';
 
 String _extractTextFromDocx(String filePath) {
   try {
@@ -28,10 +31,22 @@ String _extractTextFromDocx(String filePath) {
     );
 
     if (documentFile.isFile && documentFile.content.isNotEmpty) {
-      final xmlString = String.fromCharCodes(documentFile.content as List<int>);
-      // Remove XML tags for a simple text extraction
-      final text = xmlString.replaceAll(RegExp(r'<[^>]+>'), ' ');
-      return text.replaceAll(RegExp(r'\s+'), ' ').trim();
+      // استخدم utf8.decode بدل fromCharCodes
+      final xmlString =
+          utf8.decode(documentFile.content as List<int>, allowMalformed: true);
+      final document = XmlDocument.parse(xmlString);
+
+      final paragraphs = document.findAllElements('w:p');
+      final buffer = StringBuffer();
+
+      for (final p in paragraphs) {
+        final texts = p.findAllElements('w:t');
+        for (final t in texts) {
+          buffer.write(t.text);
+        }
+        buffer.write('\n');
+      }
+      return buffer.toString().trim();
     }
     return '';
   } catch (e) {
@@ -188,15 +203,34 @@ class _WordToPdfScreenState extends State<WordToPdfScreen>
       });
       await Future.delayed(const Duration(milliseconds: 100));
 
-      final font = await FontLoader.getFont();
+      // تحميل الخطوط
+      final arabicFont = await FontLoader.getArabicFont();
+      final latinFont = await FontLoader.getLatinFont();
       final pdf = pw.Document();
 
-      bool isRtl(String text) {
+      // دالة لتحديد إذا كان النص عربي
+      bool isArabic(String text) {
         return RegExp(r'[\u0600-\u06FF]').hasMatch(text);
       }
 
-      final textDirection = isRtl(text) ? pw.TextDirection.rtl : pw.TextDirection.ltr;
-      final textAlign = textDirection == pw.TextDirection.rtl ? pw.TextAlign.right : pw.TextAlign.justify;
+      // دالة لإرجاع ستايل الخط المناسب
+      pw.TextStyle getTextStyle(String text,
+          {double fontSize = 12, PdfColor? color, pw.FontWeight? fontWeight}) {
+        return pw.TextStyle(
+          font: isArabic(text) ? arabicFont : latinFont,
+          fontSize: fontSize,
+          color: color,
+          fontWeight: fontWeight,
+          lineSpacing: 1.5,
+          height: 1.4,
+        );
+      }
+
+      final textDirection =
+          isArabic(text) ? pw.TextDirection.rtl : pw.TextDirection.ltr;
+      final textAlign = textDirection == pw.TextDirection.rtl
+          ? pw.TextAlign.right
+          : pw.TextAlign.justify;
 
       // Split text into paragraphs for better formatting
       final paragraphs = text
@@ -252,19 +286,12 @@ class _WordToPdfScreenState extends State<WordToPdfScreen>
                                       ?.replaceAll('.docx', '')
                                       .replaceAll('.doc', '') ??
                                   'Document',
-                              style: pw.TextStyle(
-                                font: font,
-                                fontSize: 10,
-                                color: PdfColors.grey600,
-                              ),
+                              style: getTextStyle(_fileName ?? 'Document',
+                                  fontSize: 10),
                             ),
                             pw.Text(
                               'Page ${i + 1} of ${pages.length}',
-                              style: pw.TextStyle(
-                                font: font,
-                                fontSize: 10,
-                                color: PdfColors.grey600,
-                              ),
+                              style: getTextStyle('Page', fontSize: 10),
                             ),
                           ],
                         ),
@@ -274,14 +301,13 @@ class _WordToPdfScreenState extends State<WordToPdfScreen>
                     pw.Expanded(
                       child: pw.Text(
                         pageText,
-                        style: pw.TextStyle(
-                          font: font,
-                          fontSize: 12,
-                          lineSpacing: 1.5,
-                          height: 1.4,
-                        ),
-                        textAlign: textAlign,
-                        textDirection: textDirection,
+                        style: getTextStyle(pageText, fontSize: 12),
+                        textAlign: isArabic(pageText)
+                            ? pw.TextAlign.right
+                            : pw.TextAlign.left,
+                        textDirection: isArabic(pageText)
+                            ? pw.TextDirection.rtl
+                            : pw.TextDirection.ltr,
                       ),
                     ),
                   ],
@@ -362,23 +388,25 @@ class _WordToPdfScreenState extends State<WordToPdfScreen>
                                       ?.replaceAll('.docx', '')
                                       .replaceAll('.doc', '') ??
                                   'Document',
-                              style: pw.TextStyle(
-                                font: font,
-                                fontSize: 14,
+                              style: getTextStyle(_fileName ?? 'Document',
+                                      fontSize: 14)
+                                  .copyWith(
                                 fontWeight: pw.FontWeight.bold,
                                 color: PdfColors.blue800,
                               ),
                               overflow: pw.TextOverflow.clip,
+                              textAlign: isArabic(_fileName ?? '')
+                                  ? pw.TextAlign.right
+                                  : pw.TextAlign.left,
+                              textDirection: isArabic(_fileName ?? '')
+                                  ? pw.TextDirection.rtl
+                                  : pw.TextDirection.ltr,
                             ),
                           ),
                           if (pageContent.length > 1)
                             pw.Text(
                               'Page ${i + 1} of ${pageContent.length}',
-                              style: pw.TextStyle(
-                                font: font,
-                                fontSize: 10,
-                                color: PdfColors.grey600,
-                              ),
+                              style: getTextStyle('Page', fontSize: 10),
                             ),
                         ],
                       ),
@@ -390,14 +418,15 @@ class _WordToPdfScreenState extends State<WordToPdfScreen>
                     pw.Expanded(
                       child: pw.Text(
                         content,
-                        style: pw.TextStyle(
-                          font: font,
-                          fontSize: 12,
+                        style: getTextStyle(content, fontSize: 12).copyWith(
                           lineSpacing: 1.6,
-                          height: 1.4,
                         ),
-                        textAlign: textAlign,
-                        textDirection: textDirection,
+                        textAlign: isArabic(content)
+                            ? pw.TextAlign.right
+                            : pw.TextAlign.left,
+                        textDirection: isArabic(content)
+                            ? pw.TextDirection.rtl
+                            : pw.TextDirection.ltr,
                       ),
                     ),
 
@@ -417,19 +446,12 @@ class _WordToPdfScreenState extends State<WordToPdfScreen>
                         children: [
                           pw.Text(
                             'Generated by PDF Utility Pro',
-                            style: pw.TextStyle(
-                              font: font,
-                              fontSize: 8,
-                              color: PdfColors.grey600,
-                            ),
+                            style: getTextStyle('Generated by PDF Utility Pro',
+                                fontSize: 8),
                           ),
                           pw.Text(
                             DateTime.now().toString().split(' ')[0],
-                            style: pw.TextStyle(
-                              font: font,
-                              fontSize: 8,
-                              color: PdfColors.grey600,
-                            ),
+                            style: getTextStyle('Date', fontSize: 8),
                           ),
                         ],
                       ),
@@ -888,5 +910,18 @@ class _WordToPdfScreenState extends State<WordToPdfScreen>
         ),
       ),
     );
+  }
+}
+
+class FontLoader {
+  static Future<pw.Font> getArabicFont() async {
+    final fontData =
+        await rootBundle.load('assets/fonts/NotoSansArabic-Regular.ttf');
+    return pw.Font.ttf(fontData);
+  }
+
+  static Future<pw.Font> getLatinFont() async {
+    final fontData = await rootBundle.load('assets/fonts/NotoSans-Regular.ttf');
+    return pw.Font.ttf(fontData);
   }
 }
