@@ -416,17 +416,25 @@ class _WordToPdfScreenState extends State<WordToPdfScreen>
 
                     // Main content
                     pw.Expanded(
-                      child: pw.Text(
-                        content,
-                        style: getTextStyle(content, fontSize: 12).copyWith(
-                          lineSpacing: 1.6,
-                        ),
-                        textAlign: isArabic(content)
-                            ? pw.TextAlign.right
-                            : pw.TextAlign.left,
-                        textDirection: isArabic(content)
-                            ? pw.TextDirection.rtl
-                            : pw.TextDirection.ltr,
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+                        children: content
+                            .split('\n')
+                            .where((line) => line.trim().isNotEmpty)
+                            .map((line) => pw.Text(
+                                  line.trim(),
+                                  style: getTextStyle(line, fontSize: 12)
+                                      .copyWith(lineSpacing: 1.6),
+                                  textAlign: isArabic(line)
+                                      ? pw.TextAlign.right
+                                      : pw.TextAlign.left,
+                                  textDirection: isArabic(line)
+                                      ? pw.TextDirection.rtl
+                                      : pw.TextDirection.ltr,
+                                  maxLines: 5 *
+                                      1024, // large enough to avoid clipping
+                                ))
+                            .toList(),
                       ),
                     ),
 
