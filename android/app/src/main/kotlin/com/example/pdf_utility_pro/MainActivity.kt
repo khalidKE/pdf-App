@@ -64,35 +64,39 @@ class MainActivity : FlutterActivity() {
 
     private fun handleIntent(intent: Intent) {
         Log.d(TAG, "Handling intent with action: ${intent.action}")
-        
+
         when (intent.action) {
             Intent.ACTION_VIEW -> {
                 val uri = intent.data
                 Log.d(TAG, "ACTION_VIEW received with URI: $uri")
                 if (uri != null) {
+                    grantUriPermissionIfNeeded(uri)
                     pdfFilePath = getFilePathFromUri(uri)
                     Log.d(TAG, "Extracted file path: $pdfFilePath")
                 }
             }
+
             Intent.ACTION_SEND -> {
                 val uri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
                 Log.d(TAG, "ACTION_SEND received with URI: $uri")
                 if (uri != null) {
+                    grantUriPermissionIfNeeded(uri)
                     pdfFilePath = getFilePathFromUri(uri)
                     Log.d(TAG, "Extracted file path: $pdfFilePath")
                 }
             }
+
             Intent.ACTION_SEND_MULTIPLE -> {
                 val uris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
                 Log.d(TAG, "ACTION_SEND_MULTIPLE received with ${uris?.size} URIs")
                 if (!uris.isNullOrEmpty()) {
-                    // Handle multiple files - for now, just take the first one
+                    grantUriPermissionIfNeeded(uris[0])
                     pdfFilePath = getFilePathFromUri(uris[0])
                     Log.d(TAG, "Extracted file path from first URI: $pdfFilePath")
                 }
             }
         }
-    }
+}
 
     private fun getFilePathFromUri(uri: Uri): String? {
         return try {
@@ -190,4 +194,18 @@ class MainActivity : FlutterActivity() {
             false
         }
     }
+    private fun grantUriPermissionIfNeeded(uri: Uri) {
+    try {
+        contentResolver.takePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
+        Log.d(TAG, "Granted read URI permission for: $uri")
+    } catch (e: SecurityException) {
+        Log.w(TAG, "Failed to take URI permission: ${e.message}")
+    } catch (e: Exception) {
+        Log.e(TAG, "Unexpected error while granting URI permission: ${e.message}", e)
+    }
+}
+
 }
