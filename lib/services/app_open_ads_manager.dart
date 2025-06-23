@@ -25,7 +25,8 @@ class AppOpenAdsManager {
 
     final adsService = AdsService();
     if (!adsService.isAppOpenAdReady) {
-      debugPrint('App open ad not ready');
+      debugPrint('App open ad not ready, will retry in 2 seconds');
+      Future.delayed(const Duration(seconds: 2), showAdIfAvailable);
       return;
     }
 

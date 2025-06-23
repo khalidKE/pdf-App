@@ -29,6 +29,9 @@ class _HomeScreenState extends State<HomeScreen>
     _tabController = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addObserver(this);
 
+    // Show App Open Ad on first launch
+    AppOpenAdsManager().showAdIfAvailable();
+
     // Check for PDF file intent and load files when the screen is first shown
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<FileProvider>(
@@ -128,18 +131,21 @@ class _HomeScreenState extends State<HomeScreen>
                   children: [
                     Expanded(child: FeatureGrid()),
                     BannerAdWidget(),
+                    NativeAdWidget(height: 120),
                   ],
                 ),
                 Column(
                   children: [
                     Expanded(child: RecentFilesTab()),
                     BannerAdWidget(),
+                    NativeAdWidget(height: 120),
                   ],
                 ),
                 Column(
                   children: [
                     Expanded(child: FavoritesTab()),
                     BannerAdWidget(),
+                    NativeAdWidget(height: 120),
                   ],
                 ),
               ],

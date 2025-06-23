@@ -14,18 +14,22 @@ class GlobalExitHandler extends StatelessWidget {
         title: const Text('Exit App'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text('Are you sure you want to exit?'),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade300),
+            const SizedBox(height: 16),
+            
+            Center(
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.all(0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300),
+                  color: Colors.white,
+                ),
+                child: const NativeAdWidget(height: 100),
               ),
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-              margin: const EdgeInsets.only(top: 4),
-              child: const NativeAdWidget(height: 120),
             ),
           ],
         ),
