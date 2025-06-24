@@ -28,10 +28,10 @@ This guide explains how to test the PDF intent handling feature that allows the 
 ### Method 3: Using ADB (for developers)
 ```bash
 # Test with a local PDF file
-adb shell am start -a android.intent.action.VIEW -d "file:///sdcard/test.pdf" -t "application/pdf" com.example.pdf_utility_pro
+adb shell am start -a android.intent.action.VIEW -d "file:///sdcard/test.pdf" -t "application/pdf" com.pdf_tools.pdf_utility_pro
 
 # Test with content URI (if you have a PDF in Downloads)
-adb shell am start -a android.intent.action.VIEW -d "content://com.android.providers.downloads.documents/document/123" -t "application/pdf" com.example.pdf_utility_pro
+adb shell am start -a android.intent.action.VIEW -d "content://com.android.providers.downloads.documents/document/123" -t "application/pdf" com.pdf_tools.pdf_utility_pro
 ```
 
 ## Expected Behavior:

@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pdf_utility_pro"
+    namespace = "com.pdf_tools.pdf_utility_pro"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.pdf_utility_pro"
+        applicationId = "com.pdf_tools.pdf_utility_pro"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
@@ -30,11 +30,20 @@ android {
         versionName = flutter.versionName
     }
 
+ signingConfigs {
+        create("release") {
+            keyAlias = "upload"
+            keyPassword = "123khabu45"
+            storeFile = file("../app/upload-keystore.jks")
+            storePassword = "123khabu45"
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }

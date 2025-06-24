@@ -1,4 +1,4 @@
-package com.example.pdf_utility_pro
+package com.pdf_tools.pdf_utility_pro
 
 import android.content.ContentValues
 import android.content.Context
