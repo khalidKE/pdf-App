@@ -39,7 +39,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              'We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information when you use our PDF Utility Pro application.',
+              'We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information when you use our PDF Nest application.',
             ),
             SizedBox(height: 16),
             Text(

@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen>
           child: Scaffold(
             appBar: AppBar(
               title: const Text(
-                'PDF Utility Pro',
+                'PDF Nest',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               centerTitle: true,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:pdf_utility_pro/screens/home_screen.dart';
-import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/view_files_screen.dart';
 import 'package:pdf_utility_pro/utils/pdf_intent_handler.dart';
 import 'package:shimmer/shimmer.dart';
@@ -61,13 +60,13 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _checkForPdfFile() async {
     // Wait for a short delay to ensure the splash screen is shown
     await Future.delayed(const Duration(seconds: 2));
-    
+
     if (!mounted) return;
 
     try {
       // Check if the app was opened with a PDF file
       final hasPdfFile = await PdfIntentHandler.hasPdfFile();
-      
+
       if (hasPdfFile) {
         // Redirect to ViewFilesScreen instead of opening the PDF directly
         if (mounted) {
@@ -95,8 +94,7 @@ class _SplashScreenState extends State<SplashScreen>
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
               const HomeScreen(),
-          transitionsBuilder:
-              (context, animation, secondaryAnimation, child) {
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
           transitionDuration: const Duration(milliseconds: 500),
@@ -185,7 +183,7 @@ class _SplashScreenState extends State<SplashScreen>
                       highlightColor: theme.colorScheme.secondary,
                       period: const Duration(milliseconds: 1500),
                       child: const Text(
-                        'PDF Utility Pro',
+                        'PDF Nest',
                         style: TextStyle(
                           fontSize: 40,
                           fontWeight: FontWeight.w700,

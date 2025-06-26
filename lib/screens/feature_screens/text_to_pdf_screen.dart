@@ -193,20 +193,17 @@ class _TextToPdfScreenState extends State<TextToPdfScreen>
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text('Enter File Name'),
-        content: SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: TextField(
-            controller: _filenameController,
-            decoration: const InputDecoration(
-              hintText: 'e.g., MyDocument.pdf',
-              labelText: 'File Name',
-              border: OutlineInputBorder(),
-            ),
-            autofocus: true,
-            onSubmitted: (value) {
-              Navigator.of(context).pop(value);
-            },
+        content: TextField(
+          controller: _filenameController,
+          decoration: const InputDecoration(
+            hintText: 'e.g., MyDocument.pdf',
+            labelText: 'File Name',
+            border: OutlineInputBorder(),
           ),
+          autofocus: true,
+          onSubmitted: (value) {
+            Navigator.of(context).pop(value);
+          },
         ),
         actions: [
           TextButton(
@@ -276,7 +273,7 @@ class _TextToPdfScreenState extends State<TextToPdfScreen>
                 ),
               ),
             ),
-            // const BannerAdWidget(),
+            //const BannerAdWidget(),
           ],
         ),
       ),

@@ -16,13 +16,13 @@ This guide explains how to test the PDF intent handling feature that allows the 
 3. Navigate to a PDF file
 4. Long press on the PDF file
 5. Select "Open with" or "Share"
-6. You should see "PDF Utility Pro" in the list of available apps
+6. You should see "PDF Nest" in the list of available apps
 7. Select it to open the PDF in the app
 
 ### Method 2: Using Share Intent
 1. Open any app that can share PDF files (like Gmail, WhatsApp, etc.)
 2. Share a PDF file
-3. In the share dialog, you should see "PDF Utility Pro" as an option
+3. In the share dialog, you should see "PDF Nest" as an option
 4. Select it to open the PDF in the app
 
 ### Method 3: Using ADB (for developers)

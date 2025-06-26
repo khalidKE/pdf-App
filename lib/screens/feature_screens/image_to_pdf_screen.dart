@@ -25,7 +25,8 @@ class ImageToPdfScreen extends StatefulWidget {
   State<ImageToPdfScreen> createState() => _ImageToPdfScreenState();
 }
 
-class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerProviderStateMixin {
+class _ImageToPdfScreenState extends State<ImageToPdfScreen>
+    with SingleTickerProviderStateMixin {
   List<File> _selectedImages = [];
   List<String> _imageNames = [];
   bool _isProcessing = false;
@@ -51,7 +52,8 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
       parent: _animationController,
       curve: Curves.easeOut,
     ));
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
+    _scaleAnimation =
+        Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOutBack,
     ));
@@ -145,7 +147,8 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
 
       final appDir = await AppPermissionHandler.getAppDirectory();
 
-      final fullFileName = fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
+      final fullFileName =
+          fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
       final filePath = '$appDir/$fullFileName';
 
       final file = File(filePath);
@@ -223,20 +226,17 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text('Enter File Name'),
-        content: SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: TextField(
-            controller: _filenameController,
-            decoration: const InputDecoration(
-              hintText: 'e.g., MyDocument.pdf',
-              labelText: 'File Name',
-              border: OutlineInputBorder(),
-            ),
-            autofocus: true,
-            onSubmitted: (value) {
-              Navigator.of(context).pop(value);
-            },
+        content: TextField(
+          controller: _filenameController,
+          decoration: const InputDecoration(
+            hintText: 'e.g., MyDocument.pdf',
+            labelText: 'File Name',
+            border: OutlineInputBorder(),
           ),
+          autofocus: true,
+          onSubmitted: (value) {
+            Navigator.of(context).pop(value);
+          },
         ),
         actions: [
           TextButton(
@@ -300,7 +300,8 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
                   icon: const Icon(Icons.photo_library),
                   label: const Text('Select Images'),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -312,7 +313,8 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
                   icon: const Icon(Icons.camera_alt),
                   label: const Text('Take Photo'),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -344,7 +346,8 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
                         const SizedBox(height: 8),
                         Expanded(
                           child: GridView.builder(
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3,
                               crossAxisSpacing: 8,
                               mainAxisSpacing: 8,
@@ -392,14 +395,16 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
                                     left: 4,
                                     right: 4,
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: Colors.black.withOpacity(0.6),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
                                         imageName,
-                                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 10),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
@@ -415,7 +420,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> with SingleTickerPr
                 ),
               ),
             ),
-          // const BannerAdWidget(),
+          //const BannerAdWidget(),
         ],
       ),
     );

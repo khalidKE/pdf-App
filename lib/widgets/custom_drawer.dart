@@ -32,7 +32,7 @@ class CustomDrawer extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'PDF Utility Pro',
+                    'PDF Nest',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 20,
@@ -73,7 +73,6 @@ class CustomDrawer extends StatelessWidget {
                     );
                   },
                 ),
-               
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.brightness_6),
