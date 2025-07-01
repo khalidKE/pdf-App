@@ -8,7 +8,6 @@ class AdsService {
 
   // Ad Unit IDs (REAL)
   static const String _bannerAdUnitId = 'ca-app-pub-8639311525630636/2649086703'; // Banner at bottom of screens
-  static const String _interstitialAdUnitId = 'ca-app-pub-8639311525630636/6189000173'; // (Unused, keep for legacy)
   static const String _rewardedAdUnitId = 'ca-app-pub-8639311525630636/9309029676'; // Rewarded for tasks/navigation
   static const String _nativeAdUnitId = 'ca-app-pub-8639311525630636/9827102099'; // Native on exit dialog
   static const String _appOpenAdUnitId = 'ca-app-pub-8639311525630636/1268556428'; // App open only
@@ -16,7 +15,6 @@ class AdsService {
 
   // Get ad unit IDs - Always use real ads
   String get bannerAdUnitId => _bannerAdUnitId;
-  String get interstitialAdUnitId => _interstitialAdUnitId;
   String get rewardedAdUnitId => _rewardedAdUnitId;
   String get nativeAdUnitId => _nativeAdUnitId;
   String get appOpenAdUnitId => _appOpenAdUnitId;
