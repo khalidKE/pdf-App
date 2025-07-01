@@ -6,6 +6,8 @@ class AppOpenAdsManager {
   factory AppOpenAdsManager() => _instance;
   AppOpenAdsManager._internal();
 
+  // This manager ensures App Open Ad is shown ONLY when the app is opened or resumed, never suddenly during app use.
+
   bool _isShowingAd = false;
   DateTime? _lastAdShowTime;
   static const int _minimumAdInterval = 0; // Minimum 0 hours between ads (show every time)

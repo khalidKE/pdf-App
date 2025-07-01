@@ -6,12 +6,12 @@ class AdsService {
   factory AdsService() => _instance;
   AdsService._internal();
 
-  // Ad Unit IDs
-  static const String _bannerAdUnitId = 'ca-app-pub-8639311525630636/8916145992';
-  static const String _interstitialAdUnitId = 'ca-app-pub-8639311525630636/6189000173';
-  static const String _rewardedAdUnitId = 'ca-app-pub-8639311525630636/6189000173';
-  static const String _nativeAdUnitId = 'ca-app-pub-8639311525630636/1269606176';
-  static const String _appOpenAdUnitId = 'ca-app-pub-8639311525630636/7643442836';
+  // Ad Unit IDs (REAL)
+  static const String _bannerAdUnitId = 'ca-app-pub-8639311525630636/2649086703'; // Banner at bottom of screens
+  static const String _interstitialAdUnitId = 'ca-app-pub-8639311525630636/6189000173'; // (Unused, keep for legacy)
+  static const String _rewardedAdUnitId = 'ca-app-pub-8639311525630636/9309029676'; // Rewarded for tasks/navigation
+  static const String _nativeAdUnitId = 'ca-app-pub-8639311525630636/9827102099'; // Native on exit dialog
+  static const String _appOpenAdUnitId = 'ca-app-pub-8639311525630636/1268556428'; // App open only
 
 
   // Get ad unit IDs - Always use real ads
@@ -68,57 +68,14 @@ class AdsService {
     );
   }
 
-  // Interstitial Ad
+  // Interstitial Ad (not used, kept for legacy)
   Future<void> loadInterstitialAd() async {
-    try {
-      await InterstitialAd.load(
-        adUnitId: interstitialAdUnitId,
-        request: const AdRequest(),
-        adLoadCallback: InterstitialAdLoadCallback(
-          onAdLoaded: (ad) {
-            _interstitialAd = ad;
-            _isInterstitialAdReady = true;
-            debugPrint('Interstitial ad loaded successfully');
-            
-            ad.fullScreenContentCallback = FullScreenContentCallback(
-              onAdDismissedFullScreenContent: (ad) {
-                _isInterstitialAdReady = false;
-                ad.dispose();
-                loadInterstitialAd(); // Load next ad
-              },
-              onAdFailedToShowFullScreenContent: (ad, error) {
-                debugPrint('Interstitial ad failed to show: $error');
-                _isInterstitialAdReady = false;
-                ad.dispose();
-                loadInterstitialAd(); // Load next ad
-              },
-            );
-          },
-          onAdFailedToLoad: (error) {
-            debugPrint('Interstitial ad failed to load: $error');
-            _isInterstitialAdReady = false;
-          },
-        ),
-      );
-    } catch (e) {
-      debugPrint('Error loading interstitial ad: $e');
-      _isInterstitialAdReady = false;
-    }
+    // Not used in current app logic
   }
 
   Future<bool> showInterstitialAd() async {
-    if (!_isInterstitialAdReady || _interstitialAd == null) {
-      debugPrint('Interstitial ad not ready');
-      return false;
-    }
-
-    try {
-      await _interstitialAd!.show();
-      return true;
-    } catch (e) {
-      debugPrint('Error showing interstitial ad: $e');
-      return false;
-    }
+    // Not used in current app logic
+    return false;
   }
 
   // Rewarded Ad

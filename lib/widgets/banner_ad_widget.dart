@@ -101,3 +101,5 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     );
   }
 }
+
+// BannerAdWidget always uses the real banner ad unit ID from AdsService and is placed at the bottom of the screen.

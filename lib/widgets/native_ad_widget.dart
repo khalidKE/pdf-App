@@ -82,4 +82,6 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       ),
     );
   }
-} 
+}
+
+// NativeAdWidget uses the real native ad unit ID from AdsService. Used for exit dialog and other placements. 

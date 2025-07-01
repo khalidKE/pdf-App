@@ -28,6 +28,7 @@ class GlobalExitHandler extends StatelessWidget {
                   border: Border.all(color: Colors.grey.shade300),
                   color: Colors.white,
                 ),
+                // This NativeAdWidget uses the real native ad unit ID for the exit ad
                 child: const NativeAdWidget(height: 100),
               ),
             ),

@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen>
     _tabController = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addObserver(this);
 
-    // Show App Open Ad on first launch
+    // Show App Open Ad on first launch (never during app use)
     AppOpenAdsManager().showAdIfAvailable();
 
     // Check for PDF file intent and load files when the screen is first shown
@@ -52,9 +52,8 @@ class _HomeScreenState extends State<HomeScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    // Check for PDF files when app becomes active
+    // Show app open ad ONLY when app is resumed (never suddenly during use)
     if (state == AppLifecycleState.resumed) {
-      // Show app open ad if available
       AppOpenAdsManager().showAdIfAvailable();
     }
   }
@@ -130,6 +129,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Column(
                   children: [
                     Expanded(child: FeatureGrid()),
+                    // BannerAdWidget and NativeAdWidget use the correct ad unit IDs as per requirements
                     BannerAdWidget(),
                     NativeAdWidget(height: 120),
                   ],
