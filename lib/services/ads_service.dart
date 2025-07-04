@@ -6,12 +6,17 @@ class AdsService {
   factory AdsService() => _instance;
   AdsService._internal();
 
-  // Ad Unit IDs (REAL)
-  static const String _bannerAdUnitId = 'ca-app-pub-8639311525630636/2649086703'; // Banner at bottom of screens
-  static const String _rewardedAdUnitId = 'ca-app-pub-8639311525630636/9309029676'; // Rewarded for tasks/navigation
-  static const String _nativeAdUnitId = 'ca-app-pub-8639311525630636/9827102099'; // Native on exit dialog
-  static const String _appOpenAdUnitId = 'ca-app-pub-8639311525630636/1268556428'; // App open only
+  // تطبيق pdf
+  // App ID: ca-app-pub-8639311525630636~8311642774
 
+  // 1- اعلان فتح التطبيق يظهر عند فتح التطبيق فقط
+  static const String _appOpenAdUnitId = 'ca-app-pub-8639311525630636/1268556428';
+  // 2- اعلان بانر يظهر اسفل الشاشة في صفحات التطبيق
+  static const String _bannerAdUnitId = 'ca-app-pub-8639311525630636/2649086703';
+  // 3- اعلان بيني بمكافأة يظهر عند تنفيذ مهمة او التنقل بين صفحات التطبيق
+  static const String _rewardedAdUnitId = 'ca-app-pub-8639311525630636/9309029676';
+  // 4- اعلان مدمج مع المحتوى يظهر على صفحة الخروج من التطبيق اسفل جملة هل تريد الخروج الان
+  static const String _nativeAdUnitId = 'ca-app-pub-8639311525630636/9827102099';
 
   // Get ad unit IDs - Always use real ads
   String get bannerAdUnitId => _bannerAdUnitId;

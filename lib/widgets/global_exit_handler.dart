@@ -16,7 +16,7 @@ class GlobalExitHandler extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text('Are you sure you want to exit?'),
+            const Text('Do you want to exit now?'),
             const SizedBox(height: 16),
             
             Center(

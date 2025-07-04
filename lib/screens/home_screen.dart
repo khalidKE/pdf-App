@@ -22,12 +22,15 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
+  DateTime? _lastRewardedAdTime;
+  static const int _rewardedAdCooldownSeconds = 60;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addObserver(this);
+    _tabController.addListener(_onTabChanged);
 
     // Show App Open Ad on first launch (never during app use)
     AppOpenAdsManager().showAdIfAvailable();
@@ -55,6 +58,20 @@ class _HomeScreenState extends State<HomeScreen>
     // Show app open ad ONLY when app is resumed (never suddenly during use)
     if (state == AppLifecycleState.resumed) {
       AppOpenAdsManager().showAdIfAvailable();
+    }
+  }
+
+  void _onTabChanged() async {
+    if (_tabController.indexIsChanging) {
+      final now = DateTime.now();
+      if (_lastRewardedAdTime == null ||
+          now.difference(_lastRewardedAdTime!).inSeconds > _rewardedAdCooldownSeconds) {
+        await AdsService().showRewardedAd(
+          onRewarded: () {},
+          onFailed: () {},
+        );
+        _lastRewardedAdTime = now;
+      }
     }
   }
 
