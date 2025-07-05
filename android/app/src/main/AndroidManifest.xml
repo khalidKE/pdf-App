@@ -32,8 +32,25 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="file" />
+                <data android:mimeType="application/pdf" />
+            </intent-filter>
+            
+            <!-- إضافة intent filter لملفات PDF من المتصفح أو تطبيقات أخرى -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="content" />
                 <data android:mimeType="application/pdf" />
+            </intent-filter>
+            
+            <!-- إضافة intent filter لملفات PDF من مدير الملفات -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="file" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.pdf" />
             </intent-filter>
             
             <!-- Intent filter for sharing PDF files -->

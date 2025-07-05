@@ -17,8 +17,15 @@ class PdfIntentHandler {
   }
 
   static Future<bool> hasPdfFile() async {
-    final filePath = await getPdfFilePath();
-    return filePath != null && filePath.isNotEmpty;
+    try {
+      if (Platform.isAndroid) {
+        final pdfPath = await _channel.invokeMethod<String>('getPdfFilePath');
+        return pdfPath != null && pdfPath.isNotEmpty;
+      }
+    } catch (e) {
+      print('Error checking for PDF file: $e');
+    }
+    return false;
   }
 
   static Future<String?> getAccessiblePdfFilePath() async {
@@ -36,6 +43,17 @@ class PdfIntentHandler {
       final tempPath = p.join(tempDir.path, p.basename(filePath));
       await file.copy(tempPath);
       return tempPath;
+    }
+    return null;
+  }
+
+  static Future<String?> getPdfPath() async {
+    try {
+      if (Platform.isAndroid) {
+        return await _channel.invokeMethod<String>('getPdfFilePath');
+      }
+    } catch (e) {
+      print('Error getting PDF path: $e');
     }
     return null;
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:pdf_utility_pro/screens/home_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/view_files_screen.dart';
+import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:pdf_utility_pro/utils/pdf_intent_handler.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:pdf_utility_pro/services/app_open_ads_manager.dart';
@@ -68,16 +69,18 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
 
     try {
-      // Check if the app was opened with a PDF file
+      // Check if the app was opened with a PDF file from external source
       final hasPdfFile = await PdfIntentHandler.hasPdfFile();
 
       if (hasPdfFile) {
-        // Redirect to ViewFilesScreen instead of opening the PDF directly
-        if (mounted) {
+        // Get the PDF path and open it directly
+        final pdfPath = await PdfIntentHandler.getPdfPath();
+        if (pdfPath != null && mounted) {
+          debugPrint('Opening PDF file: $pdfPath');
           Navigator.of(context).pushReplacement(
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
-                  const ViewFilesScreen(),
+                  ReadPdfScreen(filePath: pdfPath),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 return FadeTransition(opacity: animation, child: child);
