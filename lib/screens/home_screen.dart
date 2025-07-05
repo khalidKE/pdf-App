@@ -54,10 +54,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    // Show app open ad every time the app is resumed (opened from background)
-    if (state == AppLifecycleState.resumed) {
-      AppOpenAdsManager().showAdIfAvailable();
-    }
+    // App open ad will NOT be shown on resume, only on first app open
   }
 
   void _onTabChanged() async {

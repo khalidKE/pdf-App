@@ -15,6 +15,7 @@ class AppOpenAdsManager {
   bool get isShowingAd => _isShowingAd;
 
   Future<void> showAdIfAvailable() async {
+    //await Future.delayed(const Duration(seconds: 2)); // Wait for ad to load after app start
     if (_isShowingAd) {
       debugPrint('App open ad is already showing');
       return;

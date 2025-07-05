@@ -10,13 +10,17 @@ class AdsService {
   // App ID: ca-app-pub-8639311525630636~8311642774
 
   // 1- اعلان فتح التطبيق يظهر عند فتح التطبيق فقط
-  static const String _appOpenAdUnitId = 'ca-app-pub-8639311525630636/1268556428';
+  static const String _appOpenAdUnitId =
+      'ca-app-pub-8639311525630636/1268556428';
   // 2- اعلان بانر يظهر اسفل الشاشة في صفحات التطبيق
-  static const String _bannerAdUnitId = 'ca-app-pub-8639311525630636/2649086703';
+  static const String _bannerAdUnitId =
+      'ca-app-pub-8639311525630636/2649086703';
   // 3- اعلان بيني بمكافأة يظهر عند تنفيذ مهمة او التنقل بين صفحات التطبيق
-  static const String _rewardedAdUnitId = 'ca-app-pub-8639311525630636/9309029676';
+  static const String _rewardedAdUnitId =
+      'ca-app-pub-8639311525630636/7752576868';
   // 4- اعلان مدمج مع المحتوى يظهر على صفحة الخروج من التطبيق اسفل جملة هل تريد الخروج الان
-  static const String _nativeAdUnitId = 'ca-app-pub-8639311525630636/9827102099';
+  static const String _nativeAdUnitId =
+      'ca-app-pub-8639311525630636/9827102099';
 
   // Get ad unit IDs - Always use real ads
   String get bannerAdUnitId => _bannerAdUnitId;
@@ -37,7 +41,7 @@ class AdsService {
     try {
       await MobileAds.instance.initialize();
       debugPrint('AdMob initialized successfully');
-      
+
       // Load initial ads
       loadInterstitialAd();
       loadRewardedAd();
@@ -92,7 +96,7 @@ class AdsService {
             _rewardedAd = ad;
             _isRewardedAdReady = true;
             debugPrint('Rewarded ad loaded successfully');
-            
+
             ad.fullScreenContentCallback = FullScreenContentCallback(
               onAdDismissedFullScreenContent: (ad) {
                 _isRewardedAdReady = false;
@@ -170,7 +174,7 @@ class AdsService {
             _appOpenAd = ad;
             _isAppOpenAdReady = true;
             debugPrint('App open ad loaded successfully');
-            
+
             ad.fullScreenContentCallback = FullScreenContentCallback(
               onAdDismissedFullScreenContent: (ad) {
                 _isAppOpenAdReady = false;
@@ -235,4 +239,4 @@ class AdsService {
     _rewardedAd?.dispose();
     _appOpenAd?.dispose();
   }
-} 
+}

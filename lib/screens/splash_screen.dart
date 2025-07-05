@@ -4,6 +4,7 @@ import 'package:pdf_utility_pro/screens/home_screen.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/view_files_screen.dart';
 import 'package:pdf_utility_pro/utils/pdf_intent_handler.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:pdf_utility_pro/services/app_open_ads_manager.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -53,6 +54,9 @@ class _SplashScreenState extends State<SplashScreen>
     ));
 
     _animationController.forward();
+
+    // Show app open ad only once when app is first opened
+    AppOpenAdsManager().showAdIfAvailable();
 
     _checkForPdfFile();
   }

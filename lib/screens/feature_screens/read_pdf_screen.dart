@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
+import 'package:printing/printing.dart';
 
 class ReadPdfScreen extends StatefulWidget {
   final String filePath;
@@ -20,7 +21,8 @@ class ReadPdfScreen extends StatefulWidget {
   State<ReadPdfScreen> createState() => _ReadPdfScreenState();
 }
 
-class _ReadPdfScreenState extends State<ReadPdfScreen> with SingleTickerProviderStateMixin {
+class _ReadPdfScreenState extends State<ReadPdfScreen>
+    with SingleTickerProviderStateMixin {
   int _currentPage = 0;
   int _totalPages = 0;
   bool _isLoading = true;
@@ -248,13 +250,15 @@ class _ReadPdfScreenState extends State<ReadPdfScreen> with SingleTickerProvider
   }
 
   Future<void> _printPdf() async {
-    // Implement printing functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-            'Printing functionality is not implemented yet'),
-      ),
-    );
+    try {
+      await Printing.layoutPdf(
+        onLayout: (_) async => File(widget.filePath).readAsBytesSync(),
+        name: path.basename(widget.filePath),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error printing PDF: $e')),
+      );
+    }
   }
-
 }
