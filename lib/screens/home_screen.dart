@@ -54,8 +54,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-
-    // Show app open ad ONLY when app is resumed (never suddenly during use)
+    // Show app open ad every time the app is resumed (opened from background)
     if (state == AppLifecycleState.resumed) {
       AppOpenAdsManager().showAdIfAvailable();
     }
@@ -85,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Exit App'),
-        content: const Text('Are you sure you want to exit?'),
+        content: const Text('Do you want to exit now?'),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
