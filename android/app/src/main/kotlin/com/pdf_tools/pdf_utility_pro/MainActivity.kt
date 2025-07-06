@@ -3,6 +3,7 @@ package com.pdf_tools.pdf_utility_pro
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -10,6 +11,7 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     private val PDF_CHANNEL = "com.pdfutilitypro/pdf_handler"
+    private val MEDIA_STORE_CHANNEL = "com.pdfutilitypro/media_store"
     private var pdfFilePath: String? = null
 
     companion object {
@@ -24,6 +26,27 @@ class MainActivity : FlutterActivity() {
                 "getPdfFilePath" -> {
                     Log.d(TAG, "Flutter requested PDF file path: $pdfFilePath")
                     result.success(pdfFilePath)
+                }
+                else -> result.notImplemented()
+            }
+        }
+
+        // Add MethodChannel for saving images to gallery
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, MEDIA_STORE_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "saveImageToGallery" -> {
+                    val imageBytes = call.argument<ByteArray>("imageBytes")
+                    val fileName = call.argument<String>("fileName") ?: "image_${System.currentTimeMillis()}.png"
+                    if (imageBytes != null) {
+                        val saved = saveImageToGallery(imageBytes, fileName)
+                        if (saved) {
+                            result.success(true)
+                        } else {
+                            result.error("SAVE_FAILED", "Failed to save image", null)
+                        }
+                    } else {
+                        result.error("NO_IMAGE", "No image bytes provided", null)
+                    }
                 }
                 else -> result.notImplemented()
             }
@@ -105,6 +128,35 @@ class MainActivity : FlutterActivity() {
         } catch (e: Exception) {
             Log.e(TAG, "Error getting file path from URI: ${e.message}", e)
             null
+        }
+    }
+
+    private fun saveImageToGallery(imageBytes: ByteArray, fileName: String): Boolean {
+        return try {
+            val bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+            val resolver = applicationContext.contentResolver
+            val contentValues = android.content.ContentValues().apply {
+                put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, fileName)
+                put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png")
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, android.os.Environment.DIRECTORY_PICTURES)
+                    put(android.provider.MediaStore.Images.Media.IS_PENDING, 1)
+                }
+            }
+            val uri = resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            uri?.let {
+                resolver.openOutputStream(it)?.use { outStream ->
+                    bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, outStream)
+                } ?: return false
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    contentValues.clear()
+                    contentValues.put(android.provider.MediaStore.Images.Media.IS_PENDING, 0)
+                    resolver.update(uri, contentValues, null, null)
+                }
+                true
+            } ?: false
+        } catch (e: Exception) {
+            false
         }
     }
 } 
