@@ -239,10 +239,29 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
           ),
         );
         // Show rewarded ad after success
-        await AdsService().showRewardedAd(
-          onRewarded: () {},
-          onFailed: () {},
+        final shouldShowAd = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Watch Ad'),
+            content: const Text('Watch the Ad to complete'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
         );
+        if (shouldShowAd == true) {
+          await AdsService().showRewardedAd(
+            onRewarded: () {},
+            onFailed: () {},
+          );
+        }
       }
     } catch (e) {
       if (!mounted) return;
@@ -266,8 +285,6 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
 
         // Get page graphics and apply maximum compression
         final PdfGraphics graphics = page.graphics;
-
-       
 
         // Compress graphics state with maximum settings
         graphics.save();
@@ -311,8 +328,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
       document.documentInformation.producer = '';
       document.documentInformation.subject = '';
       document.documentInformation.title = '';
-      
-      
+
       await Future.delayed(const Duration(milliseconds: 20));
     } catch (e) {
       debugPrint('Error removing metadata: $e');
@@ -323,8 +339,6 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
     try {
       // Maximum font optimization and subsetting
       // This is handled internally by Syncfusion when compression level is set to best
-
-    
 
       await Future.delayed(const Duration(milliseconds: 25));
     } catch (e) {
@@ -340,8 +354,6 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
       // Additional maximum compression optimizations
       for (int i = 0; i < document.pages.count; i++) {
         final PdfPage page = document.pages[i];
-
-       
 
         // Compress page content with maximum settings
         final PdfGraphics graphics = page.graphics;

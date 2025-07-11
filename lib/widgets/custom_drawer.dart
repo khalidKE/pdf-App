@@ -6,6 +6,7 @@ import 'package:pdf_utility_pro/screens/history_screen.dart';
 import 'package:pdf_utility_pro/screens/about_screen.dart';
 import 'package:pdf_utility_pro/screens/home_screen.dart';
 import 'package:pdf_utility_pro/services/ads_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({Key? key}) : super(key: key);
@@ -126,6 +127,20 @@ class CustomDrawer extends StatelessWidget {
                       MaterialPageRoute(
                           builder: (context) => const AboutScreen()),
                     );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.star_rate),
+                  title: const Text('Rate this App'),
+                  onTap: () async {
+                    const url = 'https://play.google.com/store/apps/details?id=com.pdf_tools.pdf_utility_pro';
+                    if (await canLaunch(url)) {
+                      await launch(url);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Could not open the Play Store.')),
+                      );
+                    }
                   },
                 ),
               ],

@@ -195,10 +195,29 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen>
       );
 
       // Show rewarded ad after success
-      await AdsService().showRewardedAd(
-        onRewarded: () {},
-        onFailed: () {},
+      final shouldShowAd = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Watch Ad'),
+          content: const Text('Watch the Ad to complete'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('No'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Yes'),
+            ),
+          ],
+        ),
       );
+      if (shouldShowAd == true) {
+        await AdsService().showRewardedAd(
+          onRewarded: () {},
+          onFailed: () {},
+        );
+      }
 
       setState(() {
         _selectedImages.clear();

@@ -19,7 +19,6 @@ import 'package:path/path.dart' as p;
 import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
 import 'package:pdf_utility_pro/services/ads_service.dart';
 
-
 class AddSignatureScreen extends StatefulWidget {
   const AddSignatureScreen({super.key});
 
@@ -60,10 +59,13 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
   }
 
   Future<void> _selectFile() async {
-    final hasPermission = await AppPermissionHandler.requestStoragePermission(context: context);
+    final hasPermission =
+        await AppPermissionHandler.requestStoragePermission(context: context);
     if (!hasPermission) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Storage permission is required.'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Storage permission is required.'),
+            backgroundColor: Colors.red),
       );
       return;
     }
@@ -75,7 +77,8 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
       );
       if (result != null && result.files.isNotEmpty) {
         final pickedFile = result.files.single;
-        final fileBytes = pickedFile.bytes ?? await File(pickedFile.path!).readAsBytes();
+        final fileBytes =
+            pickedFile.bytes ?? await File(pickedFile.path!).readAsBytes();
         final fileName = pickedFile.name;
         final tempFile = File('${Directory.systemTemp.path}/$fileName');
         await tempFile.writeAsBytes(fileBytes);
@@ -134,7 +137,8 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
     if (fileName == null || fileName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Signature adding cancelled. File name cannot be empty.'),
+          content:
+              Text('Signature adding cancelled. File name cannot be empty.'),
           backgroundColor: AppConstants.errorColor,
         ),
       );
@@ -203,7 +207,8 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
         }
       }
 
-      final fullFileName = fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
+      final fullFileName =
+          fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
       final filePath = '${appDir.path}/$fullFileName';
       final file = File(filePath);
       await file.writeAsBytes(await pdfDoc.save());
@@ -249,10 +254,29 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
         );
 
         // Show rewarded ad after success
-        await AdsService().showRewardedAd(
-          onRewarded: () {},
-          onFailed: () {},
+        final shouldShowAd = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Watch Ad'),
+            content: const Text('Watch the Ad to complete'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
         );
+        if (shouldShowAd == true) {
+          await AdsService().showRewardedAd(
+            onRewarded: () {},
+            onFailed: () {},
+          );
+        }
       }
 
       setState(() {
@@ -284,7 +308,8 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
   }
 
   Future<String?> _showFileNameDialog() async {
-    _filenameController.text = _fileName?.replaceAll('.pdf', '') ?? 'Signed_PDF_';
+    _filenameController.text =
+        _fileName?.replaceAll('.pdf', '') ?? 'Signed_PDF_';
     return showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -399,7 +424,10 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Signature(controller: _signatureController, height: 200, width: 300),
+                            child: Signature(
+                                controller: _signatureController,
+                                height: 200,
+                                width: 300),
                           ),
                         ),
                       ),

@@ -61,12 +61,32 @@ class _HomeScreenState extends State<HomeScreen>
     if (_tabController.indexIsChanging) {
       final now = DateTime.now();
       if (_lastRewardedAdTime == null ||
-          now.difference(_lastRewardedAdTime!).inSeconds > _rewardedAdCooldownSeconds) {
-        await AdsService().showRewardedAd(
-          onRewarded: () {},
-          onFailed: () {},
+          now.difference(_lastRewardedAdTime!).inSeconds >
+              _rewardedAdCooldownSeconds) {
+        final shouldShowAd = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Watch Ad'),
+            content: const Text('Watch the Ad to complete'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
         );
-        _lastRewardedAdTime = now;
+        if (shouldShowAd == true) {
+          await AdsService().showRewardedAd(
+            onRewarded: () {},
+            onFailed: () {},
+          );
+          _lastRewardedAdTime = now;
+        }
       }
     }
   }

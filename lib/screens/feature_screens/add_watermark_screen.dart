@@ -64,10 +64,13 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
   }
 
   Future<void> _selectFile() async {
-    final hasPermission = await AppPermissionHandler.requestStoragePermission(context: context);
+    final hasPermission =
+        await AppPermissionHandler.requestStoragePermission(context: context);
     if (!hasPermission) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Storage permission is required.'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Storage permission is required.'),
+            backgroundColor: Colors.red),
       );
       return;
     }
@@ -78,7 +81,8 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
     );
     if (result != null && result.files.isNotEmpty) {
       final pickedFile = result.files.single;
-      final fileBytes = pickedFile.bytes ?? await File(pickedFile.path!).readAsBytes();
+      final fileBytes =
+          pickedFile.bytes ?? await File(pickedFile.path!).readAsBytes();
       final fileName = pickedFile.name;
       final tempFile = File('${Directory.systemTemp.path}/$fileName');
       await tempFile.writeAsBytes(fileBytes);
@@ -115,7 +119,8 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
     if (fileName == null || fileName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Watermark creation cancelled. File name cannot be empty.'),
+          content:
+              Text('Watermark creation cancelled. File name cannot be empty.'),
           backgroundColor: AppConstants.errorColor,
         ),
       );
@@ -188,7 +193,8 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
         await page.close();
       }
       await doc.close();
-      final fullFileName = fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
+      final fullFileName =
+          fileName.endsWith('.pdf') ? fileName : '$fileName.pdf';
       final filePath = '${appDir.path}/$fullFileName';
       final file = File(filePath);
       await file.writeAsBytes(await pdfDoc.save());
@@ -230,10 +236,29 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
         ),
       );
       // Show rewarded ad after success
-      await AdsService().showRewardedAd(
-        onRewarded: () {},
-        onFailed: () {},
+      final shouldShowAd = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Watch Ad'),
+          content: const Text('Watch the Ad to complete'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('No'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Yes'),
+            ),
+          ],
+        ),
       );
+      if (shouldShowAd == true) {
+        await AdsService().showRewardedAd(
+          onRewarded: () {},
+          onFailed: () {},
+        );
+      }
       setState(() {
         _selectedFile = null;
         _fileName = null;
@@ -255,7 +280,8 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
   }
 
   Future<String?> _showFileNameDialog() async {
-    _filenameController.text = _fileName?.replaceAll('.pdf', '') ?? 'Watermarked_PDF_';
+    _filenameController.text =
+        _fileName?.replaceAll('.pdf', '') ?? 'Watermarked_PDF_';
     return showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -384,9 +410,12 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
                         const SizedBox(height: 8),
                         Text(
                           'The watermark will be placed diagonally across each page.',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
                         ),
                         const SizedBox(height: 24),
                       ],

@@ -163,11 +163,30 @@ class _TextToPdfScreenState extends State<TextToPdfScreen>
           ),
         ),
       );
-      // Show rewarded ad after success
-      await AdsService().showRewardedAd(
-        onRewarded: () {},
-        onFailed: () {},
+      // Ask user if they want to watch a rewarded ad
+      final shouldShowAd = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Watch Ad'),
+          content: const Text('Watch the Ad to complete'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('No'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Yes'),
+            ),
+          ],
+        ),
       );
+      if (shouldShowAd == true) {
+        await AdsService().showRewardedAd(
+          onRewarded: () {},
+          onFailed: () {},
+        );
+      }
       setState(() {
         _textController.clear();
         _filenameController.clear();

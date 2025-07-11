@@ -83,6 +83,23 @@ class AboutScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 32),
+            Center(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.star_rate),
+                label: const Text('Rate this App'),
+                onPressed: () async {
+                  const url = 'https://play.google.com/store/apps/details?id=com.pdf_tools.pdf_utility_pro';
+                  if (await canLaunch(url)) {
+                    await launch(url);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Could not open the Play Store.')),
+                    );
+                  }
+                },
+              ),
+            ),
           ],
         ),
       ),
