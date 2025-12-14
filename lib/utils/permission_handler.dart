@@ -3,6 +3,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:pdf_utility_pro/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class AppPermissionHandler {
   static Future<void> initializePermissions() async {
@@ -12,44 +13,14 @@ class AppPermissionHandler {
   
   static Future<bool> requestStoragePermission({BuildContext? context}) async {
     if (Platform.isAndroid) {
-      // Android 11+
-      if (await Permission.manageExternalStorage.isGranted) {
+      final sdkInt = await _getAndroidSdkInt();
+
+      // Android 13+ uses the system photo/document pickers; no broad storage permission required.
+      if (sdkInt != null && sdkInt >= 33) {
         return true;
       }
-      final status = await Permission.manageExternalStorage.request();
-      if (status.isGranted) {
-        return true;
-      } else if (status.isPermanentlyDenied) {
-        if (context != null) {
-          await showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text('Storage Permission Required'),
-              content: const Text('Please enable storage permission from app settings to save files to your device.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    openAppSettings();
-                  },
-                  child: const Text('Open Settings'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('Cancel'),
-                ),
-              ],
-            ),
-          );
-        } else {
-          await openAppSettings();
-        }
-        return false;
-      }
-      // Fallback for older Android
-      if (await Permission.storage.isGranted) {
-        return true;
-      }
+
+      // Pre-Android 13: request scoped storage read access only.
       final storageStatus = await Permission.storage.request();
       if (storageStatus.isGranted) {
         return true;
@@ -59,8 +30,12 @@ class AppPermissionHandler {
             context: context,
             builder: (ctx) => AlertDialog(
               title: const Text('Storage Permission Required'),
-              content: const Text('Please enable storage permission from app settings to save files to your device.'),
+              content: const Text('Please enable storage permission from app settings to access your selected files.'),
               actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Cancel'),
+                ),
                 TextButton(
                   onPressed: () {
                     Navigator.of(ctx).pop();
@@ -68,17 +43,12 @@ class AppPermissionHandler {
                   },
                   child: const Text('Open Settings'),
                 ),
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('Cancel'),
-                ),
               ],
             ),
           );
         } else {
           await openAppSettings();
         }
-        return false;
       }
       return false;
     }
@@ -134,5 +104,13 @@ class AppPermissionHandler {
       print('Error cleaning temp directory: $e');
     }
   }
-}
 
+  static Future<int?> _getAndroidSdkInt() async {
+    try {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      return androidInfo.version.sdkInt;
+    } catch (_) {
+      return null;
+    }
+  }
+}
