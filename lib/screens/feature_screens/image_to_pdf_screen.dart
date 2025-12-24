@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
 import 'package:pdf_utility_pro/widgets/feature_screen_template.dart';
-import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -16,7 +15,6 @@ import 'package:pdf_utility_pro/utils/constants.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
-import 'package:pdf_utility_pro/services/ads_service.dart';
 
 class ImageToPdfScreen extends StatefulWidget {
   const ImageToPdfScreen({Key? key}) : super(key: key);
@@ -193,31 +191,6 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen>
           ),
         ),
       );
-
-      // Show rewarded ad after success
-      final shouldShowAd = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Watch Ad'),
-          content: const Text('Watch the Ad to complete'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('No'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Yes'),
-            ),
-          ],
-        ),
-      );
-      if (shouldShowAd == true) {
-        await AdsService().showRewardedAd(
-          onRewarded: () {},
-          onFailed: () {},
-        );
-      }
 
       setState(() {
         _selectedImages.clear();
@@ -439,7 +412,6 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen>
                 ),
               ),
             ),
-          //const BannerAdWidget(),
         ],
       ),
     );

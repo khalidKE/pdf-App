@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pdf_utility_pro/utils/constants.dart'; // Import AppConstants for snackbar colors
-import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
 
 class QrBarcodeScreen extends StatefulWidget {
   const QrBarcodeScreen({Key? key}) : super(key: key);
@@ -183,7 +182,6 @@ class _QrBarcodeScreenState extends State<QrBarcodeScreen>
           _buildScanTab(context),
         ],
       ),
-      bottomNavigationBar: const BannerAdWidget(),
     );
   }
 

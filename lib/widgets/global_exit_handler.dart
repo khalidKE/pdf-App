@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pdf_utility_pro/services/ads_service.dart';
-import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
-import 'package:pdf_utility_pro/widgets/native_ad_widget.dart';
 
 class GlobalExitHandler extends StatelessWidget {
   final Widget child;
@@ -12,28 +9,7 @@ class GlobalExitHandler extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Exit App'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Text('Do you want to exit now?'),
-            const SizedBox(height: 16),
-            
-            Center(
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                padding: const EdgeInsets.all(0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
-                  color: Colors.white,
-                ),
-                // This NativeAdWidget uses the real native ad unit ID for the exit ad
-                child: const NativeAdWidget(height: 100),
-              ),
-            ),
-          ],
-        ),
+        content: const Text('Do you want to exit now?'),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -46,15 +22,7 @@ class GlobalExitHandler extends StatelessWidget {
         ],
       ),
     );
-
-    if (shouldExit == true) {
-      // Show interstitial ad before exit
-      await AdsService().showInterstitialAd();
-      // Wait a moment to ensure ad is closed
-      await Future.delayed(const Duration(milliseconds: 300));
-      return true; // Allow exit
-    }
-    return false;
+    return shouldExit == true;
   }
 
   @override
@@ -64,4 +32,4 @@ class GlobalExitHandler extends StatelessWidget {
       child: child,
     );
   }
-} 
+}

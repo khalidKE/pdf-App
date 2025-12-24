@@ -16,8 +16,6 @@ import 'package:pdfx/pdfx.dart';
 import 'package:signature/signature.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
-import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
-import 'package:pdf_utility_pro/services/ads_service.dart';
 
 class AddSignatureScreen extends StatefulWidget {
   const AddSignatureScreen({super.key});
@@ -253,30 +251,6 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
           ),
         );
 
-        // Show rewarded ad after success
-        final shouldShowAd = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Watch Ad'),
-            content: const Text('Watch the Ad to complete'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('No'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Yes'),
-              ),
-            ],
-          ),
-        );
-        if (shouldShowAd == true) {
-          await AdsService().showRewardedAd(
-            onRewarded: () {},
-            onFailed: () {},
-          );
-        }
       }
 
       setState(() {
@@ -451,7 +425,6 @@ class _AddSignatureScreenState extends State<AddSignatureScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: const BannerAdWidget(),
     );
   }
 }

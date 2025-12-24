@@ -18,7 +18,6 @@ import 'package:pdf_utility_pro/utils/font_loader.dart';
 import 'package:flutter/services.dart';
 import 'package:xml/xml.dart';
 import 'dart:convert';
-import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
 
 String _extractTextFromDocx(String filePath) {
   try {
@@ -906,7 +905,6 @@ class _WordToPdfScreenState extends State<WordToPdfScreen>
                   ),
                 ),
               ),
-            const BannerAdWidget(),
           ],
         ),
       ),

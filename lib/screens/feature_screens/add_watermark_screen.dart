@@ -16,8 +16,6 @@ import 'package:path/path.dart' as p;
 import 'package:pdfx/pdfx.dart' as pdfx;
 import 'package:pdf_utility_pro/utils/permission_handler.dart';
 import 'package:pdf_utility_pro/utils/font_loader.dart';
-import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
-import 'package:pdf_utility_pro/services/ads_service.dart';
 
 class AddWatermarkScreen extends StatefulWidget {
   const AddWatermarkScreen({Key? key}) : super(key: key);
@@ -235,30 +233,6 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
           ),
         ),
       );
-      // Show rewarded ad after success
-      final shouldShowAd = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Watch Ad'),
-          content: const Text('Watch the Ad to complete'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('No'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Yes'),
-            ),
-          ],
-        ),
-      );
-      if (shouldShowAd == true) {
-        await AdsService().showRewardedAd(
-          onRewarded: () {},
-          onFailed: () {},
-        );
-      }
       setState(() {
         _selectedFile = null;
         _fileName = null;
@@ -423,7 +397,6 @@ class _AddWatermarkScreenState extends State<AddWatermarkScreen>
                   ),
                 ),
               ),
-            const BannerAdWidget(),
           ],
         ),
       ),

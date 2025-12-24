@@ -15,7 +15,6 @@ import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdf_utility_pro/utils/font_loader.dart';
-import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
 
 class ExcelToPdfScreen extends StatefulWidget {
   const ExcelToPdfScreen({Key? key}) : super(key: key);
@@ -828,7 +827,6 @@ class _ExcelToPdfScreenState extends State<ExcelToPdfScreen>
                   ),
                 ),
               ),
-            const BannerAdWidget(),
           ],
         ),
       ),

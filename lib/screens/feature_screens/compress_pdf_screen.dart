@@ -15,8 +15,6 @@ import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:pdf_utility_pro/screens/feature_screens/read_pdf_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
-import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
-import 'package:pdf_utility_pro/services/ads_service.dart';
 
 class CompressPdfScreen extends StatefulWidget {
   const CompressPdfScreen({super.key});
@@ -238,30 +236,6 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
             ),
           ),
         );
-        // Show rewarded ad after success
-        final shouldShowAd = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Watch Ad'),
-            content: const Text('Watch the Ad to complete'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('No'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Yes'),
-              ),
-            ],
-          ),
-        );
-        if (shouldShowAd == true) {
-          await AdsService().showRewardedAd(
-            onRewarded: () {},
-            onFailed: () {},
-          );
-        }
       }
     } catch (e) {
       if (!mounted) return;
@@ -1059,7 +1033,6 @@ class _CompressPdfScreenState extends State<CompressPdfScreen>
                   ),
                 ),
               ),
-            const BannerAdWidget(),
           ],
         ),
       ),

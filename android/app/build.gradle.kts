@@ -9,7 +9,7 @@ android {
     namespace = "com.pdf_tools.pdf_utility_pro"
     compileSdk = flutter.compileSdkVersion
     // Use installed stable NDK to ensure 16 KB page-size support and satisfy plugins
-    ndkVersion = "27.1.12297006"
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

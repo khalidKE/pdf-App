@@ -6,7 +6,6 @@ import 'package:pdf_utility_pro/models/file_item.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
-import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
 import 'package:printing/printing.dart';
 
 class ReadPdfScreen extends StatefulWidget {
@@ -224,7 +223,6 @@ class _ReadPdfScreenState extends State<ReadPdfScreen>
           ),
         ],
       ),
-      bottomNavigationBar: const BannerAdWidget(),
     );
   }
 

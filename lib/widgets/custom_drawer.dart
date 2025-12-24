@@ -5,7 +5,6 @@ import 'package:pdf_utility_pro/providers/theme_provider.dart';
 import 'package:pdf_utility_pro/screens/history_screen.dart';
 import 'package:pdf_utility_pro/screens/about_screen.dart';
 import 'package:pdf_utility_pro/screens/home_screen.dart';
-import 'package:pdf_utility_pro/services/ads_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -53,7 +52,6 @@ class CustomDrawer extends StatelessWidget {
                   title: const Text('Home'),
                   onTap: () async {
                     Navigator.pop(context);
-                    await AdsService().showInterstitialAd();
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -66,7 +64,6 @@ class CustomDrawer extends StatelessWidget {
                   title: const Text('History'),
                   onTap: () async {
                     Navigator.pop(context);
-                    await AdsService().showInterstitialAd();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -108,7 +105,6 @@ class CustomDrawer extends StatelessWidget {
                   title: const Text('Privacy Policy'),
                   onTap: () async {
                     Navigator.pop(context);
-                    await AdsService().showInterstitialAd();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -121,7 +117,6 @@ class CustomDrawer extends StatelessWidget {
                   title: const Text('About Us'),
                   onTap: () async {
                     Navigator.pop(context);
-                    await AdsService().showInterstitialAd();
                     Navigator.push(
                       context,
                       MaterialPageRoute(

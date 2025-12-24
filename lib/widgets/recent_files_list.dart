@@ -8,7 +8,6 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:pdf_utility_pro/providers/history_provider.dart';
 import 'package:pdf_utility_pro/models/history_item.dart';
-import 'package:pdf_utility_pro/services/ads_service.dart';
 
 class RecentFilesList extends StatelessWidget {
   const RecentFilesList({Key? key}) : super(key: key);
@@ -37,7 +36,6 @@ class RecentFilesList extends StatelessWidget {
       child: InkWell(
         onTap: () async {
           if (file.type == FileType.pdf) {
-            await AdsService().showInterstitialAd();
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -137,7 +135,6 @@ class RecentFilesList extends StatelessWidget {
               onTap: () async {
                 Navigator.pop(context);
                 if (file.type == FileType.pdf) {
-                  await AdsService().showInterstitialAd();
                   Navigator.push(
                     context,
                     MaterialPageRoute(

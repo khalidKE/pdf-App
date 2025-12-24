@@ -14,7 +14,6 @@ import 'package:archive/archive_io.dart';
 import 'package:xml/xml.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:pdf_utility_pro/widgets/banner_ad_widget.dart';
 
 class ViewFilesScreen extends StatefulWidget {
   const ViewFilesScreen({super.key});
@@ -855,7 +854,6 @@ class _ViewFilesScreenState extends State<ViewFilesScreen>
         },
         child: const Icon(Icons.add),
       ),
-      bottomNavigationBar: const BannerAdWidget(),
     );
   }
 }
